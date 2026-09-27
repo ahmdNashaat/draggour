@@ -1,0 +1,28 @@
+# dependencies & build output
+node_modules
+.next
+out
+build
+coverage
+
+# lockfiles
+pnpm-lock.yaml
+
+# generated / assets
+public
+next-env.d.ts
+*.tsconfiginfo
+*.tsbuildinfo
+
+# reference specification documents (not formatted by the app toolchain)
+AGENTS.md
+PROJECT_BRIEF.md
+ARCHITECTURE.md
+DESIGN_SYSTEM.md
+RESPONSIVE_DESIGN.md
+SEO.md
+CONSULTATION_FLOW.md
+SECURITY_AND_PRIVACY.md
+INTEGRATIONS.md
+QA_AND_ACCEPTANCE.md
+DECISIONS.md
