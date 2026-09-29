@@ -1,5 +1,5 @@
 type SectionHeadingProps = Readonly<{
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   description?: string;
   id?: string;
@@ -8,7 +8,7 @@ type SectionHeadingProps = Readonly<{
 export function SectionHeading({ eyebrow, title, description, id }: SectionHeadingProps) {
   return (
     <div className="section-heading">
-      <p className="section-heading__eyebrow">{eyebrow}</p>
+      {eyebrow ? <p className="section-heading__eyebrow">{eyebrow}</p> : null}
       <h2 id={id}>{title}</h2>
       {description ? <p className="section-heading__description">{description}</p> : null}
     </div>

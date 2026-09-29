@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { getBiographyContent, type BiographyItem } from "@/content/biography";
 import { getLocalizedPath, siteIdentity, type Locale } from "@/content/site";
 import { buildBiographyJsonLd, buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
+import { BiographyToc } from "@/components/biography/BiographyToc";
 
 type BiographyPageProps = Readonly<{
   locale: Locale;
@@ -52,7 +53,6 @@ function ContentListSection({
     <section className={`content-section${muted ? " content-section--surface" : ""}`} aria-labelledby={id}>
       <div className="site-container content-section__inner">
         <div>
-          <p className="eyebrow">{title}</p>
           <h2 id={id}>{title}</h2>
         </div>
         <ItemList items={items} />
@@ -83,7 +83,7 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
   const renderedLinks = content.externalLinks.filter((item) => !item.internalOnly);
 
   return (
-    <main className="content-page biography-page" data-biography-page>
+    <main id="main-content" className="content-page biography-page" data-biography-page>
       <section className="content-hero" aria-labelledby="biography-title">
         <div className="site-container content-hero__grid">
           <div>
@@ -105,13 +105,21 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
         </div>
       </section>
 
+      <BiographyToc />
+
       <section className="content-section content-section--surface" aria-labelledby="biography-overview">
         <div className="site-container content-section__inner">
           <div>
-            <p className="eyebrow">{ui("biography.eyebrow")}</p>
             <h2 id="biography-overview">{ui("biography.overview")}</h2>
           </div>
           <div className="content-section__body">
+            {content.overview.keyFacts && content.overview.keyFacts.length > 0 && (
+              <ul className="content-bullet-list content-bullet-list--large" style={{ marginBottom: '2rem' }}>
+                {content.overview.keyFacts.map((fact) => (
+                  <li key={fact}>{fact}</li>
+                ))}
+              </ul>
+            )}
             {content.overview.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
           </div>
         </div>
@@ -122,7 +130,6 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
       <section className="content-section content-section--surface" aria-labelledby="biography-career-history">
         <div className="site-container content-section__inner">
           <div>
-            <p className="eyebrow">{ui("biography.careerHistory")}</p>
             <h2 id="biography-career-history">{ui("biography.careerHistory")}</h2>
           </div>
           <ol className="career-timeline">
@@ -153,7 +160,7 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
 
       <section className="content-section" aria-labelledby="biography-clinical-expertise">
         <div className="site-container">
-          <p className="eyebrow">{ui("biography.clinicalExpertise")}</p>
+          
           <h2 id="biography-clinical-expertise">{ui("biography.clinicalExpertise")}</h2>
           <div className="content-card-grid content-card-grid--three">
             {content.clinicalExpertise.map((item) => (
@@ -168,7 +175,7 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
 
       <section className="content-section content-section--surface" aria-labelledby="biography-annual-activity">
         <div className="site-container">
-          <p className="eyebrow">{ui("biography.annualActivity")}</p>
+          
           <h2 id="biography-annual-activity">{ui("biography.annualActivity")}</h2>
           <div className="content-card-grid content-card-grid--four">
             {content.annualActivity.map((item) => (
@@ -184,7 +191,7 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
       <section className="content-section" aria-labelledby="biography-external-links">
         <div className="site-container content-section__inner">
           <div>
-            <p className="eyebrow">{ui("biography.externalLinks")}</p>
+            
             <h2 id="biography-external-links">{ui("biography.externalLinks")}</h2>
           </div>
           <div className="content-link-list">

@@ -11,16 +11,40 @@ The site should feel:
 
 Authority should come from restraint.
 
-## Current direction
-- Strong typography
-- Portrait-led identity
-- Navy / neutral / restrained red family
-- Clean layouts
-- Minimal motion
-- No animation-heavy presentation
-- No heavy 3D requirement
+## Current implementation (Source of Truth)
+The visual system is implemented in `globals.css` using CSS custom properties.
 
-Exact final colors should come from the approved design, not invented per component.
+**Colors**
+* Primary Navy: `#0b2a44` (`--color-navy-950`)
+* Accent Terracotta: `#c44e2f` (`--color-red-700`)
+* Accent on Dark (muted rose): `#e5a4a8` (`--color-red-200`)
+* Accent for Small Text (high contrast): `#7b2a31` (`--color-red-900`)
+* Background Surface: `#f7f5f0` (`--color-neutral-50` / `--color-surface`); Subtle surface: `#eeebe3` (`--color-surface-subtle`)
+* Primary/Dark Text: `#18212b` (`--color-neutral-900`)
+* Secondary Text: `#52606d` (`--color-neutral-600`)
+* On Dark: `#f7f8fa` (`--color-on-dark`)
+* Borders/Lines: `#d9e0e7` (`--color-line`), `#b8c4cf` (`--color-line-strong`)
+
+**Typography**
+* English Display: `Libre Baskerville` (Serif)
+* English Body: `IBM Plex Sans` (Sans-serif)
+* Arabic Display: `Noto Naskh Arabic` (Serif-style)
+* Arabic Body: `IBM Plex Sans Arabic` (Sans-serif)
+
+**Spacing Scale (px equivalent at 16px base)**
+* `--space-1`: 6px (`0.375rem`)
+* `--space-2`: 10px (`0.625rem`)
+* `--space-3`: 14px (`0.875rem`)
+* `--space-4`: 20px (`1.25rem`)
+* `--space-5`: 28px (`1.75rem`)
+* `--space-6`: 40px (`2.5rem`)
+* `--space-7`: 56px (`3.5rem`)
+* `--space-8`: 80px (`5rem`)
+
+**Breakpoints (Desktop-first approach)**
+* `59.999rem` (~960px): Tablet landscape / Nav collapse
+* `47.999rem` (~768px): Tablet portrait / 2-col to 1-col grids
+* `35.999rem` (~576px): Large mobile / Fine-grained grid collapse
 
 ## Typography
 Use:

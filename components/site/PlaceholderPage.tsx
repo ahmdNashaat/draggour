@@ -12,7 +12,7 @@ export function PlaceholderPage({ locale, pageKey }: PlaceholderPageProps) {
   const page = getPageDefinition(locale, pageKey);
 
   return (
-    <main className="placeholder-page" data-placeholder-page={pageKey}>
+    <main id="main-content" className="placeholder-page" data-placeholder-page={pageKey}>
       <section className="placeholder-page__hero" aria-labelledby="placeholder-page-title">
         <div className="site-container">
           <p className="eyebrow">Information</p>

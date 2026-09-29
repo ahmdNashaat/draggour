@@ -15,7 +15,9 @@
     "legalLabel": "Legal navigation",
     "languageLabel": "Switch language",
     "menuOpen": "Open menu",
-    "menuClose": "Close menu"
+    "menuClose": "Close menu",
+    "breadcrumbLabel": "Breadcrumb",
+    "skipToMainContent": "Skip to main content"
   },
   "footer": {
     "description": "Professional website of Dr. Mohamed Aggour.",
@@ -23,7 +25,7 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "Professional identity",
+      "eyebrow": "Interventional Neuroradiology",
       "name": "Dr. Mohamed Aggour",
       "professionalTitle": "Consultant Interventional Neuroradiologist",
       "cta": "Request a remote consultation",
@@ -35,7 +37,7 @@
       "eyebrow": "The profile",
       "title": "Biography",
       "description": "A professional profile covering career, clinical expertise and academic activity.",
-      "body": "Explore Dr. Aggour’s professional profile, clinical expertise and academic activity.",
+      "body": "Dr. Mohamed Aggour is a Consultant Interventional Neuroradiologist with more than nineteen years of experience in minimally invasive endovascular neuroradiology, engaged in the treatment and management of brain and spinal vascular diseases.",
       "cta": "Read the biography"
     },
     "conditions": {
@@ -43,12 +45,24 @@
       "title": "Conditions",
       "description": "Six concise routes to information about areas of clinical expertise.",
       "items": {
-        "brainAneurysm": { "title": "Brain Aneurysm" },
-        "stroke": { "title": "Stroke" },
-        "avm": { "title": "AVM" },
-        "carotidStenosis": { "title": "Carotid Stenosis" },
-        "venousSinusDisorders": { "title": "Venous Sinus Disorders" },
-        "chronicSubduralHaematoma": { "title": "Chronic Subdural Haematoma" }
+        "brainAneurysm": {
+          "title": "Brain Aneurysm"
+        },
+        "stroke": {
+          "title": "Stroke"
+        },
+        "avm": {
+          "title": "AVM"
+        },
+        "carotidStenosis": {
+          "title": "Carotid Stenosis"
+        },
+        "venousSinusDisorders": {
+          "title": "Venous Sinus Disorders"
+        },
+        "chronicSubduralHaematoma": {
+          "title": "Chronic Subdural Haematoma"
+        }
       }
     },
     "learning": {

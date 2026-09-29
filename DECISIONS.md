@@ -185,3 +185,26 @@ Physicians, Remote Consultation, and Contact. Legal / Privacy is carried by the
 footer legal navigation (placement confirmed with the doctor, 2026-09-29). All
 seven destinations are present in the sitemap for both launch locales. No other
 page is added or removed by this decision.
+
+## D-030 — Visual System Implementation as Source of Truth
+Status: APPROVED
+
+The implemented CSS in `globals.css` is the source of truth for the visual system, correcting deviations in the original specification. Key decisions:
+- Accent color is Terracotta Red (`#c44e2f`), replacing Gold.
+- Body font is IBM Plex Sans (English) and IBM Plex Sans Arabic, replacing Inter.
+- Arabic Display font is Noto Naskh Arabic, replacing Noto Kufi Arabic, for better editorial tone.
+- Breakpoints follow a desktop-first `max-width` implementation (~960px, ~768px, ~576px).
+
+### D-031: Primary Logo Asset Format
+
+**Date**: 2026-09-29
+**Context**: The primary logo is a PNG (\/brand/logo-primary.png\). An SVG equivalent was checked for to improve sharpness, especially on high-DPI displays.
+**Decision**: Retain the PNG.
+**Consequences**: The PNG asset is used in the Header, Footer, and Home Hero. A vector SVG should be requested from the designer/client for future updates.
+
+### D-032: Desktop-First Responsive Architecture
+
+**Date**: 2026-09-29
+**Context**: The initial RESPONSIVE_DESIGN.md implied a mobile-first (min-width) approach, but the codebase (globals.css) relies heavily on desktop-first (max-width) media queries.
+**Decision**: Formalize the use of desktop-first (max-width) media queries as the project standard.
+**Consequences**: Future CSS additions must use max-width media queries to gracefully degrade layout for smaller screens.

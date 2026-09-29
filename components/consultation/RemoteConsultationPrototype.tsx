@@ -213,7 +213,7 @@ export function RemoteConsultationPrototype({ locale }: Readonly<{ locale: Local
   const stepNumber = typeof step === "number" ? step + 1 : null;
 
   return (
-    <main className="consultation-page" data-consultation-prototype data-locale={locale}>
+    <main id="main-content" className="consultation-page" data-consultation-prototype data-locale={locale}>
       <section className="consultation-hero" aria-labelledby="consultation-title">
         <div className="site-container">
           <p className="eyebrow">{t("consultationPage.eyebrow")}</p>

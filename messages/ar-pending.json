@@ -15,7 +15,8 @@
     "legalLabel": "[Arabic legal navigation label pending approval]",
     "languageLabel": "[Arabic language-switcher label pending approval]",
     "menuOpen": "[Arabic menu-open label pending approval]",
-    "menuClose": "[Arabic menu-close label pending approval]"
+    "menuClose": "[Arabic menu-close label pending approval]",
+    "skipToMainContent": "تخطي إلى المحتوى الرئيسي"
   },
   "footer": {
     "description": "[Arabic footer description pending approval]",
@@ -45,12 +46,24 @@
       "title": "Conditions — Arabic title pending approval",
       "description": "[Arabic condition descriptions pending approval]",
       "items": {
-        "brainAneurysm": { "title": "Brain Aneurysm" },
-        "stroke": { "title": "Stroke" },
-        "avm": { "title": "AVM" },
-        "carotidStenosis": { "title": "Carotid Stenosis" },
-        "venousSinusDisorders": { "title": "Venous Sinus Disorders" },
-        "chronicSubduralHaematoma": { "title": "Chronic Subdural Haematoma" }
+        "brainAneurysm": {
+          "title": "Brain Aneurysm"
+        },
+        "stroke": {
+          "title": "Stroke"
+        },
+        "avm": {
+          "title": "AVM"
+        },
+        "carotidStenosis": {
+          "title": "Carotid Stenosis"
+        },
+        "venousSinusDisorders": {
+          "title": "Venous Sinus Disorders"
+        },
+        "chronicSubduralHaematoma": {
+          "title": "Chronic Subdural Haematoma"
+        }
       }
     },
     "learning": {

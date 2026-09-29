@@ -13,6 +13,7 @@ export type BiographyItem = Readonly<{
 export type BiographyContent = Readonly<{
   overview: Readonly<{
     source: string;
+    keyFacts: readonly string[];
     paragraphs: readonly string[];
     review?: string;
   }>;
@@ -39,6 +40,12 @@ export type BiographyContent = Readonly<{
 export const biographyContent: BiographyContent = {
   overview: {
     source: "CV §§2, 13, 15",
+    keyFacts: [
+      "Consultant Interventional Neuroradiologist",
+      "More than nineteen years of experience in minimally invasive endovascular neuroradiology",
+      "Practices in London (St George’s University Hospitals) and Belgium (CHC MontLégia)",
+      "Specializes in cerebral aneurysms, AVMs, and acute stroke",
+    ],
     paragraphs: [
       "Dr. Mohamed Aggour is a Consultant Interventional Neuroradiologist with more than nineteen years of experience in minimally invasive endovascular neuroradiology, engaged in the treatment and management of brain and spinal vascular diseases.",
       "His work covers cerebral aneurysms, brain and spinal arteriovenous malformations, intracranial stenosis and acute stroke — from diagnosis, decision-making and therapeutic strategy through to treatment and follow-up.",
@@ -269,6 +276,12 @@ export const biographyContent: BiographyContent = {
 export const biographyContentArabic: BiographyContent = {
   overview: {
     source: "CV §§2, 13, 15",
+    keyFacts: [
+      "استشاري الأشعة العصبية التداخلية",
+      "خبرة تزيد على تسعة عشر عاماً في الأشعة التداخلية داخل الأوعية",
+      "يمارس عمله في لندن (مستشفيات جامعة سانت جورج) وبلجيكا (CHC MontLégia)",
+      "متخصص في تمدد الأوعية الدموية الدماغية والتشوهات الشريانية الوريدية والسكتة الدماغية الحادة",
+    ],
     paragraphs: [
       "الدكتور محمد عقور استشاري في الأشعة العصبية التداخلية، ذو خبرة تزيد على تسعة عشر عاماً في الأشعة التداخلية داخل الأوعية المنخفضة الغاز، مُكرَّس لعلاج وأمراض الأوعية الدموية الدماغية والشوكية.",
       "تشمل أعماله تمدد الأوعية الدموية في الدماغ، والتشوهات الشريانية الوريدية الدماغية والشوكية، وتضيق الأوعية داخل القحف، والسكتة الدماغية الحادة — من التشخيص واتخاذ القرار والاستراتيجية العلاجية حتى العلاج والمتابعة.",

@@ -17,11 +17,10 @@ export async function HomePage({ locale }: HomePageProps) {
   const t = await getTranslations("home");
 
   return (
-    <main data-homepage>
+    <main id="main-content" data-homepage>
       <section className="home-hero" aria-labelledby="home-title">
         <div className="site-container home-hero__grid">
           <div className="home-hero__content">
-            <p className="eyebrow">{t("hero.eyebrow")}</p>
             <h1 id="home-title">{siteIdentity.localizedName[locale]}</h1>
             <p className="home-hero__title">{siteIdentity.professionalTitle[locale]}</p>
             <Image
@@ -62,10 +61,8 @@ export async function HomePage({ locale }: HomePageProps) {
       <section className="home-section home-biography" id="biography-preview" aria-labelledby="biography-preview-title">
         <div className="site-container home-biography__grid">
           <SectionHeading
-            eyebrow={t("biography.eyebrow")}
             id="biography-preview-title"
             title={t("biography.title")}
-            description={t("biography.description")}
           />
           <div className="home-biography__copy">
             <p>{t("biography.body")}</p>
@@ -79,10 +76,8 @@ export async function HomePage({ locale }: HomePageProps) {
       <section className="home-section home-conditions" id="conditions" aria-labelledby="conditions-title">
         <div className="site-container">
           <SectionHeading
-            eyebrow={t("conditions.eyebrow")}
             id="conditions-title"
             title={t("conditions.title")}
-            description={t("conditions.description")}
           />
           <ul className="condition-list">
             {conditionItems.map((condition) => (
@@ -101,9 +96,6 @@ export async function HomePage({ locale }: HomePageProps) {
 
       <section className="home-section home-learning" id="e-learning" aria-labelledby="learning-title">
         <div className="site-container home-learning__grid">
-          <div className="home-learning__ornament" aria-hidden="true">
-            <span>EL</span>
-          </div>
           <div>
             <SectionHeading
               eyebrow={t("learning.eyebrow")}

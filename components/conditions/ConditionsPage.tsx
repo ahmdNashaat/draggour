@@ -14,7 +14,7 @@ export async function ConditionsPage({ locale }: ConditionsPageProps) {
   const home = await getTranslations("home");
 
   return (
-    <main className="content-page conditions-page" data-conditions-page>
+    <main id="main-content" className="content-page conditions-page" data-conditions-page>
       <section className="content-hero" aria-labelledby="conditions-title">
         <div className="site-container">
           <p className="eyebrow">{ui("eyebrow")}</p>
@@ -38,7 +38,6 @@ export async function ConditionsPage({ locale }: ConditionsPageProps) {
       <section className="content-section" aria-labelledby="conditions-next-step">
         <div className="site-container content-section__inner">
           <div>
-            <p className="eyebrow">{ui("consultationCta")}</p>
             <h2 id="conditions-next-step">{ui("consultationCta")}</h2>
           </div>
           <div className="content-section__body content-actions">

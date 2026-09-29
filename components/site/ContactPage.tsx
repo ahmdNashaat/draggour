@@ -12,7 +12,7 @@ export async function ContactPage({ locale }: ContactPageProps) {
   const availableLinks = biographyContent.externalLinks.filter((item) => item.detail?.startsWith("http"));
 
   return (
-    <main className="content-page professional-page" data-contact-page>
+    <main id="main-content" className="content-page professional-page" data-contact-page>
       <section className="content-hero" aria-labelledby="contact-title">
         <div className="site-container content-hero__grid content-hero__grid--compact">
           <div>
@@ -27,7 +27,6 @@ export async function ContactPage({ locale }: ContactPageProps) {
       <section className="content-section content-section--surface" aria-labelledby="contact-intents">
         <div className="site-container content-section__inner">
           <div>
-            <p className="eyebrow">{ui("contactPage.intentsHeading")}</p>
             <h2 id="contact-intents">{ui("contactPage.intentsHeading")}</h2>
           </div>
           <div className="contact-intents">
@@ -46,7 +45,6 @@ export async function ContactPage({ locale }: ContactPageProps) {
       <section className="content-section content-section--surface" aria-labelledby="contact-links">
         <div className="site-container content-section__inner">
           <div>
-            <p className="eyebrow">{ui("contactPage.linksHeading")}</p>
             <h2 id="contact-links">{ui("contactPage.linksHeading")}</h2>
           </div>
           <div className="content-link-list">

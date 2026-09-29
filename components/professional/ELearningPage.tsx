@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { getBiographyContent, type BiographyItem } from "@/content/biography";
 import { getLocalizedPath, prototypeBrand, type Locale } from "@/content/site";
 import { buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 type ELearningPageProps = Readonly<{ locale: Locale }>;
 
@@ -21,9 +22,14 @@ function TeachingList({ items }: Readonly<{ items: readonly BiographyItem[] }>) 
 
 export async function ELearningPage({ locale }: ELearningPageProps) {
   const ui = await getTranslations("content");
+  const nav = await getTranslations("navigation");
 
   return (
-    <main className="content-page professional-page" data-e-learning-page>
+    <main id="main-content" className="content-page professional-page" data-e-learning-page>
+      <Breadcrumbs items={[
+        { name: nav("home"), href: getLocalizedPath(locale, "") },
+        { name: ui("eLearningPage.title") }
+      ]} />
       <section className="content-hero" aria-labelledby="e-learning-title">
         <div className="site-container content-hero__grid content-hero__grid--compact">
           <div>
@@ -48,7 +54,6 @@ export async function ELearningPage({ locale }: ELearningPageProps) {
       <section className="content-section" aria-labelledby="e-learning-teaching">
         <div className="site-container content-section__inner">
           <div>
-            <p className="eyebrow">{ui("eLearningPage.teachingHeading")}</p>
             <h2 id="e-learning-teaching">{ui("eLearningPage.teachingHeading")}</h2>
           </div>
           <TeachingList items={getBiographyContent(locale).teaching} />
@@ -58,7 +63,6 @@ export async function ELearningPage({ locale }: ELearningPageProps) {
       <section className="content-section content-section--surface" aria-labelledby="e-learning-youtube">
         <div className="site-container content-section__inner">
           <div>
-            <p className="eyebrow">{ui("eLearningPage.youtubeHeading")}</p>
             <h2 id="e-learning-youtube">{ui("eLearningPage.youtubeHeading")}</h2>
           </div>
           <div className="unavailable-panel">

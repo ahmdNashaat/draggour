@@ -3,11 +3,13 @@ import { getTranslations } from "next-intl/server";
 
 import { getLocalizedPath, type Locale } from "@/content/site";
 import { buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 type LegalPageProps = Readonly<{ locale: Locale }>;
 
 export async function LegalPage({ locale }: LegalPageProps) {
   const ui = await getTranslations("content");
+  const nav = await getTranslations("navigation");
   const sections = [
     "privacy",
     "medicalDisclaimer",
@@ -19,7 +21,11 @@ export async function LegalPage({ locale }: LegalPageProps) {
   ] as const;
 
   return (
-    <main className="content-page professional-page" data-legal-page>
+    <main id="main-content" className="content-page professional-page" data-legal-page>
+      <Breadcrumbs items={[
+        { name: nav("home"), href: getLocalizedPath(locale, "") },
+        { name: ui("legalPage.title") }
+      ]} />
       <section className="content-hero" aria-labelledby="legal-title">
         <div className="site-container content-hero__grid content-hero__grid--compact">
           <div>
@@ -39,7 +45,6 @@ export async function LegalPage({ locale }: LegalPageProps) {
         <section className="content-section" key={sectionKey} aria-labelledby={`legal-${sectionKey}`}>
           <div className="site-container content-section__inner">
             <div>
-              <p className="eyebrow">{ui(`legalPage.${sectionKey}`)}</p>
               <h2 id={`legal-${sectionKey}`}>{ui(`legalPage.${sectionKey}`)}</h2>
             </div>
             <div className="legal-draft">

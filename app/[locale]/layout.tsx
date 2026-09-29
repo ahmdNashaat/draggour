@@ -61,6 +61,7 @@ export default async function LocaleLayout({
   const navigation = primaryNavigation.map(({ key, pathname }) => ({
     href: getLocalizedPath(locale, pathname),
     label: navigationTranslations(key),
+    isPrimaryAction: key === "consultation",
   }));
   const footerLegalNavigation = legalNavigation.map(({ key, pathname }) => ({
     href: getLocalizedPath(locale, pathname),
@@ -69,9 +70,17 @@ export default async function LocaleLayout({
   const year = new Date().getFullYear();
 
   return (
-    <html data-scroll-behavior="smooth" lang={locale} dir={localeDirections[locale]}>
-      <body className={`${displayFont.variable} ${bodyFont.variable} ${arabicDisplayFont.variable} ${arabicBodyFont.variable}`}>
+    <html
+      className={`${displayFont.variable} ${bodyFont.variable} ${arabicDisplayFont.variable} ${arabicBodyFont.variable}`}
+      data-scroll-behavior="smooth"
+      lang={locale}
+      dir={localeDirections[locale]}
+    >
+      <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
+          <a href="#main-content" className="skip-link">
+            {navigationTranslations("skipToMainContent")}
+          </a>
           <Header
             brandName={siteIdentity.localizedName[locale]}
             closeMenuLabel={navigationTranslations("menuClose")}

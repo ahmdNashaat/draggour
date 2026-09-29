@@ -15,7 +15,8 @@
     "legalLabel": "Legal navigation",
     "languageLabel": "Language switcher",
     "menuOpen": "Open menu",
-    "menuClose": "Close menu"
+    "menuClose": "Close menu",
+    "skipToMainContent": "Passer au contenu principal"
   },
   "footer": {
     "description": "Dr. Mohamed Aggour.",
@@ -44,12 +45,24 @@
       "title": "Conditions — French content not activated",
       "description": "French clinical descriptions are not activated for launch.",
       "items": {
-        "brainAneurysm": { "title": "Brain Aneurysm" },
-        "stroke": { "title": "Stroke" },
-        "avm": { "title": "AVM" },
-        "carotidStenosis": { "title": "Carotid Stenosis" },
-        "venousSinusDisorders": { "title": "Venous Sinus Disorders" },
-        "chronicSubduralHaematoma": { "title": "Chronic Subdural Haematoma" }
+        "brainAneurysm": {
+          "title": "Brain Aneurysm"
+        },
+        "stroke": {
+          "title": "Stroke"
+        },
+        "avm": {
+          "title": "AVM"
+        },
+        "carotidStenosis": {
+          "title": "Carotid Stenosis"
+        },
+        "venousSinusDisorders": {
+          "title": "Venous Sinus Disorders"
+        },
+        "chronicSubduralHaematoma": {
+          "title": "Chronic Subdural Haematoma"
+        }
       }
     },
     "learning": {

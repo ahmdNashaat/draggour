@@ -24,9 +24,9 @@ test("localized homepage renders without horizontal overflow", async ({ page }) 
       await expect(page.locator("[data-homepage]")).toBeVisible();
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       const ctaName = locale === "en" ? "Request a remote consultation" : "طلب استشارة عن بُعد";
-      await expect(page.locator("a.button--primary")).toBeVisible();
+      await expect(page.locator("main a.button--primary")).toBeVisible();
       void ctaName;
-      await expect(page.locator("a.button--primary")).toHaveAttribute("href", `/${locale}/remote-consultation`);
+      await expect(page.locator("main a.button--primary")).toHaveAttribute("href", `/${locale}/remote-consultation`);
       if (locale === "ar") {
         await expect(page.locator("body")).toContainText(/[\u0600-\u06ff]/);
       }
@@ -118,7 +118,7 @@ test("Biography and six Conditions routes render professional content", async ({
         await page.goto(`/${locale}/conditions/${slug}`);
         await expect(page.locator(`[data-condition-page="${slug}"]`)).toBeVisible();
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-        await expect(page.locator('a.button--primary[href$="/remote-consultation"]')).toBeVisible();
+        await expect(page.locator('main a.button--primary[href$="/remote-consultation"]')).toBeVisible();
         await expectNoHorizontalOverflow(page);
       }
     }
