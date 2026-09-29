@@ -1,0 +1,75 @@
+{
+  "metadata": {
+    "title": "Arabic metadata pending approval | Dr. Mohamed Aggour",
+    "description": "Arabic metadata and page copy pending approval."
+  },
+  "navigation": {
+    "home": "[Arabic navigation label pending approval: Home]",
+    "biography": "[Arabic navigation label pending approval: Biography]",
+    "conditions": "[Arabic navigation label pending approval: Conditions]",
+    "elearning": "[Arabic navigation label pending approval: E-learning for Physicians]",
+    "consultation": "[Arabic navigation label pending approval: Remote Consultation]",
+    "contact": "[Arabic navigation label pending approval: Contact]",
+    "legal": "[Arabic navigation label pending approval: Legal]",
+    "primaryLabel": "[Arabic navigation label pending approval]",
+    "legalLabel": "[Arabic legal navigation label pending approval]",
+    "languageLabel": "[Arabic language-switcher label pending approval]",
+    "menuOpen": "[Arabic menu-open label pending approval]",
+    "menuClose": "[Arabic menu-close label pending approval]"
+  },
+  "footer": {
+    "description": "[Arabic footer description pending approval]",
+    "socialPlaceholder": "[Arabic social-link placeholder pending approval]",
+    "copyright": "© {year} Dr. Mohamed Aggour. [Arabic copyright wording pending approval]"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "[Arabic hero label pending approval]",
+      "name": "[Arabic name spelling pending approval]",
+      "professionalTitle": "[Arabic professional title pending approval]",
+      "statement": "[Arabic professional statement pending approval]",
+      "cta": "[Arabic consultation CTA pending approval]",
+      "secondaryCta": "[Arabic Biography CTA pending approval]",
+      "portraitLabel": "Portrait asset; Arabic alt text pending approval",
+      "logoLabel": "Dr. Mohamed Aggour logo"
+    },
+    "biography": {
+      "eyebrow": "[Arabic section label pending approval]",
+      "title": "Biography — Arabic title pending approval",
+      "description": "[Arabic Biography description pending approval]",
+      "body": "[Arabic Biography preview pending approval]",
+      "cta": "[Arabic Biography CTA pending approval]"
+    },
+    "conditions": {
+      "eyebrow": "[Arabic section label pending approval]",
+      "title": "Conditions — Arabic title pending approval",
+      "description": "[Arabic condition descriptions pending approval]",
+      "items": {
+        "brainAneurysm": { "title": "Brain Aneurysm" },
+        "stroke": { "title": "Stroke" },
+        "avm": { "title": "AVM" },
+        "carotidStenosis": { "title": "Carotid Stenosis" },
+        "venousSinusDisorders": { "title": "Venous Sinus Disorders" },
+        "chronicSubduralHaematoma": { "title": "Chronic Subdural Haematoma" }
+      }
+    },
+    "learning": {
+      "eyebrow": "[Arabic section label pending approval]",
+      "title": "E-learning for Physicians — Arabic title pending approval",
+      "description": "[Arabic E-learning introduction pending approval]",
+      "placeholder": "[Arabic YouTube destination pending approval]",
+      "cta": "[Arabic E-learning CTA pending approval]"
+    },
+    "consultation": {
+      "eyebrow": "[Arabic section label pending approval]",
+      "title": "Remote Consultation — Arabic title pending approval",
+      "description": "[Arabic consultation description pending approval]",
+      "steps": {
+        "request": "[Arabic request step pending approval]",
+        "review": "[Arabic review step pending approval]",
+        "coordination": "[Arabic coordination step pending approval]"
+      },
+      "cta": "[Arabic consultation-page CTA pending approval]"
+    }
+  }
+}

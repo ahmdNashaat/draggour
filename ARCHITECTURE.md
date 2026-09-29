@@ -70,7 +70,6 @@ Do not turn the whole site into a client-side application.
 │   │   ├── biography/
 │   │   ├── conditions/
 │   │   ├── e-learning/
-│   │   ├── professional-activities/
 │   │   ├── remote-consultation/
 │   │   ├── contact/
 │   │   └── legal/

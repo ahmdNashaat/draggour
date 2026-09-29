@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "title": "French version | Dr. Mohamed Aggour",
+    "description": "Cette page n’est pas disponible dans la version actuelle."
+  },
+  "navigation": {
+    "home": "Home",
+    "biography": "Biography",
+    "conditions": "Conditions",
+    "elearning": "E-learning for Physicians",
+    "consultation": "Remote Consultation",
+    "contact": "Contact",
+    "legal": "Privacy & legal",
+    "primaryLabel": "Primary navigation",
+    "legalLabel": "Legal navigation",
+    "languageLabel": "Language switcher",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu"
+  },
+  "footer": {
+    "description": "Dr. Mohamed Aggour.",
+    "copyright": "© {year} Dr. Mohamed Aggour."
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "French content not activated",
+      "name": "Dr. Mohamed Aggour",
+      "professionalTitle": "French professional title not activated",
+      "statement": "French professional statement not activated",
+      "cta": "French consultation CTA not activated",
+      "secondaryCta": "French Biography CTA not activated",
+      "portraitLabel": "Portrait of Dr. Mohamed Aggour",
+      "logoLabel": "Dr. Mohamed Aggour logo"
+    },
+    "biography": {
+      "eyebrow": "French content not activated",
+      "title": "Biography — French content not activated",
+      "description": "French content is not activated for launch.",
+      "body": "French Biography content is not activated for launch.",
+      "cta": "French Biography CTA not activated"
+    },
+    "conditions": {
+      "eyebrow": "French content not activated",
+      "title": "Conditions — French content not activated",
+      "description": "French clinical descriptions are not activated for launch.",
+      "items": {
+        "brainAneurysm": { "title": "Brain Aneurysm" },
+        "stroke": { "title": "Stroke" },
+        "avm": { "title": "AVM" },
+        "carotidStenosis": { "title": "Carotid Stenosis" },
+        "venousSinusDisorders": { "title": "Venous Sinus Disorders" },
+        "chronicSubduralHaematoma": { "title": "Chronic Subdural Haematoma" }
+      }
+    },
+    "learning": {
+      "eyebrow": "French content not activated",
+      "title": "E-learning for Physicians — French content not activated",
+      "description": "French E-learning content is not activated for launch.",
+      "placeholder": "French YouTube destination not activated",
+      "cta": "French E-learning CTA not activated"
+    },
+    "consultation": {
+      "eyebrow": "French content not activated",
+      "title": "Remote Consultation — French content not activated",
+      "description": "French consultation content is not activated for launch.",
+      "steps": {
+        "request": "French request step not activated",
+        "review": "French review step not activated",
+        "coordination": "French coordination step not activated"
+      },
+      "cta": "French consultation CTA not activated"
+    }
+  }
+}

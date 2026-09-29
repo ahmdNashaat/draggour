@@ -19,10 +19,12 @@ Each meaningful topic gets a crawlable URL. Target routes may include:
 - `/conditions/venous-sinus-disorders`
 - `/conditions/chronic-subdural-haematoma`
 - `/e-learning`
-- `/professional-activities`
 - `/remote-consultation`
 - `/contact`
 - `/legal`
+
+There is no `/professional-activities` route: Professional Activities was
+removed from the homepage, navigation, and sitemap (D-028, D-029).
 
 Use a consistent locale strategy.
 

@@ -38,7 +38,7 @@ Secondary:
 ## 5. V1 website sections
 ### Home
 Hero with doctor's name, logo, portrait, professional title and short statement.
-Concise entry points to Biography, Conditions, E-learning, Professional Activities & Media, and Remote Consultation.
+Concise entry points to Biography, Conditions, E-learning, and Remote Consultation.
 
 ### Biography
 Full professional profile containing approved:
@@ -51,6 +51,8 @@ Full professional profile containing approved:
 - Academic work
 - Selected research/publications
 - Professional milestones
+
+Research is presented inside Biography only. V1 has no separate research platform or research page (D-005).
 
 ### Conditions
 Six initial condition destinations:
@@ -65,9 +67,6 @@ Keep them concise and oriented toward the appropriate consultation path rather t
 
 ### E-learning for Physicians
 Link/curate YouTube educational content. Do not build a video-hosting platform.
-
-### Professional Activities & Media
-Selected conferences, professional societies, invited talks and media appearances.
 
 ### Remote Consultation
 The highest-priority functional journey.
