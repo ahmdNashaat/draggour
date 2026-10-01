@@ -15,8 +15,10 @@ import { getLocaleMetadata } from "@/lib/seo/metadata";
 
 const displayFont = Libre_Baskerville({ subsets: ["latin"], variable: "--font-display-en", weight: ["400", "700"] });
 const bodyFont = IBM_Plex_Sans({ subsets: ["latin"], variable: "--font-body-en", weight: ["400", "500", "600", "700"] });
-const arabicDisplayFont = Noto_Naskh_Arabic({ subsets: ["arabic"], variable: "--font-display-ar", weight: ["400", "600", "700"] });
-const arabicBodyFont = IBM_Plex_Sans_Arabic({ subsets: ["arabic"], variable: "--font-body-ar", weight: ["400", "500", "600", "700"] });
+// These are only used by RTL pages. Avoid preloading them on every English route;
+// the browser still loads them when the Arabic font is actually applied.
+const arabicDisplayFont = Noto_Naskh_Arabic({ subsets: ["arabic"], variable: "--font-display-ar", weight: ["400", "600", "700"], preload: false });
+const arabicBodyFont = IBM_Plex_Sans_Arabic({ subsets: ["arabic"], variable: "--font-body-ar", weight: ["400", "500", "600", "700"], preload: false });
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -84,7 +86,13 @@ export default async function LocaleLayout({
           <Header
             brandName={siteIdentity.localizedName[locale]}
             closeMenuLabel={navigationTranslations("menuClose")}
-            languageSwitcher={<LanguageSwitcher label={navigationTranslations("languageLabel")} locale={locale} />}
+            languageSwitcher={
+              <LanguageSwitcher
+                label={navigationTranslations("languageLabel")}
+                locale={locale}
+                optionLabels={{ en: navigationTranslations("switchToEnglish"), ar: navigationTranslations("switchToArabic") }}
+              />
+            }
             locale={locale}
             menuLabel={navigationTranslations("menuOpen")}
             navigation={navigation}

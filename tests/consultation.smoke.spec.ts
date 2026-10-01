@@ -1,6 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const viewportWidths = [320, 360, 375, 390, 412, 430, 480, 768, 834, 1024, 1280, 1440, 1920, 2560];
+const privateTestName = "Private Test Patient 918273";
+const privateTestEmail = "private-test-918273@example.test";
 
 async function expectNoHorizontalOverflow(page: Page) {
   const dimensions = await page.evaluate(() => ({
@@ -22,11 +24,11 @@ async function choosePatientNonEmergencyOnline(page: Page, locale = "en") {
 }
 
 async function completePatientJourneyToReview(page: Page) {
-  await page.locator("#full-name").fill("Prototype visitor");
+  await page.locator("#full-name").fill(privateTestName);
   await page.locator("#email").fill("invalid-email");
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.locator(".consultation-error[role=alert]")).toContainText("valid format");
-  await page.locator("#email").fill("prototype@example.test");
+  await page.locator("#email").fill(privateTestEmail);
   await page.getByRole("button", { name: "Continue" }).click();
 
   await page.locator("#preferred-time-0").fill("2030-01-10T10:00");
@@ -63,7 +65,7 @@ test("patient non-emergency journey supports validation, review, edit and protot
   await choosePatientNonEmergencyOnline(page);
   await completePatientJourneyToReview(page);
 
-  await expect(page.locator('[data-consultation-step="review"]')).toContainText("Prototype visitor");
+  await expect(page.locator('[data-consultation-step="review"]')).toContainText(privateTestName);
   await expect(page.locator('[data-consultation-step="review"]')).toContainText("Online Consultation");
   await expect(page.locator('[data-consultation-step="review"]')).toContainText("report.png");
 
@@ -83,15 +85,18 @@ test("patient non-emergency journey supports validation, review, edit and protot
     local: window.localStorage.length,
     session: window.sessionStorage.length,
   }));
-  const submissionRequests: string[] = [];
+  const requestsAfterSubmit: string[] = [];
   page.on("request", (request) => {
-    if (request.resourceType() === "fetch" || request.resourceType() === "xhr") submissionRequests.push(request.url());
+    requestsAfterSubmit.push(request.url());
   });
 
   await page.getByRole("button", { name: "Complete request preview" }).click();
   await expect(page.locator("[data-consultation-success]")).toBeVisible();
   expect(page.url()).toBe(beforeUrl);
-  expect(submissionRequests).toEqual([]);
+  expect(requestsAfterSubmit).toEqual([]);
+  const successText = await page.locator("[data-consultation-success]").innerText();
+  expect(successText).not.toContain(privateTestName);
+  expect(successText).not.toContain(privateTestEmail);
   await expect(page.locator("[data-consultation-success]")).toContainText("Appointment is not confirmed.");
   await expect(page.locator("[data-consultation-success]")).toContainText("Payment is not confirmed or processed.");
   await expect(page.locator("[data-consultation-success]")).toContainText("No diagnosis has been provided.");
@@ -112,6 +117,12 @@ test("emergency branch ends the normal flow without consultation controls", asyn
   await expect(page.locator("#consultation-files")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Show prototype receipt" })).toHaveCount(0);
   await expect(page.getByText("Online Consultation", { exact: true })).toHaveCount(0);
+
+  for (const width of [320, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(page.locator("[data-consultation-emergency]")).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+  }
 });
 
 test("physician referral branch exposes only professional referral fields and clinic service", async ({ page }) => {

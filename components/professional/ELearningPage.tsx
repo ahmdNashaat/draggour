@@ -2,8 +2,9 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { getBiographyContent, type BiographyItem } from "@/content/biography";
-import { getLocalizedPath, prototypeBrand, type Locale } from "@/content/site";
-import { buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
+import { getLocalizedPath, type Locale } from "@/content/site";
+import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
+import { JsonLd } from "@/components/site/JsonLd";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 type ELearningPageProps = Readonly<{ locale: Locale }>;
@@ -60,19 +61,6 @@ export async function ELearningPage({ locale }: ELearningPageProps) {
         </div>
       </section>
 
-      <section className="content-section content-section--surface" aria-labelledby="e-learning-youtube">
-        <div className="site-container content-section__inner">
-          <div>
-            <h2 id="e-learning-youtube">{ui("eLearningPage.youtubeHeading")}</h2>
-          </div>
-          <div className="unavailable-panel">
-            <a className="button button--primary" href={prototypeBrand.temporaryYouTubeUrl} rel="noreferrer" target="_blank">
-              {ui("eLearningPage.youtubeCta")}
-            </a>
-          </div>
-        </div>
-      </section>
-
       <nav className="content-next-links" aria-label={ui("eLearningPage.title")}>
         <div className="site-container">
           <Link className="button button--primary" href={getLocalizedPath(locale, "/biography")}>{ui("eLearningPage.biographyCta")}</Link>
@@ -81,7 +69,7 @@ export async function ELearningPage({ locale }: ELearningPageProps) {
         </div>
       </nav>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildBreadcrumbJsonLd(locale, [{ name: ui("eLearningPage.title"), pathname: "/e-learning" }])) }} />
+      <JsonLd value={buildBreadcrumbJsonLd(locale, [{ name: ui("eLearningPage.title"), pathname: "/e-learning" }])} />
     </main>
   );
 }

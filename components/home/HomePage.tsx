@@ -15,6 +15,7 @@ type HomePageProps = Readonly<{
 
 export async function HomePage({ locale }: HomePageProps) {
   const t = await getTranslations("home");
+  const personJsonLd = buildPersonJsonLd();
 
   return (
     <main id="main-content" data-homepage>
@@ -26,8 +27,9 @@ export async function HomePage({ locale }: HomePageProps) {
             <Image
               alt={siteIdentity.name}
               className="home-hero__logo"
-              height={440}
+              height={438}
               src="/brand/logo-primary.png"
+              sizes="(max-width: 24rem) 100vw, 20rem"
               width={880}
             />
             <div className="home-hero__actions">
@@ -49,8 +51,9 @@ export async function HomePage({ locale }: HomePageProps) {
                 alt={t("hero.portraitLabel")}
                 className="home-hero__portrait-image"
                 height={1536}
-                priority
+                preload
                 src="/images/doctor/dr-mohamed-aggour.png"
+                sizes="(max-width: 48rem) min(100vw, 25rem), 50vw"
                 width={1024}
               />
             </div>
@@ -135,10 +138,9 @@ export async function HomePage({ locale }: HomePageProps) {
         </div>
       </section>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildPersonJsonLd(locale)) }}
-      />
+      {personJsonLd ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(personJsonLd) }} />
+      ) : null}
     </main>
   );
 }

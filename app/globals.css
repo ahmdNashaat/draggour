@@ -1265,8 +1265,7 @@ a {
   color: var(--color-red-700);
 }
 
-.unavailable-panel,
-.legal-draft {
+.unavailable-panel {
   max-width: 48rem;
   padding: clamp(1.25rem, 3vw, 2rem);
   border-inline-start: 2px solid var(--color-red-700);
@@ -1282,11 +1281,94 @@ a {
   text-transform: uppercase;
 }
 
-.unavailable-panel p:last-child,
-.legal-draft p {
+.unavailable-panel p:last-child {
   margin: 0;
   color: var(--color-neutral-600);
   line-height: 1.8;
+}
+
+/* Legal & Privacy page — DECISIONS.md D-034 */
+.legal-intro {
+  display: grid;
+  gap: var(--space-3);
+  padding-block-end: var(--space-6);
+  border-block-end: 1px solid var(--color-line);
+}
+
+.legal-intro__updated {
+  margin: 0;
+  color: var(--color-red-900);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.legal-body {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 48rem;
+}
+
+.legal-body p {
+  margin: 0;
+  color: var(--color-neutral-600);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.legal-body .legal-body__note {
+  padding-inline-start: var(--space-4);
+  border-inline-start: 2px solid var(--color-red-700);
+  color: var(--color-red-900);
+}
+
+.legal-body__subheading {
+  margin: var(--space-3) 0 0;
+  color: var(--color-neutral-900);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.legal-body__flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  color: var(--color-neutral-600);
+  font-size: 0.9375rem;
+  list-style: none;
+}
+
+.legal-body__flow li {
+  display: inline-flex;
+  align-items: center;
+}
+
+.legal-body__flow li:not(:last-child)::after {
+  content: "→";
+  margin-inline-start: var(--space-2);
+  color: var(--color-red-700);
+  font-weight: 700;
+}
+
+[dir="rtl"] .legal-body__flow li:not(:last-child)::after {
+  content: "←";
+}
+
+.legal-placeholder {
+  display: inline-block;
+  padding-inline: 0.5rem;
+  padding-block: 0.1rem;
+  border: 1px dashed var(--color-red-700);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-subtle);
+  color: var(--color-red-900);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
 }
 
 .content-review-stack {
@@ -1408,6 +1490,11 @@ a {
   align-items: start;
   gap: clamp(2rem, 7vw, 7rem);
   padding-block: clamp(2.5rem, 6vw, 6rem);
+}
+
+/* Terminal states hide the progress rail, so the shell must not keep an empty column. */
+.consultation-shell--single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .consultation-progress {
@@ -1831,7 +1918,7 @@ a {
   box-shadow: var(--shadow-soft);
 }
 
-.consultation-terminal > p:not(.eyebrow):not(.consultation-terminal__note) {
+.consultation-terminal > p:not(.eyebrow):not(.consultation-terminal__note):not(.consultation-alert__lead) {
   max-width: 48rem;
   margin-block-start: var(--space-5);
   color: var(--color-neutral-900);
@@ -1852,6 +1939,121 @@ a {
   margin: var(--space-6) 0;
   color: var(--color-neutral-600);
   line-height: 1.8;
+}
+
+/* Emergency guidance panel */
+.consultation-terminal--emergency {
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 2.25rem);
+}
+
+.consultation-alert__header {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.consultation-alert__badge {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  inline-size: clamp(3.25rem, 7vw, 4.5rem);
+  block-size: clamp(3.25rem, 7vw, 4.5rem);
+  border-radius: var(--radius-pill);
+  background: var(--color-red-700);
+  color: var(--color-on-dark);
+}
+
+.consultation-alert__badge svg {
+  inline-size: 55%;
+  block-size: 55%;
+}
+
+.consultation-alert__header .eyebrow {
+  margin-block-end: var(--space-2);
+}
+
+.consultation-alert__lead {
+  max-inline-size: 52rem;
+  margin: 0;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border-inline-start: 3px solid var(--color-red-700);
+  background: color-mix(in srgb, var(--color-red-700) 8%, var(--color-surface));
+  color: var(--color-navy-950);
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.6vw, 1.75rem);
+  font-weight: var(--font-weight-heading, 400);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+}
+
+.consultation-alert__actions h3 {
+  margin: 0 0 var(--space-4);
+  color: var(--color-navy-950);
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+  font-weight: var(--font-weight-heading, 400);
+  line-height: 1.25;
+}
+
+.consultation-alert__steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.consultation-alert__steps li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-inline-size: 0;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.consultation-alert__step-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  inline-size: 3rem;
+  block-size: 3rem;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-red-700) 12%, var(--color-surface));
+  color: var(--color-red-700);
+}
+
+.consultation-alert__step-icon svg {
+  inline-size: 1.375rem;
+  block-size: 1.375rem;
+}
+
+.consultation-alert__steps p {
+  margin: 0;
+  color: var(--color-navy-950);
+  font-size: clamp(1.0625rem, 1.8vw, 1.1875rem);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.consultation-terminal--emergency .consultation-terminal__note {
+  max-inline-size: 52rem;
+  margin: 0;
+  padding: clamp(1rem, 2.5vw, 1.375rem) clamp(1rem, 2.5vw, 1.5rem);
+  border-inline-start: 2px solid var(--color-line-strong);
+  background: var(--color-surface-subtle);
+  font-size: 0.9375rem;
+}
+
+.consultation-alert__action {
+  justify-self: start;
+  min-block-size: 3.5rem;
+  padding-inline: 1.75rem;
+  font-size: 1rem;
 }
 
 .consultation-confirmation-list {

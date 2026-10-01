@@ -251,8 +251,8 @@ export const biographyContent: BiographyContent = {
   ],
   externalLinks: [
     { title: "LinkedIn", detail: "https://www.linkedin.com/in/mohamed-aggour-1414a941" },
-    { title: "PubMed", detail: "https://pubmed.ncbi.nlm.nih.gov/?term=Aggour+M&cauthor_id=32303584" },
-    { title: "Twitter / X", detail: "@Aggour", review: "Handle recorded in the CV; the full URL is not recorded." },
+    { title: "PubMed", detail: "https://pubmed.ncbi.nlm.nih.gov/?term=Aggour+M&cauthor_id=32303584", review: "Keep as a research-results link only; this author-filtered result page is not a canonical person profile.", internalOnly: true },
+    { title: "Twitter / X", detail: "@Aggour", review: "Handle recorded in the CV; no matching public account has been verified.", internalOnly: true },
     {
       title: "Official YouTube channel",
       detail: "No official channel URL is recorded.",
@@ -283,7 +283,7 @@ export const biographyContentArabic: BiographyContent = {
       "متخصص في تمدد الأوعية الدموية الدماغية والتشوهات الشريانية الوريدية والسكتة الدماغية الحادة",
     ],
     paragraphs: [
-      "الدكتور محمد عقور استشاري في الأشعة العصبية التداخلية، ذو خبرة تزيد على تسعة عشر عاماً في الأشعة التداخلية داخل الأوعية المنخفضة الغاز، مُكرَّس لعلاج وأمراض الأوعية الدموية الدماغية والشوكية.",
+      "الدكتور محمد عجور استشاري في الأشعة العصبية التداخلية، ذو خبرة تزيد على تسعة عشر عاماً في الأشعة التداخلية داخل الأوعية المنخفضة الغاز، مُكرَّس لعلاج وأمراض الأوعية الدموية الدماغية والشوكية.",
       "تشمل أعماله تمدد الأوعية الدموية في الدماغ، والتشوهات الشريانية الوريدية الدماغية والشوكية، وتضيق الأوعية داخل القحف، والسكتة الدماغية الحادة — من التشخيص واتخاذ القرار والاستراتيجية العلاجية حتى العلاج والمتابعة.",
       "بعد توليه نشاط الأشعة العصبية التداخلية في مستشفيات سانت إتيان الجامعية لمدة تسع سنوات، وفي مستشفيات ليل الجامعية لمدة ثلاث سنوات، انتقل إلى مستشفى رويال لندن — Barts NHS Trust، حيث طوّر مع الفريق القائم نشاط الأشعة العصبية التداخلية في منظومة Barts NHS Trust، في خدمة سكان لندن وما حولها.",
       "تخدم خدمة استخلاص الجلطة الميكانيكي على مدار الساعة للسكتة الدماغية أكثر من 250 مريضاً سنوياً من لندن والمناطق المجاورة. وبالاستناد إلى خبرته في تنظيم الشبكات الإقليمية والوطنية لإدارة النزف تحت العنكبوتية والسكتة الدماغية في فرنسا، يعمل مع فريق الأشعة العصبية التداخلية في مستشفى رويال لندن على تطوير هذه الخدمة وتحسين رعاية المرضى وإدارتهم.",
@@ -449,7 +449,7 @@ export const biographyContentArabic: BiographyContent = {
     },
     {
       title: "التشوهات الشريانية الوريدية الدماغية والشوكية",
-      detail: "العلاج الت介入ي للتشوهات الشريانية الوريدية، بما في ذلك التحبيس الشرياني والوريدي والعوامل المبيّضة السائلة.",
+      detail: "العلاج التدخلي للتشوهات الشريانية الوريدية، بما في ذلك التحبيس الشرياني والوريدي والعوامل المبيّضة السائلة.",
     },
     {
       title: "تحبيسات أخرى وناسور الأوعية",
@@ -474,8 +474,8 @@ export const biographyContentArabic: BiographyContent = {
     },
   ],
   annualActivity: [
-    { title: "العلاج الت介入ي للتمددات الشريانية داخل القحف", detail: "150–200 / سنة" },
-    { title: "العلاج الت介入ي للتشوهات الشريانية الوريدية الدماغية والشوكية", detail: "40–50 / سنة" },
+    { title: "العلاج التدخلي للتمددات الشريانية داخل القحف", detail: "150–200 / سنة" },
+    { title: "العلاج التدخلي للتشوهات الشريانية الوريدية الدماغية والشوكية", detail: "40–50 / سنة" },
     { title: "استخلاص الجلطة الميكانيكي للسكتة الدماغية", detail: "90–150 / سنة" },
     { title: "تحبيسات داخل قحفية أخرى", detail: "20–30 / سنة" },
     { title: "تحبيسات الأطفال", detail: "5–8 / سنة" },
@@ -485,8 +485,8 @@ export const biographyContentArabic: BiographyContent = {
   ],
   externalLinks: [
     { title: "LinkedIn", detail: "https://www.linkedin.com/in/mohamed-aggour-1414a941" },
-    { title: "PubMed", detail: "https://pubmed.ncbi.nlm.nih.gov/?term=Aggour+M&cauthor_id=32303584" },
-    { title: "إكس (Twitter)", detail: "@Aggour", review: "Handle recorded in the CV; the full URL is not recorded." },
+    { title: "PubMed", detail: "https://pubmed.ncbi.nlm.nih.gov/?term=Aggour+M&cauthor_id=32303584", review: "Keep as a research-results link only; this author-filtered result page is not a canonical person profile.", internalOnly: true },
+    { title: "إكس (Twitter)", detail: "@Aggour", review: "Handle recorded in the CV; no matching public account has been verified.", internalOnly: true },
     {
       title: "قناة YouTube الرسمية",
       detail: "لا توجد رابط مسجل.",

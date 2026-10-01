@@ -38,9 +38,10 @@ export function Footer({
               <Image
                 alt=""
                 className="brand__monogram"
-                height={256}
+                height={259}
                 src="/brand/logo-monogram.png"
-                width={580}
+                sizes="3.25rem"
+                width={581}
               />
               <span className="brand__name">{brandName}</span>
             </Link>

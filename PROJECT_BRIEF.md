@@ -2,6 +2,8 @@
 
 ## 1. Client
 Dr. Mohamed Aggour, consultant interventional neuroradiologist.
+Arabic name spelling: دكتور محمد عجور (always عجور, never عقور). The Arabic
+honorific دكتور mirrors the English "Dr." in every occurrence.
 
 ## 2. Website objective
 The website should:

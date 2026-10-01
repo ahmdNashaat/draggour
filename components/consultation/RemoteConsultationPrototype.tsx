@@ -1,9 +1,11 @@
 "use client";
 
+import { Hospital, Phone, TriangleAlert } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 
-import type { Locale } from "@/content/site";
+import { getLocalizedPath, type Locale } from "@/content/site";
 import { allowedAttachmentMimeTypes, consultationSubmissionSchema } from "@/lib/validation/consultation";
 
 type RequesterType = "patient" | "physician";
@@ -222,7 +224,7 @@ export function RemoteConsultationPrototype({ locale }: Readonly<{ locale: Local
         </div>
       </section>
 
-      <div className="site-container consultation-shell">
+      <div className={`site-container consultation-shell${stepNumber ? "" : " consultation-shell--single"}`}>
         {stepNumber ? (
           <nav className="consultation-progress" aria-label={t("consultationPage.review")}>
             <p>{t("consultationPage.stepLabel", { current: stepNumber, total: stepKeys.length })}</p>
@@ -249,7 +251,7 @@ export function RemoteConsultationPrototype({ locale }: Readonly<{ locale: Local
             {step === 3 ? <DetailsStep state={state} updateCommon={updateCommon} updatePatient={updatePatient} updatePhysician={updatePhysician} t={t} errors={errors} /> : null}
             {step === 4 ? <TimesStep times={state.preferredTimes} update={updatePreferredTime} add={addPreferredTime} remove={removePreferredTime} t={t} /> : null}
             {step === 5 ? <AttachmentsStep files={state.attachments} onFiles={handleFiles} onRemove={removeFile} t={t} error={errors.attachments} /> : null}
-            {step === 6 ? <ConsentStep checked={state.consent} onChange={(consent) => { setState((current) => ({ ...current, consent })); clearErrors(); }} t={t} error={errors.consent} /> : null}
+            {step === 6 ? <ConsentStep checked={state.consent} onChange={(consent) => { setState((current) => ({ ...current, consent })); clearErrors(); }} privacyHref={getLocalizedPath(locale, "/legal")} t={t} error={errors.consent} /> : null}
             {step === 7 ? <ReviewStep state={state} onEdit={setStep} t={t} error={errors.review} /> : null}
 
             <div className="consultation-actions">
@@ -428,11 +430,11 @@ function AttachmentsStep({ files, onFiles, onRemove, t, error }: Readonly<{ file
   );
 }
 
-function ConsentStep({ checked, onChange, t, error }: Readonly<{ checked: boolean; onChange: (checked: boolean) => void; t: ReturnType<typeof useTranslations>; error?: string }>) {
+function ConsentStep({ checked, onChange, privacyHref, t, error }: Readonly<{ checked: boolean; onChange: (checked: boolean) => void; privacyHref: string; t: ReturnType<typeof useTranslations>; error?: string }>) {
   return (
     <StepFrame id="consent" eyebrow={t("consultationPage.steps.consent")} heading={t("consultationPage.consent.heading")} intro={t("consultationPage.consent.intro")} error={error}>
       <div className="consultation-consent-panel">
-        <p>{t("consultationPage.consent.placeholder")}</p>
+        <p><Link className="text-link" href={privacyHref} rel="noreferrer" target="_blank">{t("consultationPage.consent.privacyLink")}</Link></p>
         <label className="consultation-checkbox"><input checked={checked} onChange={(event) => onChange(event.target.checked)} type="checkbox" /> <span>{t("consultationPage.consent.checkbox")}</span></label>
       </div>
     </StepFrame>
@@ -469,14 +471,55 @@ function ReviewList({ label, values, onEdit, editLabel, emptyLabel }: Readonly<{
 }
 
 function EmergencyState({ onReset, t }: Readonly<{ onReset: () => void; t: ReturnType<typeof useTranslations> }>) {
+  const panelRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    panel.focus({ preventScroll: true });
+    panel.scrollIntoView({ block: "start", behavior: "instant" });
+  }, []);
+
   return (
-    <section className="consultation-terminal consultation-terminal--emergency" data-consultation-emergency aria-labelledby="emergency-heading">
-      <h2 id="emergency-heading">{t("consultationPage.emergency.heading")}</h2>
-      <p>{t("consultationPage.emergency.body")}</p>
-      <p>{t("consultationPage.emergency.local")}</p>
-      <p>{t("consultationPage.emergency.hospital")}</p>
+    <section
+      ref={panelRef}
+      className="consultation-terminal consultation-terminal--emergency"
+      data-consultation-emergency
+      aria-labelledby="emergency-heading"
+      tabIndex={-1}
+    >
+      <header className="consultation-alert__header">
+        <span className="consultation-alert__badge" aria-hidden="true">
+          <TriangleAlert strokeWidth={1.75} />
+        </span>
+        <div>
+          <p className="eyebrow">{t("consultationPage.emergency.eyebrow")}</p>
+          <h2 id="emergency-heading">{t("consultationPage.emergency.heading")}</h2>
+        </div>
+      </header>
+
+      <p className="consultation-alert__lead">{t("consultationPage.emergency.body")}</p>
+
+      <div className="consultation-alert__actions">
+        <h3>{t("consultationPage.emergency.stepsHeading")}</h3>
+        <ol className="consultation-alert__steps">
+          <li>
+            <span className="consultation-alert__step-icon" aria-hidden="true">
+              <Phone strokeWidth={1.75} />
+            </span>
+            <p>{t("consultationPage.emergency.local")}</p>
+          </li>
+          <li>
+            <span className="consultation-alert__step-icon" aria-hidden="true">
+              <Hospital strokeWidth={1.75} />
+            </span>
+            <p>{t("consultationPage.emergency.hospital")}</p>
+          </li>
+        </ol>
+      </div>
+
       <p className="consultation-terminal__note">{t("consultationPage.emergency.stop")}</p>
-      <button className="button button--primary" onClick={onReset} type="button">{t("consultationPage.emergency.reset")}</button>
+      <button className="button button--primary consultation-alert__action" onClick={onReset} type="button">{t("consultationPage.emergency.reset")}</button>
     </section>
   );
 }

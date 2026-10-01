@@ -3,13 +3,14 @@ import { getTranslations } from "next-intl/server";
 
 import { biographyContent } from "@/content/biography";
 import { getLocalizedPath, type Locale } from "@/content/site";
-import { buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
+import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
+import { JsonLd } from "@/components/site/JsonLd";
 
 type ContactPageProps = Readonly<{ locale: Locale }>;
 
 export async function ContactPage({ locale }: ContactPageProps) {
   const ui = await getTranslations("content");
-  const availableLinks = biographyContent.externalLinks.filter((item) => item.detail?.startsWith("http"));
+  const availableLinks = biographyContent.externalLinks.filter((item) => !item.internalOnly && item.detail?.startsWith("http"));
 
   return (
     <main id="main-content" className="content-page professional-page" data-contact-page>
@@ -67,7 +68,7 @@ export async function ContactPage({ locale }: ContactPageProps) {
         </div>
       </nav>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildBreadcrumbJsonLd(locale, [{ name: ui("contactPage.title"), pathname: "/contact" }])) }} />
+      <JsonLd value={buildBreadcrumbJsonLd(locale, [{ name: ui("contactPage.title"), pathname: "/contact" }])} />
     </main>
   );
 }

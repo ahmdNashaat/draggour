@@ -63,9 +63,10 @@ export function Header({
           <Image
             alt={brandName}
             className="brand__logo"
-            height={440}
-            priority
+            height={438}
+            preload
             src="/brand/logo-primary.png"
+            sizes="(max-width: 36rem) 8.5rem, 12rem"
             width={880}
           />
         </Link>

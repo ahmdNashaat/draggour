@@ -100,7 +100,7 @@ const pageDefinitions: Record<PlaceholderPageKey, PageDefinition> = {
   },
   legal: {
     pathname: "/legal",
-    title: "Privacy & Legal",
+    title: "Legal & Privacy",
     description: "Approved privacy, medical disclaimer, consultation, emergency, and consent wording will be added before publication.",
     notice: "Legal copy is not represented as approved in this controlled prototype.",
   },

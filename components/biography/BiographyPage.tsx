@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { getBiographyContent, type BiographyItem } from "@/content/biography";
 import { getLocalizedPath, siteIdentity, type Locale } from "@/content/site";
 import { buildBiographyJsonLd, buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
+import { JsonLd } from "@/components/site/JsonLd";
 import { BiographyToc } from "@/components/biography/BiographyToc";
 
 type BiographyPageProps = Readonly<{
@@ -78,6 +79,7 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
   const ui = await getTranslations("content");
   const home = await getTranslations("home");
   const content = getBiographyContent(locale);
+  const biographyJsonLd = buildBiographyJsonLd(locale);
   const isArabic = locale === "ar";
   const portraitAlt = home("hero.portraitLabel");
   const renderedLinks = content.externalLinks.filter((item) => !item.internalOnly);
@@ -98,8 +100,9 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
             alt={isArabic ? portraitAlt : "Portrait of Dr. Mohamed Aggour"}
             className="content-hero__portrait"
             height={1536}
-            priority
+            preload
             src="/images/doctor/dr-mohamed-aggour.png"
+            sizes="(max-width: 48rem) min(100vw, 24rem), 40vw"
             width={1024}
           />
         </div>
@@ -210,8 +213,10 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
       </section>
 
       <BiographyLinks locale={locale} ui={ui} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildBiographyJsonLd(locale)) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildBreadcrumbJsonLd(locale, [{ name: ui("biography.title"), pathname: "/biography" }])) }} />
+      {biographyJsonLd ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(biographyJsonLd) }} />
+      ) : null}
+      <JsonLd value={buildBreadcrumbJsonLd(locale, [{ name: ui("biography.title"), pathname: "/biography" }])} />
     </main>
   );
 }

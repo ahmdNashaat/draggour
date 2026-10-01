@@ -3,7 +3,8 @@ import { getTranslations } from "next-intl/server";
 
 import type { ConditionContent } from "@/content/conditions";
 import { getLocalizedPath, type Locale } from "@/content/site";
-import { buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
+import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
+import { JsonLd } from "@/components/site/JsonLd";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 type ConditionDetailPageProps = Readonly<{
@@ -63,10 +64,11 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
             <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("consultationCta")}</Link>
             <Link className="text-link" href={getLocalizedPath(locale, "/conditions")}>{ui("backToConditions")}</Link>
             <Link className="text-link" href={getLocalizedPath(locale, "/biography")}>{ui("biographyCta")}</Link>
+            <Link className="text-link" href={getLocalizedPath(locale, "/legal")}>{ui("medicalDisclaimerCta")}</Link>
           </div>
         </div>
       </section>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildBreadcrumbJsonLd(locale, [{ name: ui("title"), pathname: "/conditions" }, { name: title, pathname: `/conditions/${condition.slug}` }])) }} />
+      <JsonLd value={buildBreadcrumbJsonLd(locale, [{ name: ui("title"), pathname: "/conditions" }, { name: title, pathname: `/conditions/${condition.slug}` }])} />
     </main>
   );
 }

@@ -13,9 +13,10 @@ const labels: Record<(typeof launchLocales)[number], string> = {
 type LanguageSwitcherProps = Readonly<{
   locale: Locale;
   label: string;
+  optionLabels: Readonly<Record<(typeof launchLocales)[number], string>>;
 }>;
 
-export function LanguageSwitcher({ locale, label }: LanguageSwitcherProps) {
+export function LanguageSwitcher({ locale, label, optionLabels }: LanguageSwitcherProps) {
   const pathname = usePathname();
 
   const getSwitchUrl = (newLocale: string) => {
@@ -29,9 +30,10 @@ export function LanguageSwitcher({ locale, label }: LanguageSwitcherProps) {
   };
 
   return (
-    <div className="language-switcher" aria-label={label}>
+    <nav className="language-switcher" aria-label={label}>
       {launchLocales.map((availableLocale) => (
         <Link
+          aria-label={optionLabels[availableLocale]}
           aria-current={availableLocale === locale ? "true" : undefined}
           className="language-switcher__link"
           href={getSwitchUrl(availableLocale)}
@@ -40,6 +42,6 @@ export function LanguageSwitcher({ locale, label }: LanguageSwitcherProps) {
           {labels[availableLocale]}
         </Link>
       ))}
-    </div>
+    </nav>
   );
 }

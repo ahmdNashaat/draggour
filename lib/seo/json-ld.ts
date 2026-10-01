@@ -1,4 +1,5 @@
-import { getSiteUrl, siteIdentity, type Locale } from "@/content/site";
+import { getSiteUrl, siteIdentity, type Locale } from "../../content/site";
+import { buildPersonId, personEntityConfig } from "./person-entity";
 
 export type JsonLdValue = Record<string, unknown>;
 
@@ -6,40 +7,73 @@ export function serializeJsonLd(value: JsonLdValue) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
-export function buildPersonJsonLd(locale: Locale): JsonLdValue {
-  const siteUrl = getSiteUrl();
+function personEntity(origin: URL): JsonLdValue {
   const person: JsonLdValue = {
-    "@context": "https://schema.org",
     "@type": "Person",
-    name: siteIdentity.localizedName[locale],
-    inLanguage: locale,
+    "@id": buildPersonId(origin),
+    name: personEntityConfig.canonicalName,
+    alternateName: personEntityConfig.localizedName.ar,
+    jobTitle: [personEntityConfig.professionalTitles.en, personEntityConfig.professionalTitles.ar],
+    knowsAbout: [
+      ...personEntityConfig.knowsAbout,
+      ...personEntityConfig.conditions.map((condition) => {
+        const conditionUrl = new URL(`/en/conditions/${condition.slug}`, origin).toString();
+        return {
+          "@type": "MedicalCondition",
+          "@id": conditionUrl,
+          name: condition.name,
+          url: conditionUrl,
+        };
+      }),
+    ],
+    url: new URL("/en/biography", origin).toString(),
   };
 
-  if (siteUrl) {
-    person.url = `${siteUrl.toString().replace(/\/$/, "")}${`/${locale}`}`;
+  if (personEntityConfig.approvedSameAs.length > 0) {
+    person.sameAs = [...personEntityConfig.approvedSameAs];
   }
 
   return person;
 }
 
-export function buildBiographyJsonLd(locale: Locale): JsonLdValue {
-  const person = buildPersonJsonLd(locale);
+export function buildPersonJsonLd(siteUrl: URL | null = getSiteUrl()): JsonLdValue | null {
+  if (!siteUrl) return null;
+  const person = personEntity(siteUrl);
 
   return {
     "@context": "https://schema.org",
-    "@type": "ProfilePage",
-    name: `Biography | ${siteIdentity.name}`,
-    inLanguage: locale,
-    mainEntity: {
-      ...person,
-      jobTitle: siteIdentity.professionalTitle[locale],
-    },
+    ...person,
   };
 }
 
-export function buildBreadcrumbJsonLd(locale: Locale, items: readonly { name: string; pathname: string }[]): JsonLdValue {
+export function buildBiographyJsonLd(locale: Locale, siteUrl: URL | null = getSiteUrl()): JsonLdValue | null {
+  if (!siteUrl) return null;
+  const profileUrl = new URL(`/${locale}/biography`, siteUrl).toString();
+  const person = personEntity(siteUrl);
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ProfilePage",
+        "@id": `${profileUrl}#profilepage`,
+        url: profileUrl,
+        name: locale === "ar"
+          ? `السيرة الذاتية | ${siteIdentity.localizedName.ar}`
+          : `Biography | ${siteIdentity.name}`,
+        inLanguage: locale,
+        mainEntity: { "@id": buildPersonId(siteUrl) },
+      },
+      person,
+    ],
+  };
+}
+
+export function buildBreadcrumbJsonLd(locale: Locale, items: readonly { name: string; pathname: string }[]): JsonLdValue | null {
   const siteUrl = getSiteUrl();
-  const origin = siteUrl?.toString().replace(/\/$/, "");
+  if (!siteUrl) return null;
+
+  const origin = siteUrl.toString().replace(/\/$/, "");
 
   return {
     "@context": "https://schema.org",
@@ -48,7 +82,7 @@ export function buildBreadcrumbJsonLd(locale: Locale, items: readonly { name: st
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: origin ? `${origin}/${locale}${item.pathname}` : `/${locale}${item.pathname}`,
+      item: `${origin}/${locale}${item.pathname}`,
     })),
   };
 }

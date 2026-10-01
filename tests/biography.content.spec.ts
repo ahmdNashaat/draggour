@@ -86,7 +86,7 @@ async function expectPopulatedSections(page: Page) {
   await expectExact(page.locator('section[aria-labelledby="biography-career-history"] .career-timeline > li'), 5, "careerHistory");
   await expectExact(page.locator('section[aria-labelledby="biography-clinical-expertise"] .content-card'), 10, "clinicalExpertise");
   await expectExact(page.locator('section[aria-labelledby="biography-annual-activity"] .content-card'), 8, "annualActivity");
-  await expectAtLeast(page.locator('section[aria-labelledby="biography-external-links"] .content-link-list > div'), 3, "externalLinks");
+  await expectAtLeast(page.locator('section[aria-labelledby="biography-external-links"] .content-link-list > div'), 1, "externalLinks");
 }
 
 async function expectAnnualFigures(page: Page, expected: readonly string[]) {
@@ -116,7 +116,9 @@ test("Biography renders complete source-backed content in English", async ({ pag
   // External professional links are restored.
   const links = page.locator('section[aria-labelledby="biography-external-links"]');
   await expectExact(links.locator('a[href="https://www.linkedin.com/in/mohamed-aggour-1414a941"]'), 1, "LinkedIn link");
-  await expect(links).toContainText("@Aggour");
+  await expect(links).not.toContainText("PubMed");
+  await expect(links).not.toContainText("@Aggour");
+  await expect(links).not.toContainText("Twitter / X");
 
   // ESMINT and PAIRS activity is represented.
   await expect(page.locator('section[aria-labelledby="biography-leadership"]')).toContainText("ESMINT");

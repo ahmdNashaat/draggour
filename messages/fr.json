@@ -10,10 +10,12 @@
     "elearning": "E-learning for Physicians",
     "consultation": "Remote Consultation",
     "contact": "Contact",
-    "legal": "Privacy & legal",
+    "legal": "Legal & Privacy",
     "primaryLabel": "Primary navigation",
     "legalLabel": "Legal navigation",
     "languageLabel": "Language switcher",
+    "switchToEnglish": "Switch to English",
+    "switchToArabic": "Switch to Arabic",
     "menuOpen": "Open menu",
     "menuClose": "Close menu",
     "skipToMainContent": "Passer au contenu principal"

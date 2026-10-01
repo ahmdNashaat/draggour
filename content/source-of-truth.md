@@ -406,12 +406,24 @@ PDF/JPG/PNG (D-012).
 
 | Field                                              | Value                                                        |
 | -------------------------------------------------- | ------------------------------------------------------------ |
-| Official e-mail(s)                                 | `[APPROVAL REQUIRED]`                                        |
+| Official e-mail(s)                                 | `[APPROVAL REQUIRED]` — privacy page shows `[PRIVACY EMAIL]` |
 | WhatsApp number                                    | `[APPROVAL REQUIRED]`                                        |
 | Social / institution URLs                          | see §16                                                      |
-| Physical address                                   | `[APPROVAL REQUIRED]`                                        |
-| Privacy policy / disclaimer / consultation wording | `[APPROVAL REQUIRED]` — must match `SECURITY_AND_PRIVACY.md` |
+| Physical address                                   | `[APPROVAL REQUIRED]` — not shown on the page; only if you want it on replies or invoices (D-035) |
+| Privacy policy / disclaimer / consultation wording | `[APPROVAL REQUIRED]` — wording implemented in `content/legal.ts` (D-034, shortened by D-035); must match `SECURITY_AND_PRIVACY.md` |
 | Approved emergency message                         | principles approved (§21); wording `[APPROVAL REQUIRED]`     |
+| Legal entity / data controller                     | `[APPROVAL REQUIRED]` — page shows `[LEGAL NAME]`            |
+| Privacy or DPO contact                             | `[APPROVAL REQUIRED]` — not shown; one mailbox is enough (D-035) |
+| Countries, recipients and transfer mechanisms      | `[APPROVAL REQUIRED]` — not shown; folded into the service-providers line |
+| Service providers (hosting, e-mail, WhatsApp, scheduling, storage) | `[APPROVAL REQUIRED]` — page shows `[SERVICE PROVIDERS]` |
+| Retention periods                                  | `[APPROVAL REQUIRED]` — page shows `[RETENTION PERIODS]`     |
+| Secure medical-upload mechanism and storage        | `[APPROVAL REQUIRED]` — not shown; required before medical attachments are accepted (D-035) |
+
+The four page placeholders (`[LEGAL NAME]`, `[PRIVACY EMAIL]`,
+`[SERVICE PROVIDERS]`, `[RETENTION PERIODS]`) are defined once in
+`content/legal.ts` (`LEGAL_PLACEHOLDERS`) and guarded by
+`tests/legal.privacy.spec.ts`; supplying a value updates both the content and
+that list.
 
 ## 23. Brand & typography (`PROPOSED` — approval is visual)
 

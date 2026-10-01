@@ -3,7 +3,8 @@ import { getTranslations } from "next-intl/server";
 
 import { conditionContent } from "@/content/conditions";
 import { getLocalizedPath, type Locale } from "@/content/site";
-import { buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
+import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
+import { JsonLd } from "@/components/site/JsonLd";
 
 type ConditionsPageProps = Readonly<{
   locale: Locale;
@@ -46,7 +47,7 @@ export async function ConditionsPage({ locale }: ConditionsPageProps) {
           </div>
         </div>
       </section>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildBreadcrumbJsonLd(locale, [{ name: ui("title"), pathname: "/conditions" }])) }} />
+      <JsonLd value={buildBreadcrumbJsonLd(locale, [{ name: ui("title"), pathname: "/conditions" }])} />
     </main>
   );
 }

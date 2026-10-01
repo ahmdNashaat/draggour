@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "Dr. Mohamed Aggour | Official Website",
-    "description": "Official website of Dr. Mohamed Aggour."
+    "title": "Dr. Mohamed Aggour | Consultant Interventional Neuroradiologist",
+    "description": "Professional website of Dr. Mohamed Aggour, a Consultant Interventional Neuroradiologist."
   },
   "navigation": {
     "home": "Home",
@@ -10,10 +10,12 @@
     "elearning": "E-learning for Physicians",
     "consultation": "Remote Consultation",
     "contact": "Contact",
-    "legal": "Privacy & legal",
+    "legal": "Legal & Privacy",
     "primaryLabel": "Primary navigation",
     "legalLabel": "Legal navigation",
     "languageLabel": "Switch language",
+    "switchToEnglish": "Switch to English",
+    "switchToArabic": "Switch to Arabic",
     "menuOpen": "Open menu",
     "menuClose": "Close menu",
     "breadcrumbLabel": "Breadcrumb",
@@ -118,7 +120,8 @@
       "biographyCta": "Read Biography",
       "backToConditions": "Back to Conditions",
       "emergencyTitle": "Emergency guidance",
-      "emergencyBody": "This website is not an emergency service. Contact local emergency services and attend the nearest hospital."
+      "emergencyBody": "This website is not an emergency service. Contact local emergency services and attend the nearest hospital. Do not wait for a response from this website.",
+      "medicalDisclaimerCta": "Read the medical disclaimer"
     },
     "eLearningPage": {
       "eyebrow": "Physician education",
@@ -126,8 +129,6 @@
       "description": "An overview of teaching, faculty and physician-education activity in interventional neuroradiology.",
       "intro": "Teaching, faculty and course activity are presented as a professional gateway for physicians. This site does not host video content.",
       "teachingHeading": "Teaching and education",
-      "youtubeHeading": "YouTube destination",
-      "youtubeCta": "Watch on YouTube",
       "biographyCta": "Read Biography",
       "consultationCta": "View Remote Consultation",
       "backHome": "Return home"
@@ -143,23 +144,15 @@
       "routeCta": "View Remote Consultation",
       "linksHeading": "Professional links",
       "biographyCta": "Read Biography",
-      "legalCta": "Read Privacy & Legal",
+      "legalCta": "Read Legal & Privacy",
       "backHome": "Return home"
     },
     "legalPage": {
       "eyebrow": "Legal information",
-      "title": "Privacy & Legal",
-      "description": "Information areas covering privacy, medical safety and consultation.",
-      "intro": "Privacy information",
-      "privacy": "Privacy",
-      "medicalDisclaimer": "Medical Disclaimer",
-      "emergencyGuidance": "Emergency Guidance",
-      "consultationTerms": "Consultation Terms",
-      "consent": "Consent",
-      "attachments": "Attachment and privacy handling",
-      "cookies": "Cookie and analytics information",
-      "placeholder": "Information will be available here.",
-      "emergencyPrinciple": "This website is not an emergency service. Contact local emergency services and attend the nearest hospital.",
+      "title": "Legal & Privacy",
+      "description": "Privacy notice, medical disclaimer, remote consultation terms, and cookie and analytics information.",
+      "intro": "This website is the professional website of Dr. Mohamed Aggour. This page explains how personal information may be collected and used when you visit this website, contact the practice, submit a consultation or referral request, or use related website services.",
+      "lastUpdated": "Last updated: 30 September 2026",
       "contactCta": "Contact",
       "consultationCta": "View Remote Consultation",
       "homeCta": "Return home"
@@ -263,7 +256,7 @@
       "consent": {
         "heading": "Consent and privacy acknowledgement",
         "intro": "Please read the privacy information before continuing.",
-        "placeholder": "Privacy information",
+        "privacyLink": "Read Legal & Privacy",
         "checkbox": "I acknowledge the privacy information.",
         "error": "Consent is required before reviewing the request."
       },
@@ -287,7 +280,9 @@
         "validation": "Please complete the required branch selections and consent before continuing."
       },
       "emergency": {
+        "eyebrow": "Urgent alert",
         "heading": "Emergency guidance",
+        "stepsHeading": "Next steps",
         "body": "This website is not an emergency service.",
         "local": "Contact local emergency services.",
         "hospital": "Attend the nearest hospital.",

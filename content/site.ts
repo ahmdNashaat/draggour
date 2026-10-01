@@ -14,7 +14,7 @@ export const siteIdentity = {
   name: "Dr. Mohamed Aggour",
   localizedName: {
     en: "Dr. Mohamed Aggour",
-    ar: "محمد عقور",
+    ar: "دكتور محمد عجور",
     fr: "Dr. Mohamed Aggour",
   },
   professionalTitle: {
@@ -33,8 +33,6 @@ export const prototypeBrand = {
     offWhite: "#F7F5F0",
     darkText: "#18212B",
   },
-  // TEMPORARY PROTOTYPE URL — replace with doctor's official YouTube URL.
-  temporaryYouTubeUrl: "https://www.youtube.com/",
 } as const;
 
 export function hasLocale(value: string): value is Locale {
@@ -51,10 +49,26 @@ export function getSiteUrl(): URL | null {
   try {
     const url = new URL(value);
 
-    if (url.protocol !== "https:" && url.protocol !== "http:") {
+    const hostname = url.hostname.toLowerCase();
+
+    if (
+      url.protocol !== "https:" ||
+      url.username !== "" ||
+      url.password !== "" ||
+      hostname === "localhost" ||
+      hostname.endsWith(".localhost") ||
+      hostname === "127.0.0.1" ||
+      hostname === "0.0.0.0" ||
+      hostname === "::1" ||
+      hostname === "[::1]" ||
+      hostname.endsWith(".vercel.app")
+    ) {
       return null;
     }
 
+    url.pathname = "/";
+    url.search = "";
+    url.hash = "";
     return url;
   } catch {
     return null;

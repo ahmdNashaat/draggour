@@ -75,14 +75,16 @@ test("mobile navigation and language switching are usable", async ({ page }) => 
   await page.keyboard.press("Escape");
   await expect(menuButton).toHaveAttribute("aria-expanded", "false");
 
-  await page.getByRole("link", { name: "AR", exact: true }).click();
+  await page.getByRole("link", { name: "Switch to Arabic", exact: true }).click();
   await expect(page).toHaveURL(/\/ar$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 });
 
 test("Biography and six Conditions routes render professional content", async ({ page }) => {
-  test.setTimeout(120_000);
+  // This sweep visits every profile/condition route at all 14 required widths
+  // in both launch locales; allow the full matrix to finish on a cold server.
+  test.setTimeout(300_000);
 
   const conditionRoutes = [
     "brain-aneurysm",
@@ -171,8 +173,8 @@ test("professional, educational, contact and legal pages remain localized and re
   }
 
   await page.goto("/en/e-learning");
-  await expect(page.locator('a[href="https://www.youtube.com/"]')).toBeVisible();
-  await expect(page.getByRole("link", { name: "Watch on YouTube", exact: true })).toBeVisible();
+  await expect(page.locator('a[href^="https://www.youtube.com/"]')).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Teaching and education", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Read Biography", exact: true })).toHaveAttribute("href", "/en/biography");
 
   await page.goto("/en/contact");

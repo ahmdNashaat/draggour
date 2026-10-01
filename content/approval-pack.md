@@ -123,12 +123,29 @@ Our recommendation: drop the superlatives, publish verifiable facts only.
 
 ## J. Legal — source-of-truth §22
 
-| #   | Item                       | Answer                 |
-| --- | -------------------------- | ---------------------- |
-| J1  | Privacy policy             | APPROVE draft / supply |
-| J2  | Disclaimer                 | APPROVE draft / supply |
-| J3  | Consultation wording       | APPROVE draft / supply |
-| J4  | Approved emergency message | APPROVE / CORRECT      |
+The Legal & Privacy page is deliberately short: four parts — Privacy Notice ·
+Medical Disclaimer · Remote Consultation Terms · Cookies & Analytics — written
+as a few plain paragraphs in English and Arabic (DECISIONS.md D-034,
+simplified by D-035). J1–J4 are wording for you to approve. J5–J8 are the four
+values we cannot write for you: they appear on the page as visible
+placeholders until you supply them, and a test (`tests/legal.privacy.spec.ts`)
+fails if a placeholder is removed without the real value. J9–J12 are no longer
+shown on the page, but are still needed before the related feature goes live.
+
+| #   | Item                                                          | Answer                 |
+| --- | ------------------------------------------------------------- | ---------------------- |
+| J1  | Privacy policy                                                | APPROVE draft / supply |
+| J2  | Disclaimer                                                    | APPROVE draft / supply |
+| J3  | Consultation wording                                          | APPROVE draft / supply |
+| J4  | Approved emergency message                                    | APPROVE / CORRECT      |
+| J5  | Legal entity / data controller name — shown as `[LEGAL NAME]` | SUPPLY                 |
+| J6  | Privacy / contact e-mail — shown as `[PRIVACY EMAIL]`         | SUPPLY                 |
+| J7  | Hosting, e-mail, WhatsApp, scheduling and storage providers — shown as `[SERVICE PROVIDERS]` (add the countries they work from) | SUPPLY |
+| J8  | Retention periods — shown as `[RETENTION PERIODS]`            | SUPPLY                 |
+| J9  | Official address — no longer shown; needed only if you want it on replies or invoices | SUPPLY later |
+| J10 | Privacy or DPO contact — one mailbox (J6) is enough unless you want a separate person | CONFIRM |
+| J11 | Countries and recipients — folded into the J7 answer         | SUPPLY with J7         |
+| J12 | Secure medical-upload mechanism — required before medical attachments are accepted | SUPPLY before upload |
 
 ## K. Biography — source-of-truth §15
 
@@ -144,7 +161,8 @@ Our recommendation: drop the superlatives, publish verifiable facts only.
 1. Each answer updates `content/source-of-truth.md`
    (`Source / Status / Current / Publish`).
 2. `Publish` flips to `YES` only for what you approved.
-3. Approved wording then moves into `messages/en.json` / `messages/ar.json`.
+3. Approved wording then moves into `messages/en.json` / `messages/ar.json`
+   (page chrome) or `content/legal.ts` (legal copy).
 4. Anything unanswered stays `[APPROVAL REQUIRED]` and is not published.
 
 **Nothing ships from memory, from LinkedIn, or from a guess.**

@@ -1,24 +1,65 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
+import { LEGAL_PLACEHOLDERS, getLegalContent, type LegalBlock } from "@/content/legal";
 import { getLocalizedPath, type Locale } from "@/content/site";
-import { buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
+import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
+import { JsonLd } from "@/components/site/JsonLd";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 type LegalPageProps = Readonly<{ locale: Locale }>;
 
+const placeholderTokens = LEGAL_PLACEHOLDERS as readonly string[];
+const placeholderPattern = new RegExp(`(${placeholderTokens.map(escapeRegExp).join("|")})`, "g");
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Wraps the pending client-supplied values so they stay visibly marked until they are replaced. */
+function renderLegalText(text: string) {
+  return text.split(placeholderPattern).map((part, index) =>
+    placeholderTokens.includes(part) ? (
+      <span className="legal-placeholder" key={index}>
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  );
+}
+
+function renderBlock(block: LegalBlock, key: string) {
+  switch (block.type) {
+    case "subheading":
+      return (
+        <h3 className="legal-body__subheading" key={key}>
+          {renderLegalText(block.text)}
+        </h3>
+      );
+    case "paragraph":
+      return <p key={key}>{renderLegalText(block.text)}</p>;
+    case "note":
+      return (
+        <p className="legal-body__note" key={key}>
+          {renderLegalText(block.text)}
+        </p>
+      );
+    case "flow":
+      return (
+        <ol className="legal-body__flow" key={key}>
+          {block.items.map((item, index) => (
+            <li key={index}>{renderLegalText(item)}</li>
+          ))}
+        </ol>
+      );
+  }
+}
+
 export async function LegalPage({ locale }: LegalPageProps) {
   const ui = await getTranslations("content");
   const nav = await getTranslations("navigation");
-  const sections = [
-    "privacy",
-    "medicalDisclaimer",
-    "emergencyGuidance",
-    "consultationTerms",
-    "consent",
-    "attachments",
-    "cookies",
-  ] as const;
+  const parts = getLegalContent(locale);
 
   return (
     <main id="main-content" className="content-page professional-page" data-legal-page>
@@ -37,18 +78,19 @@ export async function LegalPage({ locale }: LegalPageProps) {
         </div>
       </section>
 
-      <div className="site-container">
+      <div className="site-container legal-intro">
         <p className="content-section__body-text">{ui("legalPage.intro")}</p>
+        <p className="legal-intro__updated">{ui("legalPage.lastUpdated")}</p>
       </div>
 
-      {sections.map((sectionKey) => (
-        <section className="content-section" key={sectionKey} aria-labelledby={`legal-${sectionKey}`}>
+      {parts.map((part) => (
+        <section className="content-section" key={part.id} aria-labelledby={`legal-${part.id}`}>
           <div className="site-container content-section__inner">
             <div>
-              <h2 id={`legal-${sectionKey}`}>{ui(`legalPage.${sectionKey}`)}</h2>
+              <h2 id={`legal-${part.id}`}>{part.title}</h2>
             </div>
-            <div className="legal-draft">
-              <p>{sectionKey === "emergencyGuidance" ? ui("legalPage.emergencyPrinciple") : ui("legalPage.placeholder")}</p>
+            <div className="legal-body">
+              {part.blocks.map((block, index) => renderBlock(block, `${part.id}-${index}`))}
             </div>
           </div>
         </section>
@@ -62,7 +104,7 @@ export async function LegalPage({ locale }: LegalPageProps) {
         </div>
       </nav>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildBreadcrumbJsonLd(locale, [{ name: ui("legalPage.title"), pathname: "/legal" }])) }} />
+      <JsonLd value={buildBreadcrumbJsonLd(locale, [{ name: ui("legalPage.title"), pathname: "/legal" }])} />
     </main>
   );
 }

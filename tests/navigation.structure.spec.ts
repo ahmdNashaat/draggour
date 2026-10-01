@@ -33,8 +33,8 @@ const primaryLabels: Record<(typeof locales)[number], readonly string[]> = {
 };
 
 const legalLabel: Record<(typeof locales)[number], string> = {
-  en: "Privacy & legal",
-  ar: "الخصوصية والشروط",
+  en: "Legal & Privacy",
+  ar: "الخصوصية والشؤون القانونية",
 };
 
 const prohibitedSectionName: Record<(typeof locales)[number], RegExp> = {
