@@ -17,6 +17,8 @@
   --color-neutral-900: #18212b;
   --color-surface: #f7f5f0;
   --color-surface-subtle: #eeebe3;
+  /* Cool navy-tinted surface; separates physician-facing sections from warm beige. */
+  --color-surface-cool: #dde5ec;
   --color-line: #d9e0e7;
   --color-line-strong: #b8c4cf;
   --color-on-dark: #f7f8fa;
@@ -754,7 +756,7 @@ a {
 }
 
 .home-learning {
-  background: var(--color-surface-subtle);
+  background: var(--color-surface-cool);
   color: var(--color-navy-950);
 }
 

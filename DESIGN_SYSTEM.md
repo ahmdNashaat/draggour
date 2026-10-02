@@ -19,7 +19,7 @@ The visual system is implemented in `globals.css` using CSS custom properties.
 * Accent Terracotta: `#c44e2f` (`--color-red-700`)
 * Accent on Dark (muted rose): `#e5a4a8` (`--color-red-200`)
 * Accent for Small Text (high contrast): `#7b2a31` (`--color-red-900`)
-* Background Surface: `#f7f5f0` (`--color-neutral-50` / `--color-surface`); Subtle surface: `#eeebe3` (`--color-surface-subtle`)
+* Background Surface: `#f7f5f0` (`--color-neutral-50` / `--color-surface`); Subtle surface: `#eeebe3` (`--color-surface-subtle`); Cool surface: `#dde5ec` (`--color-surface-cool`, reserved for physician-facing sections such as E-learning)
 * Primary/Dark Text: `#18212b` (`--color-neutral-900`)
 * Secondary Text: `#52606d` (`--color-neutral-600`)
 * On Dark: `#f7f8fa` (`--color-on-dark`)
