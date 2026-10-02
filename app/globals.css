@@ -998,12 +998,46 @@ a {
   padding: 0;
   list-style: none;
   overflow-x: auto;
-  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  /* Thin visible scrollbar so mouse users on desktop can discover and drag it. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
   -webkit-overflow-scrolling: touch;
 }
 
+.biography-toc__list li {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
 .biography-toc__list::-webkit-scrollbar {
-  display: none;
+  height: 6px;
+}
+
+.biography-toc__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.biography-toc__list::-webkit-scrollbar-thumb {
+  border-radius: var(--radius-pill);
+  background: var(--color-line-strong);
+}
+
+.biography-toc__list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-600);
+}
+
+/* Touch devices keep the clean look: swipe horizontally, no visible bar. */
+@media (pointer: coarse) {
+  .biography-toc__list {
+    scrollbar-width: none;
+    scroll-snap-type: none;
+  }
+
+  .biography-toc__list::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .biography-toc__list a {
