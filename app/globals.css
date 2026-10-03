@@ -22,6 +22,12 @@
   --color-line: #d9e0e7;
   --color-line-strong: #b8c4cf;
   --color-on-dark: #f7f8fa;
+  /* Sticky header surface: warm off-white at 92% so the backdrop blur still reads. */
+  --color-header: rgb(247 245 240 / 92%);
+  /* Decorative accent on light surfaces (bullets, resting arrows). Never used on text. */
+  --color-navy-950-a45: rgb(11 42 68 / 45%);
+  /* Interactive coral, darkened so white text keeps >= 6:1 on hover and focus. */
+  --color-red-hover: #a8401f;
 
   --color-background: var(--color-neutral-50);
   --color-foreground: var(--color-navy-950);
@@ -84,6 +90,17 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Keeps headings from leaving a single orphaned word, which is common in Arabic titles. */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
 a {
   color: inherit;
 }
@@ -94,8 +111,15 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-red-700);
+  outline: 2px solid var(--color-navy-950);
   outline-offset: 3px;
+}
+
+/* On navy surfaces a navy outline would disappear; keep focus visible there too. */
+.site-footer :focus-visible,
+.home-consultation :focus-visible,
+.content-next-links :focus-visible {
+  outline-color: var(--color-on-dark);
 }
 
 .foundation-shell {
@@ -200,7 +224,7 @@ a {
   inset-block-start: 0;
   z-index: 40;
   border-block-end: 1px solid var(--color-line);
-  background: rgb(247 248 250 / 92%);
+  background: var(--color-header);
   backdrop-filter: blur(0.75rem);
 }
 
@@ -283,7 +307,7 @@ a {
 .site-header__nav a,
 .site-footer__links a {
   color: var(--color-neutral-600);
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   text-decoration: none;
   transition: color var(--duration-fast) ease;
@@ -316,8 +340,8 @@ a {
 
 .site-header__nav a.site-header__nav-cta:hover,
 .site-header__nav a.site-header__nav-cta:focus-visible {
-  background: var(--color-red-700);
-  color: var(--color-on-dark);
+  background: var(--color-red-hover);
+  color: var(--color-neutral-0);
 }
 
 .site-header__tools {
@@ -364,10 +388,12 @@ a {
   margin-inline-start: 0.5rem;
 }
 
+/* One compact two-segment control: the other language leads, the current one stays quiet. */
 .language-switcher {
   display: inline-flex;
   align-items: center;
   gap: 0.125rem;
+  min-height: 2.75rem;
   padding: 0.1875rem;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-pill);
@@ -375,26 +401,45 @@ a {
 }
 
 .language-switcher__link {
-  display: inline-grid;
-  min-width: 2rem;
-  min-height: 2rem;
-  place-items: center;
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 0.75rem;
   border-radius: var(--radius-pill);
   color: var(--color-neutral-600);
-  font-size: 0.6875rem;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.2;
   text-decoration: none;
+  white-space: nowrap;
   transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease;
 }
 
-.language-switcher__link[aria-current="page"] {
-  background: var(--color-navy-950);
-  color: var(--color-on-dark);
+.language-switcher__link--other {
+  color: var(--color-navy-950);
+  font-weight: 600;
 }
 
 .language-switcher__link:hover,
 .language-switcher__link:focus-visible {
-  color: var(--color-red-700);
+  background: rgb(215 208 198 / 35%);
+}
+
+.language-switcher__code {
+  display: none;
+}
+
+@media (max-width: 24rem) {
+  /* At 24rem and below the current-language segment falls back to its short code
+     so the two full names cannot push the 320px header past its container. */
+  .language-switcher__link--current .language-switcher__name {
+    display: none;
+  }
+
+  .language-switcher__link--current .language-switcher__code {
+    display: inline;
+  }
 }
 
 .menu-toggle {
@@ -438,7 +483,9 @@ a {
   grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
   align-items: center;
   gap: clamp(2.5rem, 8vw, 8rem);
-  padding-block: clamp(4rem, 10vw, 9rem);
+  /* No bottom padding: the portrait cell sits on the section edge instead of floating. */
+  padding-block-start: clamp(4rem, 10vw, 9rem);
+  padding-block-end: 0;
 }
 
 .home-hero__content {
@@ -482,6 +529,15 @@ a {
   color: var(--color-navy-950);
   font-size: clamp(1.125rem, 2.1vw, 1.625rem);
   line-height: 1.45;
+}
+
+/* Plain supporting line: no coral bar, deliberately quieter than the title above it. */
+.home-hero__plain {
+  max-width: 34rem;
+  margin: var(--space-4) 0 0;
+  color: var(--color-neutral-600);
+  font-size: clamp(1rem, 1.5vw, 1.0625rem);
+  line-height: 1.7;
 }
 
 .home-hero__logo {
@@ -528,7 +584,8 @@ a {
 
 .button--primary:hover,
 .button--primary:focus-visible {
-  background: var(--color-red-700);
+  background: var(--color-red-hover);
+  color: var(--color-neutral-0);
 }
 
 .button--light {
@@ -554,14 +611,11 @@ a {
   align-items: center;
   gap: 0.625rem;
   color: var(--color-navy-950);
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 700;
-  text-decoration: none;
-}
-
-.text-link {
-  border-block-end: 1px solid var(--color-line-strong);
-  padding-block-end: 0.375rem;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
 }
 
 .text-link:hover,
@@ -574,16 +628,20 @@ a {
 .arrow-link__icon {
   width: 1.125rem;
   height: 1.125rem;
+  /* Default is identity so RTL only has to flip the variable, never the hover rule. */
+  --icon-mirror: translate(0px, 0px);
+  transform: var(--icon-mirror);
   transition: transform var(--duration-standard) ease;
 }
 
 .arrow-link:hover .arrow-link__icon,
 .arrow-link:focus-visible .arrow-link__icon {
-  transform: translateX(0.25rem);
+  transform: var(--icon-mirror) translateX(0.25rem);
 }
 
 .home-hero__portrait {
   width: min(100%, 32rem);
+  align-self: end;
   margin-inline: auto;
 }
 
@@ -591,6 +649,8 @@ a {
   position: relative;
   aspect-ratio: 2 / 3;
   overflow: hidden;
+  /* Soft radial highlight behind the cutout so it separates from the section surface. */
+  background: radial-gradient(circle at 50% 58%, rgb(247 245 240 / 90%) 0 34%, rgb(247 245 240 / 0%) 74%);
 }
 
 .home-hero__portrait-image {
@@ -598,7 +658,7 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
+  object-position: center bottom;
 }
 
 .portrait-placeholder {
@@ -660,6 +720,7 @@ a {
 
 .home-biography {
   background: var(--color-surface);
+  border-block-end: 1px solid var(--color-line);
 }
 
 .home-biography__grid,
@@ -697,9 +758,16 @@ a {
 }
 
 .home-biography__copy {
-  align-self: end;
+  align-self: start;
   max-width: 38rem;
-  padding-block-start: clamp(1rem, 5vw, 5rem);
+  padding-block-start: 0;
+}
+
+/* Spec 3.3: the preview paragraph reads at 1.125rem / 1.7 inside a 38rem measure. */
+.home-biography__copy > p {
+  max-width: 38rem;
+  font-size: 1.125rem;
+  line-height: 1.7;
 }
 
 .home-biography__copy .arrow-link {
@@ -708,6 +776,7 @@ a {
 
 .home-conditions {
   background: var(--color-surface-subtle);
+  border-block-end: 1px solid var(--color-line);
 }
 
 .condition-list {
@@ -728,43 +797,90 @@ a {
   border-block-end: 1px solid var(--color-line-strong);
 }
 
+/* One row, one link: serif title, optional summary line, arrow at the inline end. */
 .condition-list a {
   display: flex;
-  min-height: 5.25rem;
+  min-height: 3.5rem;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  padding-block: 0.75rem;
   color: var(--color-navy-950);
-  font-family: var(--font-display);
-  font-size: clamp(1.25rem, 2.3vw, 2rem);
-  line-height: 1.15;
   text-decoration: none;
-  transition: color var(--duration-fast) ease, padding-inline var(--duration-standard) ease;
+  transition: background-color var(--duration-standard) ease, color var(--duration-standard) ease;
+}
+
+.condition-list a:has(.condition-list__summary) {
+  min-height: 4rem;
 }
 
 .condition-list a:hover,
 .condition-list a:focus-visible {
-  padding-inline: 0.5rem;
+  background: rgb(215 208 198 / 60%);
   color: var(--color-red-700);
+}
+
+.condition-list__text {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.condition-list__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  font-weight: var(--font-weight-heading, 400);
+  line-height: 1.25;
+}
+
+.condition-list__summary {
+  color: var(--color-neutral-600);
+  font-size: 0.9375rem;
+  line-height: 1.5;
 }
 
 .condition-list__arrow {
   flex: 0 0 auto;
+  width: 1.125rem;
+  height: 1.125rem;
+  /* Identity transform by default so RTL only flips this variable. */
+  --arrow-mirror: translate(0px, 0px);
+  color: var(--color-navy-950-a45);
+  transform: var(--arrow-mirror);
+  transition: color var(--duration-standard) ease, transform var(--duration-standard) ease;
+}
+
+.condition-list a:hover .condition-list__arrow,
+.condition-list a:focus-visible .condition-list__arrow {
   color: var(--color-red-700);
-  font-family: var(--font-body);
-  font-size: 1.125rem;
+  /* Nudge 2px along the arrow's own pointing direction (flipped by --arrow-mirror). */
+  transform: var(--arrow-mirror) translate(2px, -2px);
 }
 
 .home-learning {
   background: var(--color-surface-cool);
   color: var(--color-navy-950);
+  /* Compact band: roughly 60% of the shared section rhythm. */
+  padding-block: clamp(1.8rem, 4.8vw, 4.8rem);
 }
 
 .home-learning__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
-  gap: clamp(2rem, 8vw, 8rem);
+  gap: clamp(2rem, 8vw, 6rem);
+}
+
+.home-learning__aside {
+  min-width: 0;
+}
+
+.home-learning__description {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--color-neutral-600);
+  font-size: clamp(1rem, 1.5vw, 1.0625rem);
+  line-height: 1.7;
 }
 
 .home-consultation .section-heading h2 {
@@ -780,7 +896,7 @@ a {
 }
 
 .home-learning .arrow-link {
-  margin-block-start: var(--space-7);
+  margin-block-start: var(--space-5);
 }
 
 .home-placeholder {
@@ -835,14 +951,16 @@ a {
 .site-footer {
   background: var(--color-navy-1000);
   color: var(--color-on-dark);
-  border-block-start: 1px solid rgba(255, 255, 255, 0.14);
+  border-block-start: 1px solid rgb(247 248 250 / 12%);
 }
 
 .site-footer__main {
   display: grid;
   grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(0, 0.7fr));
   gap: clamp(2rem, 7vw, 7rem);
-  padding-block: clamp(3rem, 7vw, 6rem);
+  /* Extra top padding: the navy consultation section and footer are only ~1.2:1 apart. */
+  padding-block-start: clamp(4.5rem, 10vw, 8.5rem);
+  padding-block-end: clamp(3rem, 7vw, 6rem);
 }
 
 .brand--footer {
@@ -894,7 +1012,7 @@ a {
   padding-block: var(--space-4);
   border-block-start: 1px solid rgb(247 248 250 / 20%);
   color: rgb(247 248 250 / 52%);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
 }
 
 .site-footer__bottom p {
@@ -1197,7 +1315,8 @@ a {
   width: 0.35rem;
   height: 0.35rem;
   border-radius: 50%;
-  background: var(--color-red-700);
+  /* Decorative accent: navy at 45% keeps coral reserved for interactive states. */
+  background: var(--color-navy-950-a45);
   content: "";
 }
 
@@ -1226,7 +1345,7 @@ a {
 }
 
 .career-timeline time {
-  color: var(--color-red-700);
+  color: var(--color-red-900);
   font-size: 0.8125rem;
   font-weight: 700;
   line-height: 1.5;
@@ -2243,10 +2362,17 @@ a {
   margin-block-start: var(--space-7);
 }
 
-[dir="rtl"] .arrow-link__icon,
-[dir="rtl"] .button__arrow,
-[dir="rtl"] .condition-list__arrow {
+/* RTL only flips these two variables: hover nudges keep pointing the same visual way. */
+[dir="rtl"] .button__arrow {
   transform: scaleX(-1);
+}
+
+[dir="rtl"] .arrow-link__icon {
+  --icon-mirror: scaleX(-1);
+}
+
+[dir="rtl"] .condition-list__arrow {
+  --arrow-mirror: scaleX(-1);
 }
 
 @media (max-width: 59.999rem) {
@@ -2304,9 +2430,24 @@ a {
   }
 
   .site-header__nav a {
-    display: block;
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
     padding-block: 0.875rem;
     border-block-end: 1px solid var(--color-line);
+  }
+
+  /* Touch targets: every tappable label clears 44px on mobile. */
+  .site-footer__links a,
+  .text-link,
+  .arrow-link,
+  .language-switcher__link {
+    min-height: 2.75rem;
+  }
+
+  .site-footer__links a {
+    display: inline-flex;
+    align-items: center;
   }
 
   .site-header__nav .site-header__nav-item--cta {
@@ -2347,6 +2488,15 @@ a {
 }
 
 @media (max-width: 47.999rem) {
+  /* Hero collapses to H1, title, plain line, actions, portrait: no hero logo. */
+  .home-hero__logo {
+    display: none;
+  }
+
+  .home-biography__copy > p {
+    font-size: 1.0625rem;
+  }
+
   .condition-list {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2432,6 +2582,21 @@ a {
     width: 8.5rem;
   }
 
+  /* Primary action spans the column; the secondary link sits below it. */
+  .home-hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+
+  .home-hero__actions .button--primary {
+    inline-size: 100%;
+  }
+
+  .home-hero__actions .text-link {
+    align-self: flex-start;
+  }
+
   .site-footer__main,
   .condition-route-grid,
   .content-card-grid--three,
@@ -2454,6 +2619,10 @@ a {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 

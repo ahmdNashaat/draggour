@@ -24,6 +24,9 @@ export async function HomePage({ locale }: HomePageProps) {
           <div className="home-hero__content">
             <h1 id="home-title">{siteIdentity.localizedName[locale]}</h1>
             <p className="home-hero__title">{siteIdentity.professionalTitle[locale]}</p>
+            {t.has("hero.plainLine") ? (
+              <p className="home-hero__plain">{t("hero.plainLine")}</p>
+            ) : null}
             <Image
               alt={siteIdentity.name}
               className="home-hero__logo"
@@ -86,10 +89,30 @@ export async function HomePage({ locale }: HomePageProps) {
             {conditionItems.map((condition) => (
               <li key={condition.slug}>
                 <Link href={getLocalizedPath(locale, `/conditions/${condition.slug}`)}>
-                  <span>{t(`conditions.items.${condition.key}.title`)}</span>
-                  <span aria-hidden="true" className="condition-list__arrow">
-                    ↗
+                  <span className="condition-list__text">
+                    <span className="condition-list__title">
+                      {t(`conditions.items.${condition.key}.title`)}
+                    </span>
+                    {t.has(`conditions.items.${condition.key}.summary`) ? (
+                      <span className="condition-list__summary">
+                        {t(`conditions.items.${condition.key}.summary`)}
+                      </span>
+                    ) : null}
                   </span>
+                  <svg
+                    aria-hidden="true"
+                    className="condition-list__arrow"
+                    fill="none"
+                    viewBox="0 0 18 18"
+                  >
+                    <path
+                      d="M5 13 13 5M6.5 5H13v6.5"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.6"
+                    />
+                  </svg>
                 </Link>
               </li>
             ))}
@@ -99,13 +122,13 @@ export async function HomePage({ locale }: HomePageProps) {
 
       <section className="home-section home-learning" id="e-learning" aria-labelledby="learning-title">
         <div className="site-container home-learning__grid">
-          <div>
-            <SectionHeading
-              eyebrow={t("learning.eyebrow")}
-              id="learning-title"
-              title={t("learning.title")}
-              description={t("learning.description")}
-            />
+          <SectionHeading
+            eyebrow={t("learning.eyebrow")}
+            id="learning-title"
+            title={t("learning.title")}
+          />
+          <div className="home-learning__aside">
+            <p className="home-learning__description">{t("learning.description")}</p>
             <ArrowLink href={getLocalizedPath(locale, "/e-learning")}>{t("learning.cta")}</ArrowLink>
           </div>
         </div>
