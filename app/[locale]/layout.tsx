@@ -9,6 +9,7 @@ import "../globals.css";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
 import { LanguageSwitcher } from "@/components/site/LanguageSwitcher";
+import { StickyConsultationCta } from "@/components/site/StickyConsultationCta";
 import { legalNavigation, primaryNavigation } from "@/content/navigation";
 import { getLocalizedPath, locales, localeDirections, hasLocale, siteIdentity, type Locale } from "@/content/site";
 import { getLocaleMetadata } from "@/lib/seo/metadata";
@@ -99,6 +100,7 @@ export default async function LocaleLayout({
             navigationLabel={navigationTranslations("primaryLabel")}
           />
           {children}
+          <StickyConsultationCta locale={locale} />
           <Footer
             brandName={siteIdentity.localizedName[locale]}
             copyright={footerTranslations("copyright", { year })}

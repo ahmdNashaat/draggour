@@ -2609,8 +2609,39 @@ a {
     gap: 0.5rem;
   }
 
+}
 
+/* Mobile action bar (section 3.7): home and conditions only, under the header. */
+.sticky-cta {
+  display: none;
+}
 
+@media (max-width: 47.999rem) {
+  .sticky-cta {
+    position: fixed;
+    inset-block-end: 0;
+    inset-inline: 0;
+    z-index: 30;
+    display: block;
+    padding: 0.75rem var(--space-page-inline) calc(0.75rem + env(safe-area-inset-bottom));
+    border-block-start: 1px solid var(--color-line);
+    background: var(--color-header);
+    backdrop-filter: blur(0.75rem);
+  }
+
+  .sticky-cta[data-visible="false"],
+  body.site-nav-open .sticky-cta {
+    display: none;
+  }
+
+  .sticky-cta__button {
+    width: 100%;
+    min-height: 3rem;
+  }
+
+  body.has-sticky-cta {
+    padding-block-end: 4.75rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

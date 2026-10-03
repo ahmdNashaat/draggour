@@ -54,6 +54,12 @@ export function Header({
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, []);
 
+  // The mobile action bar steps aside while the menu owns the screen.
+  useEffect(() => {
+    document.body.classList.toggle("site-nav-open", isOpen);
+    return () => document.body.classList.remove("site-nav-open");
+  }, [isOpen]);
+
   const homeHref = `/${locale}`;
 
   return (
