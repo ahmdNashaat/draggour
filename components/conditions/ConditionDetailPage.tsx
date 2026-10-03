@@ -27,7 +27,6 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
       <section className="content-hero" aria-labelledby="condition-title">
         <div className="site-container content-hero__grid content-hero__grid--compact">
           <div>
-            <p className="eyebrow">{ui("eyebrow")}</p>
             <h1 id="condition-title">{title}</h1>
             <p className="content-hero__description">{isArabic ? condition.arabicDescription : condition.description}</p>
           </div>
@@ -55,17 +54,12 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
           </div>
         </section>
       ) : null}
-      <section className="content-section" aria-labelledby="condition-next-step">
-        <div className="site-container content-section__inner">
-          <div>
-            <h2 id="condition-next-step">{ui("consultationCta")}</h2>
-          </div>
-          <div className="content-actions">
-            <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("consultationCta")}</Link>
-            <Link className="text-link" href={getLocalizedPath(locale, "/conditions")}>{ui("backToConditions")}</Link>
-            <Link className="text-link" href={getLocalizedPath(locale, "/biography")}>{ui("biographyCta")}</Link>
-            <Link className="text-link" href={getLocalizedPath(locale, "/legal")}>{ui("medicalDisclaimerCta")}</Link>
-          </div>
+      <section className="content-section" aria-label={ui("consultationCta")}>
+        <div className="site-container content-actions">
+          <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("consultationCta")}</Link>
+          <Link className="text-link" href={getLocalizedPath(locale, "/conditions")}>{ui("backToConditions")}</Link>
+          <Link className="text-link" href={getLocalizedPath(locale, "/biography")}>{ui("biographyCta")}</Link>
+          <Link className="text-link" href={getLocalizedPath(locale, "/legal")}>{ui("medicalDisclaimerCta")}</Link>
         </div>
       </section>
       <JsonLd value={buildBreadcrumbJsonLd(locale, [{ name: ui("title"), pathname: "/conditions" }, { name: title, pathname: `/conditions/${condition.slug}` }])} />

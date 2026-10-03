@@ -25,7 +25,7 @@ export async function ConditionsPage({ locale }: ConditionsPageProps) {
       </section>
       <section className="content-section content-section--surface" aria-labelledby="conditions-list-title">
         <div className="site-container">
-          <h2 id="conditions-list-title">{ui("title")}</h2>
+          <h2 className="sr-only" id="conditions-list-title">{ui("title")}</h2>
           <div className="condition-route-grid">
             {conditionContent.map((condition) => (
               <Link className="condition-route-card" href={getLocalizedPath(locale, `/conditions/${condition.slug}`)} key={condition.slug}>
@@ -36,15 +36,10 @@ export async function ConditionsPage({ locale }: ConditionsPageProps) {
           </div>
         </div>
       </section>
-      <section className="content-section" aria-labelledby="conditions-next-step">
-        <div className="site-container content-section__inner">
-          <div>
-            <h2 id="conditions-next-step">{ui("consultationCta")}</h2>
-          </div>
-          <div className="content-section__body content-actions">
-            <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("consultationCta")}</Link>
-            <Link className="text-link" href={getLocalizedPath(locale, "/biography")}>{ui("biographyCta")}</Link>
-          </div>
+      <section className="content-section" aria-label={ui("consultationCta")}>
+        <div className="site-container content-actions">
+          <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("consultationCta")}</Link>
+          <Link className="text-link" href={getLocalizedPath(locale, "/biography")}>{ui("biographyCta")}</Link>
         </div>
       </section>
       <JsonLd value={buildBreadcrumbJsonLd(locale, [{ name: ui("title"), pathname: "/conditions" }])} />

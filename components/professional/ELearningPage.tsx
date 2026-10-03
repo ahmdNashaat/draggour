@@ -42,16 +42,6 @@ export async function ELearningPage({ locale }: ELearningPageProps) {
         </div>
       </section>
 
-      <section className="content-section content-section--surface" aria-labelledby="e-learning-intro">
-        <div className="site-container content-section__inner">
-          <div>
-            <p className="eyebrow">{ui("eLearningPage.eyebrow")}</p>
-            <h2 id="e-learning-intro">{ui("eLearningPage.title")}</h2>
-          </div>
-          <p className="content-section__body-text">{ui("eLearningPage.intro")}</p>
-        </div>
-      </section>
-
       <section className="content-section" aria-labelledby="e-learning-teaching">
         <div className="site-container content-section__inner">
           <div>
