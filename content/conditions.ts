@@ -3,6 +3,14 @@ import { conditionItems } from "@/content/home";
 export type ConditionKey = (typeof conditionItems)[number]["key"];
 export type ConditionSlug = (typeof conditionItems)[number]["slug"];
 
+export type ConditionSectionContent = Readonly<{
+  id: string;
+  title: string;
+  arabicTitle: string;
+  body: string;
+  arabicBody: string;
+}>;
+
 export type ConditionContent = Readonly<{
   key: ConditionKey;
   slug: ConditionSlug;
@@ -11,6 +19,11 @@ export type ConditionContent = Readonly<{
   arabicDescription: string;
   scope: readonly string[];
   arabicScope: readonly string[];
+  /** Optional plain-language line under the introduction; never required. */
+  plain?: string;
+  arabicPlain?: string;
+  /** Optional approved sections, collapsed to accordions on small screens. */
+  sections?: readonly ConditionSectionContent[];
   review?: string;
   emergency?: boolean;
 }>;

@@ -6,6 +6,8 @@ import { getLocalizedPath, type Locale } from "@/content/site";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { JsonLd } from "@/components/site/JsonLd";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { ConditionSections } from "./ConditionSections";
+import { EmergencyNotice } from "./EmergencyNotice";
 
 type ConditionDetailPageProps = Readonly<{
   locale: Locale;
@@ -17,6 +19,12 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
   const home = await getTranslations("home");
   const title = home(`conditions.items.${condition.key}.title`);
   const isArabic = locale === "ar";
+  const plain = isArabic ? condition.arabicPlain : condition.plain;
+  const sections = (condition.sections ?? []).map((section, index) => ({
+    id: `${condition.slug}-section-${index}`,
+    title: isArabic ? section.arabicTitle : section.title,
+    body: isArabic ? section.arabicBody : section.body,
+  }));
 
   return (
     <main id="main-content" className="content-page condition-detail-page" data-condition-page={condition.slug}>
@@ -25,12 +33,13 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
         { name: title }
       ]} />
       <section className="content-hero" aria-labelledby="condition-title">
-        <div className="site-container content-hero__grid content-hero__grid--compact">
-          <div>
-            <h1 id="condition-title">{title}</h1>
-            <p className="content-hero__description">{isArabic ? condition.arabicDescription : condition.description}</p>
+        <div className="site-container">
+          <h1 id="condition-title">{title}</h1>
+          <p className="content-hero__description">{isArabic ? condition.arabicDescription : condition.description}</p>
+          {plain ? <p className="content-hero__plain">{plain}</p> : null}
+          <div className="content-hero__actions">
+            <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("consultationCta")}</Link>
           </div>
-          <div className="content-hero__index" aria-hidden="true">0{condition.slug === "brain-aneurysm" ? "1" : condition.slug === "stroke" ? "2" : condition.slug === "avm" ? "3" : condition.slug === "carotid-stenosis" ? "4" : condition.slug === "venous-sinus-disorders" ? "5" : "6"}</div>
         </div>
       </section>
       <section className="content-section content-section--surface" aria-labelledby="condition-scope-title">
@@ -46,22 +55,17 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
           </div>
         </div>
       </section>
+      <ConditionSections sections={sections} />
       {condition.emergency ? (
-        <section className="content-section condition-emergency" aria-labelledby="condition-emergency-title">
-          <div className="site-container">
-            <h2 id="condition-emergency-title">{ui("emergencyTitle")}</h2>
-            <p>{ui("emergencyBody")}</p>
-          </div>
-        </section>
+        <EmergencyNotice body={ui("emergencyBody")} id="condition-emergency-title" title={ui("emergencyTitle")} />
       ) : null}
-      <section className="content-section" aria-label={ui("consultationCta")}>
+      <div className="content-section">
         <div className="site-container content-actions">
-          <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("consultationCta")}</Link>
           <Link className="text-link" href={getLocalizedPath(locale, "/conditions")}>{ui("backToConditions")}</Link>
           <Link className="text-link" href={getLocalizedPath(locale, "/biography")}>{ui("biographyCta")}</Link>
           <Link className="text-link" href={getLocalizedPath(locale, "/legal")}>{ui("medicalDisclaimerCta")}</Link>
         </div>
-      </section>
+      </div>
       <JsonLd value={buildBreadcrumbJsonLd(locale, [{ name: ui("title"), pathname: "/conditions" }, { name: title, pathname: `/conditions/${condition.slug}` }])} />
     </main>
   );

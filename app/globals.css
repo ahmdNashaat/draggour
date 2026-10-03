@@ -1071,6 +1071,22 @@ a {
   line-height: 1.75;
 }
 
+.content-hero__plain {
+  max-width: 46rem;
+  margin: var(--space-4) 0 0;
+  color: var(--color-navy-950);
+  font-size: clamp(1rem, 1.6vw, 1.125rem);
+  line-height: 1.7;
+}
+
+.content-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-block-start: var(--space-6);
+}
+
 .content-hero__portrait {
   display: block;
   width: 100%;
@@ -2298,16 +2314,99 @@ a {
   font-size: 1.5rem;
 }
 
+/* Emergency guidance: an outlined callout on a cool surface, so urgency reads
+   through structure and contrast instead of a red fill (section 4.4). */
 .condition-emergency {
-  border-block-end-color: rgb(155 61 74 / 35%);
-  background: rgb(155 61 74 / 8%);
+  background: var(--color-surface-cool);
+  border-block-end-color: rgb(21 34 51 / 18%);
 }
 
-.condition-emergency p:last-child {
+.emergency-notice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-4);
+  max-width: 60rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1.5px solid var(--color-navy-950);
+}
+
+.emergency-notice__icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--color-red-900);
+}
+
+.emergency-notice__body h2 {
+  max-width: 24ch;
+  margin: 0;
+  color: var(--color-navy-950);
+  font-family: var(--font-display);
+  font-size: clamp(1.375rem, 2.4vw, 1.75rem);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.emergency-notice p {
   max-width: 48rem;
-  margin: var(--space-5) 0 0;
+  margin: var(--space-4) 0 0;
   color: var(--color-neutral-900);
   font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.7;
+}
+
+.condition-sections__list {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 60rem;
+}
+
+.condition-section {
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.condition-section__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 3.5rem;
+  padding: var(--space-4);
+  color: var(--color-navy-950);
+  font-family: var(--font-display);
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  line-height: 1.35;
+  list-style: none;
+  cursor: pointer;
+}
+
+.condition-section__summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Symmetric chevron: the same shape reads correctly in both directions. */
+.condition-section__summary::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform var(--duration-fast) ease;
+}
+
+.condition-section[open] .condition-section__summary::after {
+  transform: rotate(-135deg);
+}
+
+.condition-section__body {
+  max-width: 48rem;
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-4);
+  color: var(--color-neutral-600);
+  font-size: 1.0625rem;
   line-height: 1.7;
 }
 
