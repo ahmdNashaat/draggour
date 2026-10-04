@@ -1,5 +1,7 @@
 import type { Locale } from "@/content/site";
-import { pendingBiographyIntro, showPendingCopy } from "@/content/pending-copy";
+// Relative on purpose: the test suite loads this file through a dynamic
+// import, where the "@/" alias is not mapped at runtime.
+import { pendingBiographyIntro, showPendingCopy } from "./pending-copy";
 
 export type BiographyItem = Readonly<{
   title: string;
