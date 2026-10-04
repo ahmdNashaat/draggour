@@ -1,4 +1,5 @@
 import type { Locale } from "@/content/site";
+import { pendingBiographyIntro, showPendingCopy } from "@/content/pending-copy";
 
 export type BiographyItem = Readonly<{
   title: string;
@@ -47,7 +48,9 @@ export const biographyContent: BiographyContent = {
       "Specializes in cerebral aneurysms, AVMs, and acute stroke",
     ],
     paragraphs: [
-      "Dr. Mohamed Aggour is a Consultant Interventional Neuroradiologist with more than nineteen years of experience in minimally invasive endovascular neuroradiology, engaged in the treatment and management of brain and spinal vascular diseases.",
+      showPendingCopy
+        ? pendingBiographyIntro.en
+        : "Dr. Mohamed Aggour is a Consultant Interventional Neuroradiologist with more than nineteen years of experience in minimally invasive endovascular neuroradiology, engaged in the treatment and management of brain and spinal vascular diseases.",
       "His work covers cerebral aneurysms, brain and spinal arteriovenous malformations, intracranial stenosis and acute stroke — from diagnosis, decision-making and therapeutic strategy through to treatment and follow-up.",
       "After leading the interventional neuroradiology activity at Saint Etienne University Hospitals for nine years, and at Lille University Hospitals for three years, he moved to The Royal London Hospital — Barts NHS Trust, developing with the existing team the interventional neuroradiology activity in Barts NHS Trust, serving Londoners and beyond.",
       "The 24/7 stroke mechanical thrombectomy service serves more than 250 patients each year from London and surrounding areas. Drawing on his experience in organising regional and national management of subarachnoid haemorrhage and stroke networks in France, he works with the interventional neuroradiology team at The Royal London Hospital to develop the service and optimise patients’ care and management.",
@@ -283,7 +286,9 @@ export const biographyContentArabic: BiographyContent = {
       "متخصص في تمدد الأوعية الدموية الدماغية والتشوهات الشريانية الوريدية والسكتة الدماغية الحادة",
     ],
     paragraphs: [
-      "الدكتور محمد عجور استشاري في الأشعة العصبية التداخلية، ذو خبرة تزيد على تسعة عشر عاماً في الأشعة التداخلية داخل الأوعية المنخفضة الغاز، مُكرَّس لعلاج وأمراض الأوعية الدموية الدماغية والشوكية.",
+      showPendingCopy
+        ? pendingBiographyIntro.ar
+        : "الدكتور محمد عجور استشاري في الأشعة العصبية التداخلية، ذو خبرة تزيد على تسعة عشر عاماً في الأشعة التداخلية داخل الأوعية المنخفضة الغاز، مُكرَّس لعلاج وأمراض الأوعية الدموية الدماغية والشوكية.",
       "تشمل أعماله تمدد الأوعية الدموية في الدماغ، والتشوهات الشريانية الوريدية الدماغية والشوكية، وتضيق الأوعية داخل القحف، والسكتة الدماغية الحادة — من التشخيص واتخاذ القرار والاستراتيجية العلاجية حتى العلاج والمتابعة.",
       "بعد توليه نشاط الأشعة العصبية التداخلية في مستشفيات سانت إتيان الجامعية لمدة تسع سنوات، وفي مستشفيات ليل الجامعية لمدة ثلاث سنوات، انتقل إلى مستشفى رويال لندن — Barts NHS Trust، حيث طوّر مع الفريق القائم نشاط الأشعة العصبية التداخلية في منظومة Barts NHS Trust، في خدمة سكان لندن وما حولها.",
       "تخدم خدمة استخلاص الجلطة الميكانيكي على مدار الساعة للسكتة الدماغية أكثر من 250 مريضاً سنوياً من لندن والمناطق المجاورة. وبالاستناد إلى خبرته في تنظيم الشبكات الإقليمية والوطنية لإدارة النزف تحت العنكبوتية والسكتة الدماغية في فرنسا، يعمل مع فريق الأشعة العصبية التداخلية في مستشفى رويال لندن على تطوير هذه الخدمة وتحسين رعاية المرضى وإدارتهم.",

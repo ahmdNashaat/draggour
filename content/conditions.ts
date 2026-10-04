@@ -1,4 +1,5 @@
 import { conditionItems } from "@/content/home";
+import { pendingConditionScope, showPendingCopy } from "@/content/pending-copy";
 
 export type ConditionKey = (typeof conditionItems)[number]["key"];
 export type ConditionSlug = (typeof conditionItems)[number]["slug"];
@@ -32,7 +33,7 @@ export type ConditionContent = Readonly<{
   emergency?: boolean;
 }>;
 
-export const conditionContent = [
+const baseConditionContent = [
   {
     key: "brainAneurysm",
     slug: "brain-aneurysm",
@@ -141,6 +142,17 @@ export const conditionContent = [
     review: "The source records this clinical expertise; patient-facing explanatory copy is not present in the source of truth.",
   },
 ] satisfies readonly ConditionContent[];
+
+/**
+ * Approved content. Section 5's proposed English procedure labels are
+ * applied only when SHOW_PENDING_COPY=1, and never in production builds.
+ */
+export const conditionContent: readonly ConditionContent[] = showPendingCopy
+  ? baseConditionContent.map((condition) => {
+      const scope = pendingConditionScope[condition.slug];
+      return scope ? { ...condition, scope } : condition;
+    })
+  : baseConditionContent;
 
 export function getConditionContent(slug: string) {
   return conditionContent.find((condition) => condition.slug === slug);
