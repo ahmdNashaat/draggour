@@ -3,12 +3,16 @@ import { conditionItems } from "@/content/home";
 export type ConditionKey = (typeof conditionItems)[number]["key"];
 export type ConditionSlug = (typeof conditionItems)[number]["slug"];
 
-export type ConditionSectionContent = Readonly<{
-  id: string;
-  title: string;
-  arabicTitle: string;
-  body: string;
-  arabicBody: string;
+/** Optional approved sections. Each renders only when its data exists. */
+export type ConditionSectionsContent = Readonly<{
+  symptoms?: string;
+  arabicSymptoms?: string;
+  urgentCare?: string;
+  arabicUrgentCare?: string;
+  treatment?: string;
+  arabicTreatment?: string;
+  afterTreatment?: string;
+  arabicAfterTreatment?: string;
 }>;
 
 export type ConditionContent = Readonly<{
@@ -19,11 +23,11 @@ export type ConditionContent = Readonly<{
   arabicDescription: string;
   scope: readonly string[];
   arabicScope: readonly string[];
-  /** Optional plain-language line under the introduction; never required. */
-  plain?: string;
-  arabicPlain?: string;
+  /** Optional plain-language line under a procedure, aligned by index. */
+  scopePlain?: ReadonlyArray<string | undefined>;
+  arabicScopePlain?: ReadonlyArray<string | undefined>;
   /** Optional approved sections, collapsed to accordions on small screens. */
-  sections?: readonly ConditionSectionContent[];
+  sections?: ConditionSectionsContent;
   review?: string;
   emergency?: boolean;
 }>;

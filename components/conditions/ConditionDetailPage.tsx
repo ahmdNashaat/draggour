@@ -19,12 +19,16 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
   const home = await getTranslations("home");
   const title = home(`conditions.items.${condition.key}.title`);
   const isArabic = locale === "ar";
-  const plain = isArabic ? condition.arabicPlain : condition.plain;
-  const sections = (condition.sections ?? []).map((section, index) => ({
-    id: `${condition.slug}-section-${index}`,
-    title: isArabic ? section.arabicTitle : section.title,
-    body: isArabic ? section.arabicBody : section.body,
-  }));
+  const scopePlain = isArabic ? condition.arabicScopePlain : condition.scopePlain;
+  // Approved sections only: a section without data is never rendered.
+  const sections = [
+    { key: "symptoms", title: ui("sections.symptoms"), body: isArabic ? condition.sections?.arabicSymptoms : condition.sections?.symptoms },
+    { key: "urgentCare", title: ui("sections.urgentCare"), body: isArabic ? condition.sections?.arabicUrgentCare : condition.sections?.urgentCare },
+    { key: "treatment", title: ui("sections.treatment"), body: isArabic ? condition.sections?.arabicTreatment : condition.sections?.treatment },
+    { key: "afterTreatment", title: ui("sections.afterTreatment"), body: isArabic ? condition.sections?.arabicAfterTreatment : condition.sections?.afterTreatment },
+  ]
+    .filter((section): section is { key: string; title: string; body: string } => Boolean(section.body))
+    .map((section) => ({ id: `${condition.slug}-${section.key}`, title: section.title, body: section.body }));
 
   return (
     <main id="main-content" className="content-page condition-detail-page" data-condition-page={condition.slug}>
@@ -36,9 +40,8 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
         <div className="site-container">
           <h1 id="condition-title">{title}</h1>
           <p className="content-hero__description">{isArabic ? condition.arabicDescription : condition.description}</p>
-          {plain ? <p className="content-hero__plain">{plain}</p> : null}
           <div className="content-hero__actions">
-            <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("consultationCta")}</Link>
+            <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{home("consultation.cta")}</Link>
           </div>
         </div>
       </section>
@@ -50,7 +53,15 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
           <div className="content-section__body">
             <p className="content-section__body-text" style={{ marginBottom: "1.5rem" }}>{ui("scopeIntro")}</p>
             <ul className="content-bullet-list content-bullet-list--large">
-              {(isArabic ? condition.arabicScope : condition.scope).map((item) => <li key={item}>{item}</li>)}
+              {(isArabic ? condition.arabicScope : condition.scope).map((item, index) => {
+                const plain = scopePlain?.[index];
+                return (
+                  <li key={item}>
+                    {item}
+                    {plain ? <span className="procedure-plain">{plain}</span> : null}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>

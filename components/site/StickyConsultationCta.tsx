@@ -36,23 +36,24 @@ export function StickyConsultationCta({ locale }: StickyConsultationCtaProps) {
 
   const allowed = isStickyPath(pathname, locale);
 
-  // Keep the reserved space only while this page can show the bar, so nothing
-  // jumps when the observer later hides it.
+  // The bar reserves body space only while it is actually showing, so the
+  // last of the page can never sit underneath it (section 3.7).
   useEffect(() => {
     const body = document.body;
     if (!allowed) {
       body.classList.remove("has-sticky-cta");
       return;
     }
-    body.classList.add("has-sticky-cta");
-    return () => body.classList.remove("has-sticky-cta");
-  }, [allowed]);
 
-  useEffect(() => {
     const bar = barRef.current;
-    if (!allowed || !bar) {
+    if (!bar) {
       return;
     }
+
+    const apply = (visible: boolean) => {
+      bar.dataset.visible = visible ? "true" : "false";
+      body.classList.toggle("has-sticky-cta", visible);
+    };
 
     const sentinels = [
       document.querySelector<HTMLElement>("main .button--primary"),
@@ -60,8 +61,8 @@ export function StickyConsultationCta({ locale }: StickyConsultationCtaProps) {
     ].filter((element): element is HTMLElement => element !== null);
 
     if (sentinels.length === 0) {
-      bar.dataset.visible = "true";
-      return;
+      apply(true);
+      return () => body.classList.remove("has-sticky-cta");
     }
 
     const onScreen = new Set<Element>();
@@ -73,14 +74,17 @@ export function StickyConsultationCta({ locale }: StickyConsultationCtaProps) {
           onScreen.delete(entry.target);
         }
       }
-      bar.dataset.visible = onScreen.size === 0 ? "true" : "false";
+      apply(onScreen.size === 0);
     });
 
     for (const sentinel of sentinels) {
       observer.observe(sentinel);
     }
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      body.classList.remove("has-sticky-cta");
+    };
   }, [allowed, pathname]);
 
   if (!allowed) {

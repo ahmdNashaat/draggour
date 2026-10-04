@@ -38,7 +38,11 @@ function resolveRootLocale(request: NextRequest): "en" | "ar" {
 
   if (acceptsArabic(request.headers.get("accept-language"))) return "ar";
 
-  const country = (request.headers.get("x-vercel-ip-country") ?? "").trim().toUpperCase();
+  const country = (
+    request.headers.get("x-vercel-ip-country") ?? request.headers.get("cf-ipcountry") ?? ""
+  )
+    .trim()
+    .toUpperCase();
   if (ARABIC_LEAGUE_COUNTRIES.has(country)) return "ar";
 
   return "en";

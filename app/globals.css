@@ -430,6 +430,16 @@ a {
   display: none;
 }
 
+/* Each label keeps its own script's font: Arabic body type is not applied on
+   LTR pages and vice versa (section 2.1). */
+.language-switcher__name[lang="ar"] {
+  font-family: var(--font-body-ar), Arial, sans-serif;
+}
+
+.language-switcher__name[lang="en"] {
+  font-family: var(--font-body-en), Arial, sans-serif;
+}
+
 @media (max-width: 24rem) {
   /* At 24rem and below the current-language segment falls back to its short code
      so the two full names cannot push the 320px header past its container. */
@@ -1071,14 +1081,6 @@ a {
   line-height: 1.75;
 }
 
-.content-hero__plain {
-  max-width: 46rem;
-  margin: var(--space-4) 0 0;
-  color: var(--color-navy-950);
-  font-size: clamp(1rem, 1.6vw, 1.125rem);
-  line-height: 1.7;
-}
-
 .content-hero__actions {
   display: flex;
   flex-wrap: wrap;
@@ -1338,6 +1340,15 @@ a {
 
 .content-bullet-list--large {
   gap: 1rem;
+}
+
+/* Optional plain-language line under a procedure; only rendered when approved. */
+.procedure-plain {
+  display: block;
+  margin-block-start: 0.125rem;
+  color: var(--color-neutral-600);
+  font-size: 0.9375rem;
+  line-height: 1.6;
 }
 
 .career-timeline {
@@ -2308,10 +2319,35 @@ a {
   line-height: 1.1;
 }
 
+/* Two-line card body: serif title over a one-line summary (section 3.4). */
+.condition-route-card__body {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.condition-route-card__summary {
+  max-width: 36ch;
+  color: var(--color-neutral-600);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
 .condition-route-card__arrow {
   justify-self: end;
-  color: var(--color-red-700);
+  /* Resting arrow stays quiet; coral returns as an interactive accent. */
+  color: var(--color-navy-950-a45);
   font-size: 1.5rem;
+  transition: color var(--duration-standard) ease;
+}
+
+.condition-route-card:hover .condition-route-card__summary,
+.condition-route-card:focus-visible .condition-route-card__summary {
+  color: var(--color-on-dark);
+}
+
+.condition-route-card:hover .condition-route-card__arrow,
+.condition-route-card:focus-visible .condition-route-card__arrow {
+  color: var(--color-red-200);
 }
 
 /* Emergency guidance: an outlined callout on a cool surface, so urgency reads
@@ -2724,7 +2760,8 @@ a {
     display: block;
     padding: 0.75rem var(--space-page-inline) calc(0.75rem + env(safe-area-inset-bottom));
     border-block-start: 1px solid var(--color-line);
-    background: var(--color-header);
+    /* Content scrolls under the bar, so it sits a little more opaque than the header. */
+    background: rgb(247 245 240 / 94%);
     backdrop-filter: blur(0.75rem);
   }
 

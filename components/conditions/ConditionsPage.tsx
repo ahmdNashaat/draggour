@@ -27,12 +27,18 @@ export async function ConditionsPage({ locale }: ConditionsPageProps) {
         <div className="site-container">
           <h2 className="sr-only" id="conditions-list-title">{ui("title")}</h2>
           <div className="condition-route-grid">
-            {conditionContent.map((condition) => (
-              <Link className="condition-route-card" href={getLocalizedPath(locale, `/conditions/${condition.slug}`)} key={condition.slug}>
-                <h3>{home(`conditions.items.${condition.key}.title`)}</h3>
-                <span className="condition-route-card__arrow" aria-hidden="true">→</span>
-              </Link>
-            ))}
+            {conditionContent.map((condition) => {
+              const summaryKey = `conditions.items.${condition.key}.summary`;
+              return (
+                <Link className="condition-route-card" href={getLocalizedPath(locale, `/conditions/${condition.slug}`)} key={condition.slug}>
+                  <span className="condition-route-card__body">
+                    <h3>{home(`conditions.items.${condition.key}.title`)}</h3>
+                    {home.has(summaryKey) ? <span className="condition-route-card__summary">{home(summaryKey)}</span> : null}
+                  </span>
+                  <span className="condition-route-card__arrow" aria-hidden="true">→</span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
