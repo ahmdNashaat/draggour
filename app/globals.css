@@ -7,8 +7,9 @@
   --color-red-700: #c44e2f;
   /* Muted rose accent for use on navy backgrounds (contrast ~5.6:1). */
   --color-red-200: #e5a4a8;
-  /* Darkened accent for small/light-background text (contrast ~7:1 on surface). */
-  --color-red-900: #7b2a31;
+  /* Small-text accent, darkened until it clears 8:1 on every surface in the
+     system, including surface-cool (8.4:1) and surface-subtle (9:1). */
+  --color-red-900: #6e252c;
   --color-warm-neutral: #d7d0c6;
   --color-neutral-0: #ffffff;
   --color-neutral-50: #f7f5f0;
@@ -975,6 +976,8 @@ a {
 
 .brand--footer {
   color: var(--color-on-dark);
+  /* Logo link is a tappable target: keep it at the 44px mobile minimum. */
+  min-block-size: 2.75rem;
 }
 
 .brand--footer .brand__mark {
@@ -2622,12 +2625,15 @@ a {
   }
 }
 
-@media (max-width: 47.999rem) {
-  /* Hero collapses to H1, title, plain line, actions, portrait: no hero logo. */
+@media (max-width: 48rem) {
+  /* Hero at <= 48rem drops the logo; it returns with the two-column hero. */
   .home-hero__logo {
     display: none;
   }
+}
 
+@media (max-width: 47.999rem) {
+  /* Hero collapses to H1, title, plain line, actions, portrait. */
   .home-biography__copy > p {
     font-size: 1.0625rem;
   }
