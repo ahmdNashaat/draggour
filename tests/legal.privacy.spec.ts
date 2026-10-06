@@ -5,7 +5,7 @@ import { LEGAL_PLACEHOLDERS, getLegalContent, type LegalBlock } from "../content
 const locales = ["en", "ar"] as const;
 
 const placeholderGateHint =
-  "The value above must be supplied by the client and published in content/legal.ts before launch; " +
+  "Any bracketed token must be listed in LEGAL_PLACEHOLDERS and published in content/legal.ts before launch; " +
   "removing the token without the real value fails this gate on purpose.";
 
 function blockTexts(blocks: readonly LegalBlock[]): string[] {
@@ -16,8 +16,11 @@ function bracketTokens(text: string): string[] {
   return text.match(/\[[A-Z0-9 &/_-]+\]/g) ?? [];
 }
 
-test("legal content declares exactly the four client-supplied placeholder values", () => {
-  expect(LEGAL_PLACEHOLDERS).toHaveLength(4);
+test("legal content declares no pending client-supplied placeholder value", () => {
+  // D-043: the operator name is published, and the clauses that carried the
+  // other three tokens are removed because WhatsApp is the primary channel, so
+  // nothing on the page is still waiting on the client.
+  expect(LEGAL_PLACEHOLDERS).toHaveLength(0);
 
   for (const locale of locales) {
     const parts = getLegalContent(locale);
@@ -29,11 +32,13 @@ test("legal content declares exactly the four client-supplied placeholder values
     ]);
 
     const declared = new Set(parts.flatMap((part) => bracketTokens(blockTexts(part.blocks).join(" "))));
-    expect([...declared].sort(), `${locale} placeholders`).toEqual([...LEGAL_PLACEHOLDERS].sort());
+    expect([...declared].sort(), `${locale} placeholders — ${placeholderGateHint}`).toEqual(
+      [...LEGAL_PLACEHOLDERS].sort(),
+    );
   }
 });
 
-test("legal page stays short, complete, and keeps every required-data placeholder visible", async ({ page }) => {
+test("legal page stays short, complete, and carries no pending client-supplied value", async ({ page }) => {
   for (const locale of locales) {
     await page.goto(`/${locale}/legal`);
     await expect(page.locator("[data-legal-page]")).toBeVisible();
@@ -48,11 +53,12 @@ test("legal page stays short, complete, and keeps every required-data placeholde
       .filter((block) => block.type === "subheading").length;
     await expect(page.locator("main h3")).toHaveCount(expectedSubheadings);
 
-    for (const token of LEGAL_PLACEHOLDERS) {
-      await expect(page.locator("main"), `${locale} ${token} — ${placeholderGateHint}`).toContainText(token);
-    }
+    await expect(page.locator("main .legal-placeholder"), `${locale} has no pending value to mark`).toHaveCount(0);
 
     const bodyText = await page.locator("main").innerText();
+    expect(bodyText, `${locale} still shows an unpublished placeholder — ${placeholderGateHint}`).not.toMatch(
+      /\[[A-Z0-9 &/_-]+\]/,
+    );
     expect(bodyText, `${locale} must not invent a contact email`).not.toMatch(/[\w.+-]+@[\w-]+\.[A-Za-z]{2,}/);
     expect(bodyText, `${locale} must not invent a phone number`).not.toMatch(/\+?\d[\d\s-]{7,}\d/);
     expect(bodyText).not.toMatch(/Information will be available here|ستتوفر المعلومات هنا/);
@@ -124,5 +130,5 @@ test("legal page structure stays in EN/AR parity and placeholders are marked up"
   }
 
   expect(countsPerLocale.ar).toEqual(countsPerLocale.en);
-  expect(countsPerLocale.en).toEqual({ h2: 4, h3: 5, placeholders: 4, steps: 5 });
+  expect(countsPerLocale.en).toEqual({ h2: 4, h3: 3, placeholders: 0, steps: 5 });
 });

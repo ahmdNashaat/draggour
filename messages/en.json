@@ -39,33 +39,12 @@
       "eyebrow": "The profile",
       "title": "Biography",
       "description": "A professional profile covering career, clinical expertise and academic activity.",
-      "body": "Dr. Mohamed Aggour is a Consultant Interventional Neuroradiologist with more than nineteen years of experience in minimally invasive endovascular neuroradiology, engaged in the treatment and management of brain and spinal vascular diseases.",
       "cta": "Read the biography"
     },
     "conditions": {
       "eyebrow": "Areas of focus",
       "title": "Conditions",
-      "description": "Six concise routes to information about areas of clinical expertise.",
-      "items": {
-        "brainAneurysm": {
-          "title": "Brain Aneurysm"
-        },
-        "stroke": {
-          "title": "Stroke"
-        },
-        "avm": {
-          "title": "AVM"
-        },
-        "carotidStenosis": {
-          "title": "Carotid Stenosis"
-        },
-        "venousSinusDisorders": {
-          "title": "Venous Sinus Disorders"
-        },
-        "chronicSubduralHaematoma": {
-          "title": "Chronic Subdural Haematoma"
-        }
-      }
+      "description": "Concise routes to patient information about the conditions and procedures covered here."
     },
     "learning": {
       "eyebrow": "For physicians",
@@ -91,20 +70,6 @@
       "title": "Biography",
       "description": "A professional profile covering career, qualifications, teaching, academic activity and clinical expertise.",
       "overview": "Professional Overview",
-      "currentPositions": "Current Positions",
-      "careerHistory": "Career History",
-      "previousPositions": "Previous Academic & Non-Clinical Positions",
-      "qualifications": "Education & Qualifications",
-      "societies": "Professional Societies",
-      "teaching": "Teaching & Education",
-      "academic": "Academic / Scientific Activity",
-      "leadership": "Professional Leadership",
-      "milestones": "Professional Milestones",
-      "clinicalExpertise": "Clinical Expertise",
-      "annualActivity": "Annual Clinical Activity",
-      "research": "Selected Research / Publications",
-      "externalLinks": "External Professional Links",
-      "pubMedCta": "Open PubMed listing",
       "conditionsCta": "View Conditions",
       "learningCta": "E-learning for Physicians",
       "consultationCta": "Remote Consultation",
@@ -113,7 +78,7 @@
     "conditions": {
       "eyebrow": "Clinical scope",
       "title": "Conditions",
-      "description": "Six concise condition routes connected to areas of clinical expertise.",
+      "description": "Browse patient information about the conditions and procedures covered here.",
       "scopeHeading": "Procedures used in this area",
       "scopeIntro": "The areas below outline relevant clinical procedures. They are not diagnosis or treatment advice.",
       "sections": {
@@ -132,8 +97,9 @@
     "eLearningPage": {
       "eyebrow": "Physician education",
       "title": "E-learning for Physicians",
-      "description": "An overview of teaching, faculty and physician-education activity in interventional neuroradiology.",
-      "teachingHeading": "Teaching and education",
+      "description": "Educational videos and resources for physicians in interventional neuroradiology.",
+      "learningHeading": "Learning links",
+      "newTabHint": "opens in a new tab",
       "biographyCta": "Read Biography",
       "consultationCta": "View Remote Consultation",
       "backHome": "Return home"
@@ -143,11 +109,9 @@
       "title": "Contact",
       "description": "A clear route to consultation and professional links.",
       "intro": "Choose the route that best matches your enquiry.",
-      "intentsHeading": "Choose the appropriate route",
-      "patientIntent": "Patient / Consultation",
-      "physicianIntent": "Physician / Referral",
       "routeCta": "View Remote Consultation",
       "linksHeading": "Professional links",
+      "newTabHint": "opens in a new tab",
       "biographyCta": "Read Biography",
       "legalCta": "Read Legal & Privacy",
       "backHome": "Return home"
@@ -165,150 +129,30 @@
     "consultationPage": {
       "eyebrow": "A considered next step",
       "title": "Remote Consultation",
-      "description": "Share a consultation request for review. This page does not send or store your information.",
-      "stepLabel": "Step {current} of {total}",
-      "next": "Continue",
-      "back": "Back",
-      "reset": "Start over",
-      "review": "Review request",
-      "edit": "Edit",
-      "required": "Required",
-      "optional": "Optional",
-      "steps": {
-        "requester": "Requester",
-        "urgency": "Urgency",
-        "service": "Service",
-        "details": "Details",
-        "times": "Preferred times",
-        "attachments": "Attachments",
-        "consent": "Consent",
-        "review": "Review"
+      "description": "Start a remote consultation with Dr. Mohamed Aggour on WhatsApp. Nothing is collected here; every request is reviewed before an appointment is confirmed.",
+      "lead": "Start a remote consultation with Dr. Mohamed Aggour on WhatsApp.",
+      "cta": {
+        "heading": "Continue on WhatsApp",
+        "intro": "One message opens a WhatsApp conversation with the practice. The team reviews every request, then confirms the appointment, the method and the payment separately.",
+        "button": "Start the consultation on WhatsApp",
+        "newTabHint": "opens in a new tab",
+        "pendingLabel": "WhatsApp number pending",
+        "note": "This website collects nothing: no form, no files, no payment.",
+        "legalLink": "Read Legal & Privacy",
+        "notConfirmation": "A message is a request only. It does not confirm an appointment, a payment, a diagnosis, or a clinical decision."
       },
-      "requester": {
-        "heading": "Who is making this request?",
-        "intro": "Choose the route that best describes the request.",
-        "patient": "Patient / Consultation",
-        "patientDescription": "For a patient or family consultation request.",
-        "physician": "Physician / Referral",
-        "physicianDescription": "For a physician or professional referral.",
-        "error": "Choose one requester type to continue."
-      },
-      "urgency": {
-        "heading": "Is this an emergency?",
-        "intro": "The emergency branch ends the normal consultation journey.",
-        "emergency": "Emergency",
-        "emergencyDescription": "Show emergency guidance and stop the normal flow.",
-        "nonEmergency": "Non-Emergency",
-        "nonEmergencyDescription": "Continue to the consultation service options.",
-        "error": "Choose Emergency or Non-Emergency to continue."
-      },
-      "service": {
-        "heading": "Which service are you considering?",
-        "intro": "This selection is a request preference, not an appointment confirmation.",
-        "online": "Online Consultation",
-        "onlineDescription": "Request review for an online consultation.",
-        "clinic": "Clinic Visit",
-        "clinicDescription": "Request review for a clinic visit.",
-        "error": "Choose a service type to continue."
-      },
-      "common": {
-        "heading": "Common information",
-        "intro": "Provide only the information needed for a team review. All fields below are optional unless marked otherwise.",
-        "fullName": "Full name",
-        "phone": "Phone",
-        "whatsapp": "WhatsApp number",
-        "email": "Email",
-        "country": "Country",
-        "preferredLanguage": "Preferred language"
-      },
-      "patient": {
-        "heading": "Patient / Consultation details",
-        "reason": "Reason for consultation",
-        "shortDescription": "Short description",
-        "relevantContext": "Relevant context",
-        "note": "Do not include unnecessary medical history, diagnosis requests, medication requests, or treatment decisions."
-      },
-      "physician": {
-        "heading": "Physician / Referral details",
-        "physicianName": "Physician name",
-        "specialty": "Specialty",
-        "institution": "Institution",
-        "contactDetails": "Contact details",
-        "referralSummary": "Referral summary",
-        "preferredRoute": "Preferred communication route",
-        "note": "Keep the referral summary concise and limited to information needed for professional review."
-      },
-      "times": {
-        "heading": "Preferred dates and times",
-        "intro": "You may provide up to three preferences. No availability is displayed and no appointment is confirmed by submitting a preference.",
-        "fieldLabel": "Preferred time {number}",
-        "add": "Add another preferred time",
-        "remove": "Remove preferred time {number}",
-        "maximum": "Maximum of three preferred times reached.",
-        "notConfirmed": "The team reviews preferences and confirms any appointment separately."
-      },
-      "attachments": {
-        "heading": "Optional attachments",
-        "intro": "You may select up to three files locally on this device. Nothing is uploaded or stored.",
-        "choose": "Choose files",
-        "selected": "Selected files",
-        "remove": "Remove {name}",
-        "types": "Allowed types: PDF, JPG, PNG.",
-        "maximum": "You can select a maximum of three files.",
-        "invalidType": "One or more files were not selected because only PDF, JPG, and PNG are allowed.",
-        "none": "No files selected. Attachments are optional."
-      },
-      "consent": {
-        "heading": "Consent and privacy acknowledgement",
-        "intro": "Please read the privacy information before continuing.",
-        "privacyLink": "Read Legal & Privacy",
-        "checkbox": "I acknowledge the privacy information.",
-        "error": "Consent is required before reviewing the request."
-      },
-      "reviewStep": {
-        "heading": "Review your request",
-        "intro": "Check the details below before completing the request. You can edit any previous step.",
-        "requester": "Requester type",
-        "urgency": "Urgency",
-        "service": "Service type",
-        "common": "Common information",
-        "requesterDetails": "Requester-specific information",
-        "times": "Preferred times",
-        "attachments": "Attachments",
-        "consent": "Consent",
-        "consentGiven": "Acknowledged",
-        "noValue": "Not provided",
-        "noTimes": "No preferred times provided",
-        "noAttachments": "No attachments selected",
-        "notConfirmation": "This consultation request does not confirm an appointment, payment, diagnosis, or clinical decision.",
-        "submit": "Complete request preview",
-        "validation": "Please complete the required branch selections and consent before continuing."
+      "flow": {
+        "heading": "What happens after you message",
+        "request": "You send your request on WhatsApp",
+        "coordination": "Coordination of the appointment follows",
+        "confirmation": "Confirmation first, then payment and the consultation"
       },
       "emergency": {
-        "eyebrow": "Urgent alert",
         "heading": "Emergency guidance",
-        "stepsHeading": "Next steps",
         "body": "This website is not an emergency service.",
         "local": "Contact local emergency services.",
         "hospital": "Attend the nearest hospital.",
-        "stop": "The normal consultation journey stops here. No booking, payment, form, upload, or appointment selection is available in this branch.",
-        "reset": "Start a new request"
-      },
-      "success": {
-        "heading": "Request preview complete",
-        "received": "This request has been prepared for review. Nothing was sent to the team or an external provider.",
-        "review": "Appointment coordination follows team review.",
-        "appointment": "Appointment is not confirmed.",
-        "payment": "Payment is not confirmed or processed.",
-        "diagnosis": "No diagnosis has been provided.",
-        "decision": "No clinical decision has been made.",
-        "reset": "Start another request"
-      },
-      "errors": {
-        "email": "Enter an email address in a valid format, or leave it blank.",
-        "phone": "Enter a phone number using digits and common phone separators, or leave it blank.",
-        "files": "Review the selected files before continuing.",
-        "review": "Complete the required selections before reviewing the request."
+        "stop": "Do not wait for a reply on this website."
       }
     }
   }

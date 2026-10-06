@@ -81,18 +81,22 @@ test("mobile navigation and language switching are usable", async ({ page }) => 
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 });
 
-test("Biography and six Conditions routes render professional content", async ({ page }) => {
+test("Biography and all ten Conditions routes render professional content", async ({ page }) => {
   // This sweep visits every profile/condition route at all 14 required widths
   // in both launch locales; allow the full matrix to finish on a cold server.
   test.setTimeout(300_000);
 
   const conditionRoutes = [
+    "angiography",
     "brain-aneurysm",
-    "stroke",
     "avm",
-    "carotid-stenosis",
-    "venous-sinus-disorders",
+    "stroke-thrombectomy",
+    "fistulas",
+    "venous-sinus-stenting",
+    "carotid-intracranial-stenting",
+    "paediatric",
     "chronic-subdural-haematoma",
+    "other-embolisation",
   ];
 
   for (const locale of ["en", "ar"]) {
@@ -106,7 +110,7 @@ test("Biography and six Conditions routes render professional content", async ({
 
       await page.goto(`/${locale}/conditions`);
       await expect(page.locator("[data-conditions-page]")).toBeVisible();
-      await expect(page.locator(".condition-route-card")).toHaveCount(6);
+      await expect(page.locator(".condition-index__item")).toHaveCount(10);
       await expectNoHorizontalOverflow(page);
 
       if (locale === "ar") {
@@ -173,8 +177,12 @@ test("professional, educational, contact and legal pages remain localized and re
   }
 
   await page.goto("/en/e-learning");
-  await expect(page.locator('a[href^="https://www.youtube.com/"]')).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "Teaching and education", exact: true })).toBeVisible();
+  // The teaching list and the hero index number were removed from this page.
+  await expect(page.getByRole("heading", { name: "Teaching and education", exact: true })).toHaveCount(0);
+  await expect(page.locator(".content-hero__index")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Learning links", exact: true })).toBeVisible();
+  await expect(page.locator("[data-learning-link]")).not.toHaveCount(0);
+  await expect(page.locator(".learning-link--primary")).toHaveCount(1);
   await expect(page.getByRole("link", { name: "Read Biography", exact: true })).toHaveAttribute("href", "/en/biography");
 
   await page.goto("/en/contact");
@@ -193,16 +201,23 @@ test("professional, educational, contact and legal pages remain localized and re
 });
 
 test("rendered EN and AR pages exclude internal governance language", async ({ page }) => {
+  // 34 full page loads (17 routes × 2 locales) exceed the default 30s budget
+  // on a cold dev server; allow the sweep to finish like the other sweeps do.
+  test.setTimeout(180_000);
   const routes = [
     "",
     "/biography",
     "/conditions",
+    "/conditions/angiography",
     "/conditions/brain-aneurysm",
-    "/conditions/stroke",
     "/conditions/avm",
-    "/conditions/carotid-stenosis",
-    "/conditions/venous-sinus-disorders",
+    "/conditions/stroke-thrombectomy",
+    "/conditions/fistulas",
+    "/conditions/venous-sinus-stenting",
+    "/conditions/carotid-intracranial-stenting",
+    "/conditions/paediatric",
     "/conditions/chronic-subdural-haematoma",
+    "/conditions/other-embolisation",
     "/e-learning",
     "/contact",
     "/legal",

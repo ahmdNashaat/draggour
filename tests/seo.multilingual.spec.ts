@@ -22,6 +22,9 @@ test("English and Arabic launch dictionaries have matching message keys", () => 
 });
 
 test("every launch page has a localized reciprocal page pair and matching document language", async ({ page }) => {
+  // Reciprocal EN/AR check loads every launch route twice; allow the full sweep
+  // to finish on a cold dev server like the other sweeps do.
+  test.setTimeout(180_000);
   for (const pathname of publicPathnames) {
     const rendered: Record<(typeof locales)[number], { title: string; h1: string; description: string }> = {
       en: { title: "", h1: "", description: "" },
@@ -79,14 +82,14 @@ test("every launch page has a localized reciprocal page pair and matching docume
 
 test("language switcher navigates between equivalent condition routes on mobile in both directions", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/en/conditions/stroke");
+  await page.goto("/en/conditions/stroke-thrombectomy");
   await page.locator("nav.language-switcher").getByRole("link", { name: "Switch to Arabic" }).click();
-  await expect(page).toHaveURL(/\/ar\/conditions\/stroke$/);
+  await expect(page).toHaveURL(/\/ar\/conditions\/stroke-thrombectomy$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 
   await page.locator("nav.language-switcher").getByRole("link", { name: "التبديل إلى الإنجليزية" }).click();
-  await expect(page).toHaveURL(/\/en\/conditions\/stroke$/);
+  await expect(page).toHaveURL(/\/en\/conditions\/stroke-thrombectomy$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
 });

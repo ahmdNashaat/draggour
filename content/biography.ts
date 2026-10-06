@@ -14,6 +14,12 @@ export type BiographyItem = Readonly<{
 }>;
 
 export type BiographyContent = Readonly<{
+  /**
+   * The two approved summary paragraphs rendered on the page. Final copy
+   * approved word for word; never edited here. The rest of the CV follows
+   * below them inside the collapsed "Full CV" disclosure.
+   */
+  summary: readonly [string, string];
   overview: Readonly<{
     source: string;
     keyFacts: readonly string[];
@@ -31,6 +37,10 @@ export type BiographyContent = Readonly<{
   leadership: readonly BiographyItem[];
   milestones: readonly BiographyItem[];
   clinicalExpertise: readonly BiographyItem[];
+  /**
+   * Recorded annual figures. Source data only: the annual activity section
+   * was removed from the rendered biography page (D-037).
+   */
   annualActivity: readonly BiographyItem[];
   externalLinks: readonly BiographyItem[];
 }>;
@@ -41,6 +51,10 @@ export type BiographyContent = Readonly<{
  * notes live in `review` / `source` and are internal metadata only.
  */
 export const biographyContent: BiographyContent = {
+  summary: [
+    "Dr. Mohamed Aggour is a Consultant Interventional Neuroradiologist with more than nineteen years of experience in minimally invasive treatment of brain and spinal vascular diseases, including cerebral aneurysms, arteriovenous malformations (AVMs) and acute stroke. He practises in London and Belgium, and his care covers every step from diagnosis and treatment planning through to follow-up.",
+    "He trained in Cairo and France and led interventional neuroradiology units at Lille and Saint-Étienne University Hospitals before moving to London, where he helped develop a 24/7 stroke thrombectomy service. He is also a board member of ESMINT, teaches on the Oxford ECMINT course, and helps develop the specialty in Africa and the Middle East through the PAIRS Neuro congress in Dubai.",
+  ],
   overview: {
     source: "CV §§2, 13, 15",
     keyFacts: [
@@ -256,18 +270,37 @@ export const biographyContent: BiographyContent = {
   ],
   externalLinks: [
     { title: "LinkedIn", detail: "https://www.linkedin.com/in/mohamed-aggour-1414a941" },
+    {
+      title: "ESMINT — Executive Committee",
+      detail: "https://www.esmint.eu/executive-committee/mohamed-aggour/",
+      review: "Client-supplied and approved 2026-10-06 (D-042).",
+    },
+    {
+      title: "eMedEvents — Speaker Profile",
+      detail: "https://www.emedevents.com/speaker-profile/mohamed-aggour",
+      review: "Client-supplied and approved 2026-10-06 (D-042).",
+    },
+    {
+      title: "ResearchGate — Research Profile",
+      detail: "https://www.researchgate.net/profile/Mohamed-Aggour",
+      review: "Client-supplied and approved 2026-10-06 (D-042).",
+    },
+    {
+      title: "CHC MontLégia — Professional Profile",
+      detail: "https://www.chc.be/Professionnels/Mohamed-AGGOUR",
+      review: "Client-supplied and approved 2026-10-06 (D-042).",
+    },
+    {
+      title: "X (Twitter) — Official Account",
+      detail: "https://x.com/Aggour",
+      review:
+        "Replaces the bare @Aggour handle record: the client confirmed the full profile URL on 2026-10-06 (D-042).",
+    },
     { title: "PubMed", detail: "https://pubmed.ncbi.nlm.nih.gov/?term=Aggour+M&cauthor_id=32303584", review: "Keep as a research-results link only; this author-filtered result page is not a canonical person profile.", internalOnly: true },
-    { title: "Twitter / X", detail: "@Aggour", review: "Handle recorded in the CV; no matching public account has been verified.", internalOnly: true },
     {
       title: "Official YouTube channel",
       detail: "No official channel URL is recorded.",
       review: "Controlled placeholder; do not invent a URL.",
-      internalOnly: true,
-    },
-    {
-      title: "Institutional and organisation profiles",
-      detail: "No approved URLs are recorded.",
-      review: "Controlled placeholder; do not invent URLs.",
       internalOnly: true,
     },
   ],
@@ -279,6 +312,10 @@ export const biographyContent: BiographyContent = {
  * material above.
  */
 export const biographyContentArabic: BiographyContent = {
+  summary: [
+    "الدكتور محمد عجور استشاري الأشعة العصبية التداخلية، وله خبرة تزيد على تسعة عشر عامًا في علاج أمراض الأوعية الدموية بالمخ والعمود الفقري بالتدخل المحدود، ومنها تمدد الأوعية الدموية في الدماغ، والتشوهات الشريانية الوريدية، والسكتة الدماغية الحادة. يمارس عمله في لندن وبلجيكا، ويتابع الحالة من التشخيص ووضع خطة العلاج حتى المتابعة.",
+    "تدرّب في القاهرة وفرنسا، وقاد وحدات الأشعة العصبية التداخلية في مستشفيات جامعة ليل وسانت إتيان قبل انتقاله إلى لندن، حيث ساهم في تطوير خدمة علاج السكتة الدماغية واستخراج الجلطات على مدار الساعة. وهو أيضًا عضو مجلس إدارة ESMINT ومحاضر في دورة ECMINT بجامعة أكسفورد، ويساهم عبر مؤتمر PAIRS Neuro في دبي في تطوير التخصص في أفريقيا والشرق الأوسط.",
+  ],
   overview: {
     source: "CV §§2, 13, 15",
     keyFacts: [
@@ -492,18 +529,37 @@ export const biographyContentArabic: BiographyContent = {
   ],
   externalLinks: [
     { title: "LinkedIn", detail: "https://www.linkedin.com/in/mohamed-aggour-1414a941" },
+    {
+      title: "ESMINT — اللجنة التنفيذية",
+      detail: "https://www.esmint.eu/executive-committee/mohamed-aggour/",
+      review: "Client-supplied and approved 2026-10-06 (D-042).",
+    },
+    {
+      title: "eMedEvents — ملف المتحدث",
+      detail: "https://www.emedevents.com/speaker-profile/mohamed-aggour",
+      review: "Client-supplied and approved 2026-10-06 (D-042).",
+    },
+    {
+      title: "ResearchGate — ملف الأبحاث",
+      detail: "https://www.researchgate.net/profile/Mohamed-Aggour",
+      review: "Client-supplied and approved 2026-10-06 (D-042).",
+    },
+    {
+      title: "CHC MontLégia — الملف المهني",
+      detail: "https://www.chc.be/Professionnels/Mohamed-AGGOUR",
+      review: "Client-supplied and approved 2026-10-06 (D-042).",
+    },
+    {
+      title: "إكس (تويتر) — الحساب الرسمي",
+      detail: "https://x.com/Aggour",
+      review:
+        "Replaces the bare @Aggour handle record: the client confirmed the full profile URL on 2026-10-06 (D-042).",
+    },
     { title: "PubMed", detail: "https://pubmed.ncbi.nlm.nih.gov/?term=Aggour+M&cauthor_id=32303584", review: "Keep as a research-results link only; this author-filtered result page is not a canonical person profile.", internalOnly: true },
-    { title: "إكس (Twitter)", detail: "@Aggour", review: "Handle recorded in the CV; no matching public account has been verified.", internalOnly: true },
     {
       title: "قناة YouTube الرسمية",
       detail: "لا توجد رابط مسجل.",
       review: "Controlled placeholder; do not invent a URL.",
-      internalOnly: true,
-    },
-    {
-      title: "الملفات المهنية والمؤسسية",
-      detail: "لا توجد روابط معتمدة مسجلة.",
-      review: "Controlled placeholder; do not invent URLs.",
       internalOnly: true,
     },
   ],

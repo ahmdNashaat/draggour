@@ -17,8 +17,8 @@ English and Arabic pending files must stay key-for-key identical.
 | # | Item | Lives in | Status |
 | --- | --- | --- | --- |
 | 1 | Hero plain line (home) | `home.hero.plainLine` | Awaiting approval |
-| 2 | Six condition summaries (home list + conditions index cards) | `home.conditions.items.<key>.summary` | Awaiting approval |
-| 3 | EN procedure labels: `LEA` → *Liquid embolic agents (LEA)*, `Vessel sacrifice` → *Closing the affected vessel when appropriate* | `content/pending-copy.ts` → `brain-aneurysm` scope | Awaiting approval |
+| 2 | Six condition summaries (home list + conditions index cards) | — (removed) | Superseded — home cards and the `/conditions` list now show the approved document's own lead paragraph, and no `home.conditions.items` keys remain |
+| 3 | EN procedure labels: `LEA` → *Liquid embolic agents (LEA)*, `Vessel sacrifice` → *Closing the affected vessel when appropriate* | — (removed) | Superseded — the CV-based condition module (`content/conditions.ts`) was deleted; procedures now come from the approved document |
 | 4 | Biography preview paragraph (home) | `home.biography.body` | Awaiting approval |
 | 5 | Biography overview paragraph (biography page) | `content/pending-copy.ts` → `pendingBiographyIntro` | Awaiting approval |
 | 6 | Emergency notice body | `content.conditions.emergencyBody` | Awaiting approval |
@@ -33,17 +33,14 @@ English and Arabic pending files must stay key-for-key identical.
 
 **2. Condition summaries (EN | AR)**
 
-- Brain Aneurysm: A weak, bulging spot in a brain artery | نقطة ضعف منتفخة في جدار شريان بالمخ
-- Stroke: A blocked or bleeding brain vessel; timing matters | انسداد أو نزيف في وعاء دموي بالخ، والوقت عامل حاسم
-- AVM: An abnormal tangle of blood vessels in the brain or spine | تشابك غير طبيعي في أوعية دموية بالمخ أو العمود الفقري
-- Carotid Stenosis: Narrowing of the neck artery that feeds the brain | ضيق في شريان الرقبة المغذي للمخ
-- Venous Sinus Disorders: Narrowing or clots in veins that drain the brain | ضيق أو جلطات في الأوردة التي تصرّف الدم من المخ
-- Chronic Subdural Haematoma: A slow collection of blood on the brain's surface, often after a head injury | تجمّع دموي بطيء على سطح المخ، غالبًا بعد إصابة بالرأس
+Superseded: the home cards and the `/conditions` list now read
+`getConditionListing()` from `content/patient-conditions.ts`, which shows each
+condition's approved lead paragraph verbatim. No short-summary keys exist.
 
-**3. Procedure labels (EN only — the Arabic labels are unchanged and already read this way)**
+**3. Procedure labels (EN only)**
 
-- "LEA" becomes "Liquid embolic agents (LEA)"
-- "Vessel sacrifice" becomes "Closing the affected vessel when appropriate"
+Superseded: the CV-based condition module that carried these labels was removed,
+and the approved document is the only condition source now.
 
 **4 / 5. Biography**
 

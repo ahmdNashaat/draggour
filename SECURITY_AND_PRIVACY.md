@@ -93,11 +93,15 @@ If storage is introduced later:
 ## Legal approval
 Before production handling of medical data, the appropriate privacy/legal owner must approve storage provider, retention, data location, transfer implications, privacy notice, consent and disclaimer wording.
 
-The published Legal & Privacy page is a short notice that carries four pending
-values of that list as visible placeholders (`LEGAL_PLACEHOLDERS` in
-`content/legal.ts`), guarded by `tests/legal.privacy.spec.ts`, so the page
-cannot go live with invented controller, contact, provider or retention
-details. The other items of that list — registered address, separate DPO
-contact, transfer locations and the secure upload mechanism — are not shown on
-the page (D-035) but are still required before the related handling
-(attachments, transfers) is enabled.
+The published Legal & Privacy page is a short notice that currently carries no
+pending value: the operator name is published (`Mohamed Aggour` / `محمد
+عجور`), and the clauses that held the contact mailbox, the service providers
+and the retention periods were removed because WhatsApp is the practice's
+primary correspondence channel (D-043). `LEGAL_PLACEHOLDERS` in
+`content/legal.ts` is therefore empty and `tests/legal.privacy.spec.ts` fails
+if a bracketed token reappears without being listed there, so the page cannot
+go live with invented controller, contact, provider or retention details. The
+other items of the list above — registered address, separate DPO contact,
+transfer locations and the secure upload mechanism — are still not shown on
+the page (D-035) but are required before the related handling (attachments,
+transfers) is enabled.

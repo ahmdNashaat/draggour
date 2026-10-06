@@ -12,22 +12,6 @@ export const showPendingCopy =
   process.env.SHOW_PENDING_COPY === "1" && process.env.NODE_ENV !== "production";
 
 /**
- * English procedure labels for the condition scope lists. Only the English
- * wording changes here: the Arabic labels were already written to match.
- */
-export const pendingConditionScope: Readonly<Partial<Record<string, readonly string[]>>> = {
-  "brain-aneurysm": [
-    "Coiling",
-    "Balloon-assisted coiling",
-    "Stent-assisted coiling",
-    "Flow diverters",
-    "Intrasaccular flow disruptors",
-    "Liquid embolic agents (LEA)",
-    "Closing the affected vessel when appropriate",
-  ],
-};
-
-/**
  * First overview paragraph of the biography, replacing the
  * literal-translation phrasing. The English sentence keeps the approved
  * opening and only the tail is new.

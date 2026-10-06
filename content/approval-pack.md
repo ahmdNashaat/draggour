@@ -92,8 +92,8 @@ Our recommendation: drop the superlatives, publish verifiable facts only.
 | G1  | Official YouTube channel URL                      | `[APPROVAL REQUIRED]` |
 | G2  | Playlists / lectures to feature                   | `[APPROVAL REQUIRED]` |
 | G3  | LinkedIn URL                                      | APPROVE               |
-| G4  | Twitter/X `@Aggour` — confirm handle and full URL |                       |
-| G5  | ESMINT / institutional profile URLs               | `[APPROVAL REQUIRED]` |
+| G4  | Twitter/X `@Aggour` — confirm handle and full URL | APPROVE (`https://x.com/Aggour`) |
+| G5  | ESMINT / institutional profile URLs               | APPROVE (ESMINT, CHC, eMedEvents, ResearchGate — D-042) |
 
 ## H. Conditions — source-of-truth §19
 
@@ -126,25 +126,28 @@ Our recommendation: drop the superlatives, publish verifiable facts only.
 The Legal & Privacy page is deliberately short: four parts — Privacy Notice ·
 Medical Disclaimer · Remote Consultation Terms · Cookies & Analytics — written
 as a few plain paragraphs in English and Arabic (DECISIONS.md D-034,
-simplified by D-035). J1–J4 are wording for you to approve. J5–J8 are the four
-values we cannot write for you: they appear on the page as visible
-placeholders until you supply them, and a test (`tests/legal.privacy.spec.ts`)
-fails if a placeholder is removed without the real value. J9–J12 are no longer
-shown on the page, but are still needed before the related feature goes live.
+simplified by D-035, trimmed again by D-043). J1–J4 are wording for you to
+approve. The four client-supplied values that used to appear as visible
+placeholders are resolved (D-043): the operator name is published, and the
+e-mail, service-providers and retention clauses were removed because WhatsApp
+is the primary correspondence channel — so the page ships with nothing pending
+and `tests/legal.privacy.spec.ts` fails if a bracketed token reappears without
+being listed. J9–J12 are no longer shown on the page, but are still needed
+before the related feature goes live.
 
-| #   | Item                                                          | Answer                 |
-| --- | ------------------------------------------------------------- | ---------------------- |
-| J1  | Privacy policy                                                | APPROVE draft / supply |
-| J2  | Disclaimer                                                    | APPROVE draft / supply |
-| J3  | Consultation wording                                          | APPROVE draft / supply |
-| J4  | Approved emergency message                                    | APPROVE / CORRECT      |
-| J5  | Legal entity / data controller name — shown as `[LEGAL NAME]` | SUPPLY                 |
-| J6  | Privacy / contact e-mail — shown as `[PRIVACY EMAIL]`         | SUPPLY                 |
-| J7  | Hosting, e-mail, WhatsApp, scheduling and storage providers — shown as `[SERVICE PROVIDERS]` (add the countries they work from) | SUPPLY |
-| J8  | Retention periods — shown as `[RETENTION PERIODS]`            | SUPPLY                 |
+| #   | Item                                                                          | Answer                        |
+| --- | ----------------------------------------------------------------------------- | ----------------------------- |
+| J1  | Privacy policy                                                                | APPROVE draft / supply        |
+| J2  | Disclaimer                                                                    | APPROVE draft / supply        |
+| J3  | Consultation wording                                                          | APPROVE draft / supply        |
+| J4  | Approved emergency message                                                    | APPROVE / CORRECT             |
+| J5  | Legal entity / data controller name — published as `محمد عجور` / `Mohamed Aggour` | PUBLISHED — confirm the legal form |
+| J6  | Privacy / contact e-mail — no longer shown; WhatsApp is the primary channel (D-043) | not shown              |
+| J7  | Hosting, e-mail, WhatsApp, scheduling and storage providers — clause removed (D-043) | not shown             |
+| J8  | Retention periods — clause removed (D-043)                                   | not shown                     |
 | J9  | Official address — no longer shown; needed only if you want it on replies or invoices | SUPPLY later |
-| J10 | Privacy or DPO contact — one mailbox (J6) is enough unless you want a separate person | CONFIRM |
-| J11 | Countries and recipients — folded into the J7 answer         | SUPPLY with J7         |
+| J10 | Privacy or DPO contact — WhatsApp is the primary channel (D-043); a separate person is optional | CONFIRM |
+| J11 | Countries and recipients — no longer shown; needed before any cross-border transfer | SUPPLY if transfers enabled |
 | J12 | Secure medical-upload mechanism — required before medical attachments are accepted | SUPPLY before upload |
 
 ## K. Biography — source-of-truth §15

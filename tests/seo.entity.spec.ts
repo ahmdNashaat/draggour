@@ -52,21 +52,29 @@ for (const locale of ["en", "ar"] as const satisfies readonly Locale[]) {
     expect(biographyPersons[0].knowsAbout?.[0]).toBe("Interventional Neuroradiology");
     const medicalConditions = biographyPersons[0].knowsAbout?.slice(1) ?? [];
     expect(medicalConditions.map((item) => typeof item === "string" ? item : item.name)).toEqual([
+      "Cerebral and spinal angiography",
       "Brain Aneurysm",
-      "Stroke",
       "Arteriovenous Malformation (AVM)",
-      "Carotid Stenosis",
-      "Venous Sinus Disorders",
+      "Mechanical thrombectomy for acute stroke",
+      "Dural and carotid-cavernous fistula embolisation",
+      "Venous sinus stenting",
+      "Neck and intracranial angioplasty and stenting",
+      "Paediatric interventions, including vein of Galen embolization",
       "Chronic Subdural Haematoma",
+      "Other embolisation: nosebleeds, tumours and trauma",
     ]);
     expect(medicalConditions).toEqual(
       expect.arrayContaining([
+        expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/angiography` }),
         expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/brain-aneurysm` }),
-        expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/stroke` }),
         expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/avm` }),
-        expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/carotid-stenosis` }),
-        expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/venous-sinus-disorders` }),
+        expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/stroke-thrombectomy` }),
+        expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/fistulas` }),
+        expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/venous-sinus-stenting` }),
+        expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/carotid-intracranial-stenting` }),
+        expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/paediatric` }),
         expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/chronic-subdural-haematoma` }),
+        expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/other-embolisation` }),
       ]),
     );
     expect(biographyPersons[0].sameAs ?? []).toEqual([]);

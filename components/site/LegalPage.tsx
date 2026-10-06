@@ -10,7 +10,10 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 type LegalPageProps = Readonly<{ locale: Locale }>;
 
 const placeholderTokens = LEGAL_PLACEHOLDERS as readonly string[];
-const placeholderPattern = new RegExp(`(${placeholderTokens.map(escapeRegExp).join("|")})`, "g");
+/** `null` while no client value is pending, so text is never split on an empty match. */
+const placeholderPattern = placeholderTokens.length
+  ? new RegExp(`(${placeholderTokens.map(escapeRegExp).join("|")})`, "g")
+  : null;
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -18,6 +21,8 @@ function escapeRegExp(value: string) {
 
 /** Wraps the pending client-supplied values so they stay visibly marked until they are replaced. */
 function renderLegalText(text: string) {
+  if (!placeholderPattern) return text;
+
   return text.split(placeholderPattern).map((part, index) =>
     placeholderTokens.includes(part) ? (
       <span className="legal-placeholder" key={index}>
@@ -68,13 +73,12 @@ export async function LegalPage({ locale }: LegalPageProps) {
         { name: ui("legalPage.title") }
       ]} />
       <section className="content-hero" aria-labelledby="legal-title">
-        <div className="site-container content-hero__grid content-hero__grid--compact">
+        <div className="site-container content-hero__grid content-hero__grid--single">
           <div>
             <p className="eyebrow">{ui("legalPage.eyebrow")}</p>
             <h1 id="legal-title">{ui("legalPage.title")}</h1>
             <p className="content-hero__description">{ui("legalPage.description")}</p>
           </div>
-          <p className="content-hero__index" aria-hidden="true">04</p>
         </div>
       </section>
 

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { conditionContent } from "@/content/conditions";
+import { getConditionListing } from "@/content/patient-conditions";
 import { getLocalizedPath, type Locale } from "@/content/site";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { JsonLd } from "@/components/site/JsonLd";
+import { ConditionBlocks } from "@/components/conditions/ConditionBlocks";
+import { ConditionMedicalDisclaimer, ConditionReviewLine } from "@/components/conditions/ConditionNotices";
 
 type ConditionsPageProps = Readonly<{
   locale: Locale;
@@ -12,7 +14,7 @@ type ConditionsPageProps = Readonly<{
 
 export async function ConditionsPage({ locale }: ConditionsPageProps) {
   const ui = await getTranslations("content.conditions");
-  const home = await getTranslations("home");
+  const listing = getConditionListing(locale === "ar" ? "ar" : "en");
 
   return (
     <main id="main-content" className="content-page conditions-page" data-conditions-page>
@@ -21,27 +23,30 @@ export async function ConditionsPage({ locale }: ConditionsPageProps) {
           <p className="eyebrow">{ui("eyebrow")}</p>
           <h1 id="conditions-title">{ui("title")}</h1>
           <p className="content-hero__description">{ui("description")}</p>
+          <ConditionReviewLine locale={locale} />
         </div>
       </section>
-      <section className="content-section content-section--surface" aria-labelledby="conditions-list-title">
+      {/* Each entry repeats the condition's own document, so the hub reads
+          completely while the linked heading still opens the condition page. */}
+      <section className="content-section content-section--surface" aria-label={ui("title")}>
         <div className="site-container">
-          <h2 className="sr-only" id="conditions-list-title">{ui("title")}</h2>
-          <div className="condition-route-grid">
-            {conditionContent.map((condition) => {
-              const summaryKey = `conditions.items.${condition.key}.summary`;
-              return (
-                <Link className="condition-route-card" href={getLocalizedPath(locale, `/conditions/${condition.slug}`)} key={condition.slug}>
-                  <span className="condition-route-card__body">
-                    <h3>{home(`conditions.items.${condition.key}.title`)}</h3>
-                    {home.has(summaryKey) ? <span className="condition-route-card__summary">{home(summaryKey)}</span> : null}
-                  </span>
-                  <span className="condition-route-card__arrow" aria-hidden="true">→</span>
-                </Link>
-              );
-            })}
-          </div>
+          <ol className="condition-index">
+            {listing.map((condition) => (
+              <li className="condition-index__item" key={condition.slug}>
+                <h2 className="condition-index__title">
+                  <Link href={getLocalizedPath(locale, `/conditions/${condition.slug}`)}>
+                    {condition.title}
+                  </Link>
+                </h2>
+                <div className="condition-index__body">
+                  <ConditionBlocks blocks={condition.blocks} headingLevel={3} blockKey={condition.slug} />
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
+      <ConditionMedicalDisclaimer locale={locale} />
       <section className="content-section" aria-label={ui("consultationCta")}>
         <div className="site-container content-actions">
           <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("consultationCta")}</Link>

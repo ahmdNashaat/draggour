@@ -2,7 +2,8 @@ import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 
-import { conditionItems } from "@/content/home";
+import { getBiographyContent } from "@/content/biography";
+import { getConditionListing } from "@/content/patient-conditions";
 import { getLocalizedPath, siteIdentity, type Locale } from "@/content/site";
 
 import { ArrowLink } from "@/components/ui/ArrowLink";
@@ -16,6 +17,9 @@ type HomePageProps = Readonly<{
 export async function HomePage({ locale }: HomePageProps) {
   const t = await getTranslations("home");
   const personJsonLd = buildPersonJsonLd();
+  const conditionListing = getConditionListing(locale === "ar" ? "ar" : "en");
+  // Same source as the biography page, so the preview can never drift from it.
+  const biographySummary = getBiographyContent(locale).summary;
 
   return (
     <main id="main-content" data-homepage>
@@ -67,11 +71,12 @@ export async function HomePage({ locale }: HomePageProps) {
       <section className="home-section home-biography" id="biography-preview" aria-labelledby="biography-preview-title">
         <div className="site-container home-biography__grid">
           <SectionHeading
+            href={getLocalizedPath(locale, "/biography")}
             id="biography-preview-title"
             title={t("biography.title")}
           />
           <div className="home-biography__copy">
-            <p>{t("biography.body")}</p>
+            <p>{biographySummary[0]}</p>
             <ArrowLink href={getLocalizedPath(locale, "/biography")}>
               {t("biography.cta")}
             </ArrowLink>
@@ -82,26 +87,19 @@ export async function HomePage({ locale }: HomePageProps) {
       <section className="home-section home-conditions" id="conditions" aria-labelledby="conditions-title">
         <div className="site-container">
           <SectionHeading
+            href={getLocalizedPath(locale, "/conditions")}
             id="conditions-title"
             title={t("conditions.title")}
           />
-          <ul className="condition-list">
-            {conditionItems.map((condition) => (
+          <ul className="condition-cards">
+            {conditionListing.map((condition) => (
               <li key={condition.slug}>
-                <Link href={getLocalizedPath(locale, `/conditions/${condition.slug}`)}>
-                  <span className="condition-list__text">
-                    <span className="condition-list__title">
-                      {t(`conditions.items.${condition.key}.title`)}
-                    </span>
-                    {t.has(`conditions.items.${condition.key}.summary`) ? (
-                      <span className="condition-list__summary">
-                        {t(`conditions.items.${condition.key}.summary`)}
-                      </span>
-                    ) : null}
-                  </span>
+                <Link className="condition-card" href={getLocalizedPath(locale, `/conditions/${condition.slug}`)}>
+                  <h3 className="condition-card__title">{condition.title}</h3>
+                  <p className="condition-card__description">{condition.description}</p>
                   <svg
                     aria-hidden="true"
-                    className="condition-list__arrow"
+                    className="condition-card__arrow"
                     fill="none"
                     viewBox="0 0 18 18"
                   >
@@ -124,6 +122,7 @@ export async function HomePage({ locale }: HomePageProps) {
         <div className="site-container home-learning__grid">
           <SectionHeading
             eyebrow={t("learning.eyebrow")}
+            href={getLocalizedPath(locale, "/e-learning")}
             id="learning-title"
             title={t("learning.title")}
           />
@@ -138,6 +137,7 @@ export async function HomePage({ locale }: HomePageProps) {
         <div className="site-container home-consultation__grid">
           <SectionHeading
             eyebrow={t("consultation.eyebrow")}
+            href={getLocalizedPath(locale, "/remote-consultation")}
             id="consultation-title"
             title={t("consultation.title")}
             description={t("consultation.description")}

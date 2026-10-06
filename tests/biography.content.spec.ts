@@ -1,45 +1,10 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
-type SectionSpec = Readonly<{
-  key: string;
-  minItems: number;
-  selector: string;
-}>;
+import { getBiographyContent } from "../content/biography";
 
-/** Major source-backed Biography sections and their minimum populated item count. */
-const listSections: readonly SectionSpec[] = [
-  { key: "currentPositions", minItems: 7, selector: 'section[aria-labelledby="biography-current-positions"] .content-item-list > li' },
-  { key: "previousPositions", minItems: 6, selector: 'section[aria-labelledby="biography-previous-positions"] .content-item-list > li' },
-  { key: "qualifications", minItems: 12, selector: 'section[aria-labelledby="biography-qualifications"] .content-item-list > li' },
-  { key: "societies", minItems: 5, selector: 'section[aria-labelledby="biography-societies"] .content-item-list > li' },
-  { key: "teaching", minItems: 8, selector: 'section[aria-labelledby="biography-teaching"] .content-item-list > li' },
-  { key: "academic", minItems: 4, selector: 'section[aria-labelledby="biography-academic"] .content-item-list > li' },
-  { key: "research", minItems: 5, selector: 'section[aria-labelledby="biography-research"] .content-item-list > li' },
-  { key: "leadership", minItems: 6, selector: 'section[aria-labelledby="biography-leadership"] .content-item-list > li' },
-  { key: "milestones", minItems: 4, selector: 'section[aria-labelledby="biography-milestones"] .content-item-list > li' },
-];
+type Locale = "en" | "ar";
 
-const annualFiguresEn = [
-  "150–200 / year",
-  "40–50 / year",
-  "90–150 / year",
-  "20–30 / year",
-  "5–8 / year",
-  "250–350 / year",
-  "200–250 / year",
-  "250–350 / year",
-];
-
-const annualFiguresAr = [
-  "150–200 / سنة",
-  "40–50 / سنة",
-  "90–150 / سنة",
-  "20–30 / سنة",
-  "5–8 / سنة",
-  "250–350 / سنة",
-  "200–250 / سنة",
-  "250–350 / سنة",
-];
+const locales: readonly Locale[] = ["en", "ar"];
 
 const internalLanguage = [
   /approval required/i,
@@ -58,6 +23,23 @@ const internalLanguage = [
 
 const viewportWidths = [320, 360, 375, 390, 412, 430, 480, 768, 834, 1024, 1280, 1440, 1920, 2560];
 
+/** The CV section ids must never come back to the page (D-040). */
+const removedSectionIds = [
+  "biography-annual-activity",
+  "biography-current-positions",
+  "biography-career-history",
+  "biography-previous-positions",
+  "biography-qualifications",
+  "biography-societies",
+  "biography-teaching",
+  "biography-academic",
+  "biography-research",
+  "biography-leadership",
+  "biography-milestones",
+  "biography-clinical-expertise",
+  "biography-external-links",
+] as const;
+
 async function expectNoHorizontalOverflow(page: Page) {
   const dimensions = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
@@ -72,107 +54,113 @@ async function expectAtLeast(locator: Locator, minimum: number, label: string) {
   expect(count, `${label}: expected at least ${minimum} items, received ${count}`).toBeGreaterThanOrEqual(minimum);
 }
 
-async function expectExact(locator: Locator, expected: number, label: string) {
-  const count = await locator.count();
-  expect(count, `${label}: expected ${expected} items, received ${count}`).toBe(expected);
+/** The summary paragraphs are approved word for word; never paraphrased in the view. */
+async function expectApprovedSummary(page: Page, locale: Locale) {
+  const paragraphs = page.locator('section[aria-labelledby="biography-overview"] .content-section__body > p');
+  await expect(paragraphs).toHaveCount(2);
+
+  const rendered = (await paragraphs.allInnerTexts()).map((value) => value.trim());
+  expect(rendered).toEqual([...getBiographyContent(locale).summary]);
 }
 
-async function expectPopulatedSections(page: Page) {
-  for (const section of listSections) {
-    await expectAtLeast(page.locator(section.selector), section.minItems, section.key);
+/** No CV disclosure, no CV sections and no annual activity anywhere on the page. */
+async function expectSummaryOnly(page: Page) {
+  await expect(page.locator("details[data-biography-full-cv]")).toHaveCount(0);
+  await expect(page.locator(".biography-full-cv__summary")).toHaveCount(0);
+  await expect(page.locator(".biography-toc")).toHaveCount(0);
+  await expect(page.locator(".content-card__metric")).toHaveCount(0);
+
+  for (const id of removedSectionIds) {
+    await expect(page.locator(`#${id}`)).toHaveCount(0);
+    await expect(page.locator(`[aria-labelledby="${id}"]`)).toHaveCount(0);
   }
-
-  await expectAtLeast(page.locator('section[aria-labelledby="biography-overview"] .content-section__body > p'), 4, "overview");
-  await expectExact(page.locator('section[aria-labelledby="biography-career-history"] .career-timeline > li'), 5, "careerHistory");
-  await expectExact(page.locator('section[aria-labelledby="biography-clinical-expertise"] .content-card'), 10, "clinicalExpertise");
-  await expectExact(page.locator('section[aria-labelledby="biography-annual-activity"] .content-card'), 8, "annualActivity");
-  await expectAtLeast(page.locator('section[aria-labelledby="biography-external-links"] .content-link-list > div'), 1, "externalLinks");
 }
 
-async function expectAnnualFigures(page: Page, expected: readonly string[]) {
-  const rendered = await page.locator(".content-card__metric").allInnerTexts();
-  expect(rendered.map((value) => value.trim())).toEqual([...expected]);
-}
-
-test("Biography renders complete source-backed content in English", async ({ page }) => {
+test("Biography shows the approved summary and nothing else in English", async ({ page }) => {
   await page.goto("/en/biography");
   await expect(page.locator("[data-biography-page]")).toBeVisible();
 
-  await expectPopulatedSections(page);
-  await expectAnnualFigures(page, annualFiguresEn);
+  // The hero keeps its heading, professional title and portrait unchanged.
+  await expect(page.locator("main h1")).toHaveText("Biography");
+  await expect(page.locator(".content-hero__lead")).toContainText("Consultant Interventional Neuroradiologist");
+  await expect(page.locator(".content-hero__portrait")).toBeVisible();
 
-  // Career history keeps every recorded clinical position and date.
-  const timeline = await page.locator('section[aria-labelledby="biography-career-history"] .career-timeline > li').allInnerTexts();
-  for (const period of ["2002–2006", "2006–2009", "2009–2012", "2012–2019", "2020–2022"]) {
-    expect(timeline.some((entry) => entry.includes(period))).toBeTruthy();
-  }
+  // The two approved paragraphs are the whole body of the page.
+  await expectApprovedSummary(page, "en");
+  await expectSummaryOnly(page);
 
-  // Research, study and publication material is present.
-  const research = page.locator('section[aria-labelledby="biography-research"]');
-  await expect(research).toContainText("ESAT");
-  await expect(research).toContainText("Hospices Civils de Lyon");
-  await expectExact(research.getByRole("link", { name: /pubmed\.ncbi\.nlm\.nih\.gov/ }), 1, "PubMed link");
+  // The section outline stays a single H1 + one H2.
+  await expect(page.locator("main h1")).toHaveCount(1);
+  await expect(page.locator("main h2")).toHaveCount(1);
+  await expect(page.locator('main h2#biography-overview')).toContainText("Professional Overview");
 
-  // External professional links are restored.
-  const links = page.locator('section[aria-labelledby="biography-external-links"]');
-  await expectExact(links.locator('a[href="https://www.linkedin.com/in/mohamed-aggour-1414a941"]'), 1, "LinkedIn link");
-  await expect(links).not.toContainText("PubMed");
-  await expect(links).not.toContainText("@Aggour");
-  await expect(links).not.toContainText("Twitter / X");
+  // Reading measure: the summary never fills the whole wide grid column.
+  const measure = await page.locator(".content-section__body").evaluate((element) => element.getBoundingClientRect().width);
+  expect(measure).toBeLessThanOrEqual(600);
 
-  // ESMINT and PAIRS activity is represented.
-  await expect(page.locator('section[aria-labelledby="biography-leadership"]')).toContainText("ESMINT");
-  await expect(page.locator('section[aria-labelledby="biography-leadership"]')).toContainText("PAIRS");
-  await expect(page.locator('section[aria-labelledby="biography-current-positions"]')).toContainText("St George");
-  await expect(page.locator('section[aria-labelledby="biography-current-positions"]')).toContainText("CHC MontLégia");
-
-  // Qualifications keep the recorded credential names.
-  const qualifications = page.locator('section[aria-labelledby="biography-qualifications"]');
-  for (const credential of ["French Board of Imaging", "AFS Diploma", "AFSA Diploma", "Fellow of EBNI"]) {
-    await expect(qualifications).toContainText(credential);
-  }
-
-  // Teaching keeps the recorded international teaching activity.
-  const teaching = page.locator('section[aria-labelledby="biography-teaching"]');
-  for (const activity of ["ECMINT", "United Kingdom Neuroradiology Group", "MoMo-MEA", "ICE-DINR", "Zagreb", "PAIRS Neuro"]) {
-    await expect(teaching).toContainText(activity);
-  }
-
-  await expectNoHorizontalOverflow(page);
-
-  // Keyboard navigation reaches and activates the Biography navigation links.
+  // Navigation links stay reachable and operable from the keyboard.
   const conditionsCta = page.locator('.content-next-links a[href="/en/conditions"]');
+  await expectAtLeast(page.locator(".content-next-links a[href]"), 4, "biography navigation links");
   await conditionsCta.focus();
   await expect(conditionsCta).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/en\/conditions$/);
+
+  await page.goto("/en/biography");
+  await expectNoHorizontalOverflow(page);
 });
 
-test("Biography renders the same source-backed content in Arabic", async ({ page }) => {
+test("Biography shows the same approved summary in Arabic, right to left", async ({ page }) => {
   await page.goto("/ar/biography");
   await expect(page.locator("[data-biography-page]")).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 
-  await expectPopulatedSections(page);
-  await expectAnnualFigures(page, annualFiguresAr);
+  await expectApprovedSummary(page, "ar");
+  await expectSummaryOnly(page);
+
+  await expect(page.locator('main h2#biography-overview')).toContainText("نبذة مهنية");
 
   const bodyText = await page.locator("body").innerText();
   expect(bodyText).toMatch(/[\u0600-\u06ff]/);
 
-  await expect(page.locator('section[aria-labelledby="biography-qualifications"]')).toContainText("عين شمس");
-  await expect(page.locator('section[aria-labelledby="biography-research"]')).toContainText("ESAT");
-  await expect(page.locator('section[aria-labelledby="biography-leadership"]')).toContainText("ESMINT");
-  await expect(page.locator('section[aria-labelledby="biography-clinical-expertise"]')).toContainText("تمددات شرايين الدماغ");
+  await expectAtLeast(page.locator(".content-next-links a[href]"), 4, "biography navigation links");
 
   await expectNoHorizontalOverflow(page);
 });
 
-test("Biography never renders internal governance metadata", async ({ page }) => {
-  for (const locale of ["en", "ar"] as const) {
+test("the summary is served in the initial HTML and the CV sections are not", async ({ page }) => {
+  for (const locale of locales) {
+    const response = await page.request.get(`/${locale}/biography`);
+    expect(response.status(), locale).toBe(200);
+    const html = await response.text();
+
+    // Both approved paragraphs are present without JavaScript, so crawlers read them.
+    for (const paragraph of getBiographyContent(locale).summary) expect(html, locale).toContain(paragraph);
+
+    // No disclosure and no CV section ships in the markup.
+    expect(html, locale).not.toContain("data-biography-full-cv");
+    expect(html, locale).not.toContain("biography-full-cv");
+    expect(html, locale).not.toContain("السيرة الكاملة");
+    expect(html, locale).not.toContain("Full CV");
+    for (const id of removedSectionIds) expect(html, `${locale}: ${id}`).not.toContain(`id="${id}"`);
+
+    // The removed annual activity section is not emitted in any form.
+    expect(html, locale).not.toContain("150–200 / year");
+
     await page.goto(`/${locale}/biography`);
+    await expect(page.locator("[data-biography-page]")).toBeVisible();
+    await expectSummaryOnly(page);
+  }
+});
+
+test("Biography never renders internal governance metadata", async ({ page }) => {
+  for (const locale of locales) {
+    await page.goto(`/${locale}/biography`);
+
     const bodyText = await page.locator("body").innerText();
 
     for (const pattern of internalLanguage) {
-      expect(bodyText).not.toMatch(pattern);
+      expect(bodyText, locale).not.toMatch(pattern);
     }
 
     // Internal review notes attached to content items must stay internal.
@@ -182,9 +170,9 @@ test("Biography never renders internal governance metadata", async ({ page }) =>
 });
 
 test("Biography stays free of horizontal overflow across the required width matrix", async ({ page }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(300_000);
 
-  for (const locale of ["en", "ar"] as const) {
+  for (const locale of locales) {
     for (const width of viewportWidths) {
       await page.setViewportSize({ width, height: 844 });
       await page.goto(`/${locale}/biography`);

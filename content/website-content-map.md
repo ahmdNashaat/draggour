@@ -310,7 +310,8 @@ SEO exclusions and safeguards:
 - Arabic condition names and all Arabic page copy.
 - Professional Activities item selection under the three approved categories.
 - E-learning introduction, official YouTube URL, playlists, and featured items.
-- Contact intents and all contact destination wording.
+- Contact destination wording and the approved external profile links (the
+  contact intents block was removed by D-042).
 - Emergency, medical disclaimer, privacy, consultation, consent, and success
   wording.
 

@@ -2,67 +2,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { getBiographyContent, type BiographyItem } from "@/content/biography";
+import { getBiographyContent } from "@/content/biography";
 import { getLocalizedPath, siteIdentity, type Locale } from "@/content/site";
 import { buildBiographyJsonLd, buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
 import { JsonLd } from "@/components/site/JsonLd";
-import { BiographyToc } from "@/components/biography/BiographyToc";
 
 type BiographyPageProps = Readonly<{
   locale: Locale;
 }>;
 
-function isUrl(value: string) {
-  return value.startsWith("http");
-}
-
-function ItemList({ items }: Readonly<{ items: readonly BiographyItem[] }>) {
-  return (
-    <ul className="content-item-list">
-      {items.map((item) => (
-        <li key={`${item.title}-${item.detail ?? ""}`}>
-          <h3>{item.title}</h3>
-          {item.detail ? (
-            isUrl(item.detail) ? (
-              <p>
-                <a href={item.detail} rel="noreferrer" target="_blank">
-                  {item.detail}
-                </a>
-              </p>
-            ) : (
-              <p>{item.detail}</p>
-            )
-          ) : null}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function ContentListSection({
-  id,
-  title,
-  items,
-  muted = false,
-}: Readonly<{
-  id: string;
-  title: string;
-  items: readonly BiographyItem[];
-  muted?: boolean;
-}>) {
-  return (
-    <section className={`content-section${muted ? " content-section--surface" : ""}`} aria-labelledby={id}>
-      <div className="site-container content-section__inner">
-        <div>
-          <h2 id={id}>{title}</h2>
-        </div>
-        <ItemList items={items} />
-      </div>
-    </section>
-  );
-}
-
-async function BiographyLinks({ locale, ui }: Readonly<{ locale: Locale; ui: Awaited<ReturnType<typeof getTranslations>> }>) {
+function BiographyLinks({ locale, ui }: Readonly<{ locale: Locale; ui: Awaited<ReturnType<typeof getTranslations>> }>) {
   return (
     <nav className="content-next-links" aria-label={ui("biography.title")}>
       <div className="site-container">
@@ -82,7 +31,6 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
   const biographyJsonLd = buildBiographyJsonLd(locale);
   const isArabic = locale === "ar";
   const portraitAlt = home("hero.portraitLabel");
-  const renderedLinks = content.externalLinks.filter((item) => !item.internalOnly);
 
   return (
     <main id="main-content" className="content-page biography-page" data-biography-page>
@@ -108,105 +56,15 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
         </div>
       </section>
 
-      <BiographyToc />
-
+      {/* The whole visible body of the page: the two approved paragraphs. */}
       <section className="content-section content-section--surface" aria-labelledby="biography-overview">
         <div className="site-container content-section__inner">
           <div>
             <h2 id="biography-overview">{ui("biography.overview")}</h2>
           </div>
           <div className="content-section__body">
-            {content.overview.keyFacts && content.overview.keyFacts.length > 0 && (
-              <ul className="content-bullet-list content-bullet-list--large" style={{ marginBottom: '2rem' }}>
-                {content.overview.keyFacts.map((fact) => (
-                  <li key={fact}>{fact}</li>
-                ))}
-              </ul>
-            )}
-            {content.overview.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-          </div>
-        </div>
-      </section>
-
-      <ContentListSection id="biography-current-positions" title={ui("biography.currentPositions")} items={content.currentPositions} />
-
-      <section className="content-section content-section--surface" aria-labelledby="biography-career-history">
-        <div className="site-container content-section__inner">
-          <div>
-            <h2 id="biography-career-history">{ui("biography.careerHistory")}</h2>
-          </div>
-          <ol className="career-timeline">
-            {content.careerHistory.map((item) => (
-              <li key={item.title}>
-                <time>{item.detail}</time>
-                <div>
-                  <h3>{item.title}</h3>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      <ContentListSection
-        id="biography-previous-positions"
-        title={ui("biography.previousPositions")}
-        items={content.previousPositions}
-      />
-      <ContentListSection id="biography-qualifications" title={ui("biography.qualifications")} items={content.qualifications.map((title) => ({ title }))} muted />
-      <ContentListSection id="biography-societies" title={ui("biography.societies")} items={content.societies.map((title) => ({ title }))} />
-      <ContentListSection id="biography-teaching" title={ui("biography.teaching")} items={content.teaching} muted />
-      <ContentListSection id="biography-academic" title={ui("biography.academic")} items={content.academic} />
-      <ContentListSection id="biography-research" title={ui("biography.research")} items={content.research} muted />
-      <ContentListSection id="biography-leadership" title={ui("biography.leadership")} items={content.leadership} />
-      <ContentListSection id="biography-milestones" title={ui("biography.milestones")} items={content.milestones} muted />
-
-      <section className="content-section" aria-labelledby="biography-clinical-expertise">
-        <div className="site-container">
-          
-          <h2 id="biography-clinical-expertise">{ui("biography.clinicalExpertise")}</h2>
-          <div className="content-card-grid content-card-grid--three">
-            {content.clinicalExpertise.map((item) => (
-              <article className="content-card" key={item.title}>
-                <h3>{item.title}</h3>
-                <p>{item.detail}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="content-section content-section--surface" aria-labelledby="biography-annual-activity">
-        <div className="site-container">
-          
-          <h2 id="biography-annual-activity">{ui("biography.annualActivity")}</h2>
-          <div className="content-card-grid content-card-grid--four">
-            {content.annualActivity.map((item) => (
-              <article className="content-card content-card--metric" key={item.title}>
-                <p className="content-card__metric">{item.detail}</p>
-                <h3>{item.title}</h3>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="content-section" aria-labelledby="biography-external-links">
-        <div className="site-container content-section__inner">
-          <div>
-            
-            <h2 id="biography-external-links">{ui("biography.externalLinks")}</h2>
-          </div>
-          <div className="content-link-list">
-            {renderedLinks.map((item) => (
-              <div key={item.title}>
-                <h3>{item.title}</h3>
-                {item.detail && isUrl(item.detail) ? (
-                  <a href={item.detail} rel="noreferrer" target="_blank">{item.detail}</a>
-                ) : (
-                  <p>{item.detail}</p>
-                )}
-              </div>
+            {content.summary.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
         </div>

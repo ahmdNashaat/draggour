@@ -13,6 +13,7 @@ const siteUrl = getSiteUrl();
 type MetadataOverrides = Readonly<{
   title?: string;
   description?: string;
+  keywords?: readonly string[];
 }>;
 
 export function getLocaleMetadata(locale: Locale, pathname = "", overrides: MetadataOverrides = {}): Metadata {
@@ -40,6 +41,7 @@ export function getLocaleMetadata(locale: Locale, pathname = "", overrides: Meta
     metadataBase: siteUrl ?? undefined,
     title,
     description: overrides.description ?? siteIdentity.description,
+    ...(overrides.keywords ? { keywords: [...overrides.keywords] } : {}),
     alternates: {
       ...(pageUrl ? { canonical: pageUrl } : {}),
       ...(languages && siteUrl

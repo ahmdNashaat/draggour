@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { biographyContent } from "@/content/biography";
+import { getBiographyContent } from "@/content/biography";
 import { getLocalizedPath, type Locale } from "@/content/site";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { JsonLd } from "@/components/site/JsonLd";
@@ -10,35 +10,19 @@ type ContactPageProps = Readonly<{ locale: Locale }>;
 
 export async function ContactPage({ locale }: ContactPageProps) {
   const ui = await getTranslations("content");
-  const availableLinks = biographyContent.externalLinks.filter((item) => !item.internalOnly && item.detail?.startsWith("http"));
+  const availableLinks = getBiographyContent(locale).externalLinks.filter(
+    (item) => !item.internalOnly && item.detail?.startsWith("http"),
+  );
+  const newTabHint = `(${ui("contactPage.newTabHint")})`;
 
   return (
     <main id="main-content" className="content-page professional-page" data-contact-page>
       <section className="content-hero" aria-labelledby="contact-title">
-        <div className="site-container content-hero__grid content-hero__grid--compact">
+        <div className="site-container content-hero__grid content-hero__grid--single">
           <div>
             <p className="eyebrow">{ui("contactPage.eyebrow")}</p>
             <h1 id="contact-title">{ui("contactPage.title")}</h1>
             <p className="content-hero__description">{ui("contactPage.description")}</p>
-          </div>
-          <p className="content-hero__index" aria-hidden="true">03</p>
-        </div>
-      </section>
-
-      <section className="content-section content-section--surface" aria-labelledby="contact-intents">
-        <div className="site-container content-section__inner">
-          <div>
-            <h2 id="contact-intents">{ui("contactPage.intentsHeading")}</h2>
-          </div>
-          <div className="contact-intents">
-            <article className="contact-intent">
-              <h3>{ui("contactPage.patientIntent")}</h3>
-              <Link className="arrow-link" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("contactPage.routeCta")} <span aria-hidden="true">↗</span></Link>
-            </article>
-            <article className="contact-intent">
-              <h3>{ui("contactPage.physicianIntent")}</h3>
-              <Link className="arrow-link" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("contactPage.routeCta")} <span aria-hidden="true">↗</span></Link>
-            </article>
           </div>
         </div>
       </section>
@@ -50,9 +34,14 @@ export async function ContactPage({ locale }: ContactPageProps) {
           </div>
           <div className="content-link-list">
             {availableLinks.map((item) => (
-              <div key={item.title}>
+              <div key={item.detail}>
                 <h3>{item.title}</h3>
-                <a href={item.detail} rel="noreferrer" target="_blank">{item.detail}</a>
+                <a href={item.detail} rel="noopener noreferrer" target="_blank">
+                  {item.detail}
+                  <span aria-hidden="true"> ↗</span>
+                  {/* Announces that the destination leaves the site. */}
+                  <span className="sr-only">{newTabHint}</span>
+                </a>
               </div>
             ))}
           </div>

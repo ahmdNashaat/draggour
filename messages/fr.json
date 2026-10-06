@@ -39,33 +39,12 @@
       "eyebrow": "French content not activated",
       "title": "Biography — French content not activated",
       "description": "French content is not activated for launch.",
-      "body": "French Biography content is not activated for launch.",
       "cta": "French Biography CTA not activated"
     },
     "conditions": {
       "eyebrow": "French content not activated",
       "title": "Conditions — French content not activated",
-      "description": "French clinical descriptions are not activated for launch.",
-      "items": {
-        "brainAneurysm": {
-          "title": "Brain Aneurysm"
-        },
-        "stroke": {
-          "title": "Stroke"
-        },
-        "avm": {
-          "title": "AVM"
-        },
-        "carotidStenosis": {
-          "title": "Carotid Stenosis"
-        },
-        "venousSinusDisorders": {
-          "title": "Venous Sinus Disorders"
-        },
-        "chronicSubduralHaematoma": {
-          "title": "Chronic Subdural Haematoma"
-        }
-      }
+      "description": "French clinical descriptions are not activated for launch."
     },
     "learning": {
       "eyebrow": "French content not activated",

@@ -1,63 +1,155 @@
 import { expect, test } from "@playwright/test";
 
-import { conditionContent } from "../content/conditions";
+import { patientConditions } from "../content/patient-conditions";
+import {
+  getLearningLinks,
+  selectLearningLinks,
+  type LearningLink,
+} from "../content/learning-links";
 
 const locales = ["en", "ar"] as const;
 
-test("all condition pages have distinct topic content, one H1 and the relevant trust links", async ({ page }) => {
+test("all ten condition pages keep the supplied copy, review label, disclaimer and return link", async ({ page }) => {
   for (const locale of locales) {
-    const introductions: string[] = [];
+    const headings: string[] = [];
 
-    for (const condition of conditionContent) {
+    for (const condition of patientConditions) {
       const route = `/${locale}/conditions/${condition.slug}`;
       const response = await page.goto(route);
       expect(response?.status(), route).toBe(200);
       await expect(page.locator("h1")).toHaveCount(1);
       await expect(page.locator("main[data-condition-page]")).toHaveAttribute("data-condition-page", condition.slug);
-      await expect(page.locator(".content-hero__description")).toBeVisible();
-      await expect(page.locator(".content-bullet-list li").first()).toBeVisible();
+      await expect(page.locator(".condition-reviewed-by")).toHaveText(locale === "en"
+        ? "Reviewed by Dr. Mohamed Aggour · Last reviewed 4 October 2026"
+        : "راجعه د. محمد عجور · آخر مراجعة 4 أكتوبر 2026");
+      await expect(page.locator(".condition-document__block").first()).toBeVisible();
       await expect(page.locator(`main a[href="/${locale}/conditions"]`)).toHaveCount(2);
-      await expect(page.locator(`main a[href="/${locale}/biography"]`)).toHaveCount(1);
       await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(1);
       await expect(page.locator(`main a[href="/${locale}/legal"]`)).toHaveCount(1);
 
-      const introduction = (await page.locator(".content-hero__description").textContent())?.trim() ?? "";
-      introductions.push(introduction);
-      expect(introduction.length).toBeGreaterThan(20);
+      const heading = (await page.locator("h1").textContent())?.trim() ?? "";
+      headings.push(heading);
+      expect(heading).toBe(locale === "en" ? condition.en.title : condition.ar.title);
+      const pageText = await page.locator("main").innerText();
+      expect(pageText).toContain(locale === "en"
+        ? "This page explains a condition in general terms. It is not advice about your own case"
+        : "تشرح هذه الصفحة الحالة بشكل عام، وليست نصيحة طبية لحالتك الخاصة");
+      expect(pageText).not.toContain("يُؤكَّد مكان إجراء الدكتور عجور");
 
       const anchors = (await page.locator("main a[href]").allTextContents()).map((text) => text.trim());
       expect(anchors.every((text) => text.length > 0 && text.length < 60)).toBe(true);
       expect(anchors.join(" ")).not.toMatch(/best|leading|world.?class|number one|#1/i);
     }
 
-    expect(new Set(introductions).size).toBe(6);
+    expect(new Set(headings).size).toBe(10);
   }
 });
 
 test("stroke guidance in both languages directs urgent cases away from the website", async ({ page }) => {
-  const expected = {
-    en: ["not an emergency service", "local emergency services", "nearest hospital", "Do not wait"],
-    ar: ["ليس خدمة طوارئ", "خدمات الطوارئ المحلية", "أقرب مستشفى", "لا تنتظر"],
-  } as const;
-
   for (const locale of locales) {
-    await page.goto(`/${locale}/conditions/stroke`);
-    const emergency = page.locator(".condition-emergency");
-    await expect(emergency).toBeVisible();
-    const text = await emergency.innerText();
-    for (const phrase of expected[locale]) expect(text).toContain(phrase);
+    await page.goto(`/${locale}/conditions/stroke-thrombectomy`);
+    const text = await page.locator("main").innerText();
+    if (locale === "en") {
+      expect(text).toContain("call emergency services now. Do not use this website or send a message.");
+    } else {
+      expect(text).toContain("فاتصل بالإسعاف فورًا. لا تستخدم هذا الموقع ولا ترسل رسالة.");
+    }
   }
 });
 
-test("E-learning presents physician education without linking to a generic YouTube homepage", async ({ page }) => {
+test("legacy condition paths route to the matching document slug in both locales", async ({ page }) => {
+  const aliases = [
+    ["stroke", "stroke-thrombectomy"],
+    ["carotid-stenosis", "carotid-intracranial-stenting"],
+    ["venous-sinus-disorders", "venous-sinus-stenting"],
+  ] as const;
+
+  for (const locale of locales) {
+    for (const [oldSlug, newSlug] of aliases) {
+      await page.goto(`/${locale}/conditions/${oldSlug}`);
+      await expect(page).toHaveURL(new RegExp(`/${locale}/conditions/${newSlug}$`));
+      await expect(page.locator(`main[data-condition-page="${newSlug}"]`)).toBeVisible();
+    }
+  }
+});
+
+test("E-learning renders the learning links with safe external anchors and no teaching list", async ({ page }) => {
   for (const locale of locales) {
     await page.goto(`/${locale}/e-learning`);
     await expect(page.locator("h1")).toHaveText(locale === "en" ? "E-learning for Physicians" : "التعليم الطبي للأطباء");
-    await expect(page.locator('a[href="https://www.youtube.com/"]')).toHaveCount(0);
-    await expect(page.locator('a[href^="https://www.youtube.com/"]')).toHaveCount(0);
+
+    // Removed from this page: the hero index number and the teaching list.
+    await expect(page.locator(".content-hero__index")).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Teaching and education", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "التعليم والتدريب", exact: true })).toHaveCount(0);
+
+    await expect(
+      page.getByRole("heading", { name: locale === "en" ? "Learning links" : "روابط التعلم", exact: true }),
+    ).toBeVisible();
+
+    const anchors = page.locator("main .learning-link__anchor");
+    const rendered = await anchors.evaluateAll((items) =>
+      items.map((anchor) => ({
+        href: anchor.getAttribute("href") ?? "",
+        target: anchor.getAttribute("target"),
+        rel: anchor.getAttribute("rel") ?? "",
+        text: anchor.textContent ?? "",
+      })),
+    );
+    expect(rendered.length).toBeGreaterThan(0);
+
+    for (const link of rendered) {
+      const url = new URL(link.href);
+      expect(url.protocol).toBe("https:");
+      expect(url.hostname).not.toMatch(/localhost|vercel\.app/i);
+      expect(link.target).toBe("_blank");
+      expect(link.rel).toContain("noopener");
+      expect(link.rel).toContain("noreferrer");
+      expect(link.text).toMatch(locale === "en" ? /opens in a new tab/ : /يفتح في تبويب جديد/);
+    }
+
+    // Everything published in content/learning-links.ts reaches this page.
+    const expected = getLearningLinks(locale).map((link) => link.url);
+    expect([...rendered.map((link) => link.href)].sort()).toEqual([...expected].sort());
+
+    await expect(page.locator(".learning-link--primary")).toHaveCount(1);
     await expect(page.locator("main a[href$='/biography']")).toHaveCount(1);
     await expect(page.locator("main a[href$='/remote-consultation']")).toHaveCount(1);
   }
+});
+
+test("learning links drop entries without a URL and localize from a single content file", () => {
+  const sample: readonly LearningLink[] = [
+    {
+      id: "visible",
+      platform: "youtube",
+      url: " https://www.youtube.com/@channel ",
+      title: { en: "YouTube Channel", ar: "قناة يوتيوب" },
+      description: { en: "English line", ar: "سطر عربي" },
+      primary: true,
+    },
+    {
+      id: "hidden",
+      platform: "other",
+      url: "   ",
+      title: { en: "Hidden entry", ar: "عنصر مخفي" },
+      description: { en: "Hidden line", ar: "سطر مخفي" },
+      primary: false,
+    },
+  ];
+
+  const english = selectLearningLinks(sample, "en");
+  const arabic = selectLearningLinks(sample, "ar");
+
+  // An empty URL never reaches the page, so no dead link can be published.
+  expect(english.map((link) => link.id)).toEqual(["visible"]);
+  expect(arabic.map((link) => link.id)).toEqual(["visible"]);
+  expect(english[0].url).toBe("https://www.youtube.com/@channel");
+  expect(english[0].primary).toBe(true);
+  // One entry carries both locales; the page picks the right one.
+  expect(english[0].title).toBe("YouTube Channel");
+  expect(arabic[0].title).toBe("قناة يوتيوب");
+  expect(arabic[0].description).toBe("سطر عربي");
 });
 
 test("medical disclaimers and consultation limits are visible, with no governance notes rendered", async ({ page }) => {
@@ -69,32 +161,15 @@ test("medical disclaimers and consultation limits are visible, with no governanc
 
     await page.goto(`/${locale}/remote-consultation`);
     const consultation = page.locator("main");
-    let consultationText = await consultation.innerText();
-    expect(consultationText).toMatch(locale === "en" ? /does not send or store/i : /لا ترسل هذه الصفحة معلوماتك ولا تخزنها/);
-    const choose = (en: string, ar: string) => page.getByRole("radio", { name: locale === "en" ? en : ar }).check();
-    const advance = async () => page.getByRole("button", { name: locale === "en" ? "Continue" : "متابعة" }).click();
-    await choose("Patient / Consultation", "مريض / استشارة");
-    await advance();
-    await choose("Non-Emergency", "غير طارئة");
-    await advance();
-    consultationText = await consultation.innerText();
-    expect(consultationText).toMatch(locale === "en" ? /not an appointment confirmation/i : /ليس تأكيداً لموعد/);
-    await choose("Online Consultation", "استشارة عن بُعد");
-    await advance(); // requester details
-    await advance(); // preferred times
-    await advance(); // attachments
-    await advance(); // consent
-    await expect(page.locator(`.consultation-consent-panel a[href="/${locale}/legal"]`)).toBeVisible();
-    await page.getByRole("checkbox").check();
-    await advance(); // review
-    consultationText = await consultation.innerText();
-    expect(consultationText).toMatch(locale === "en" ? /does not confirm an appointment/i : /لا يؤكد طلب الاستشارة هذا موعداً/);
-    await page.getByRole("button", { name: locale === "en" ? "Complete request preview" : "إكمال معاينة الطلب" }).click();
-    consultationText = await consultation.innerText();
-    expect(consultationText).toMatch(locale === "en" ? /Nothing was sent to the team/i : /لم يتم إرساله إلى الفريق/);
-    expect(consultationText).toMatch(locale === "en" ? /Appointment is not confirmed/i : /لم يتم تأكيد الموعد/);
+    const consultationText = await consultation.innerText();
+    expect(consultationText).toMatch(locale === "en" ? /collects nothing/i : /لا يجمع هذا الموقع أي بيانات/);
+    expect(consultationText).toMatch(locale === "en" ? /does not confirm an appointment/i : /لا تُؤكد موعداً/);
+    expect(consultationText).toMatch(locale === "en" ? /not an emergency service/i : /ليس خدمة طوارئ/);
+    await expect(page.locator(`main a[href="/${locale}/legal"]`)).toHaveCount(1);
+    await expect(page.locator("main form")).toHaveCount(0);
+    await expect(page.locator("main input, main textarea")).toHaveCount(0);
 
-    for (const path of ["", "/biography", "/conditions", "/conditions/stroke", "/e-learning", "/remote-consultation", "/contact", "/legal"]) {
+    for (const path of ["", "/biography", "/conditions", "/conditions/stroke-thrombectomy", "/e-learning", "/remote-consultation", "/contact", "/legal"]) {
       await page.goto(`/${locale}${path}`);
       const visibleText = await page.locator("body").innerText();
       expect(visibleText).not.toMatch(/DOCTOR APPROVAL REQUIRED|Publish:\s*NO|CF[1-9]|T[123]\s*\/\s*Q/i);

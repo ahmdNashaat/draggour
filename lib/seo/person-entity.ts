@@ -10,14 +10,21 @@ export const personEntityConfig = {
   professionalTitles: siteIdentity.professionalTitle,
   knowsAbout: ["Interventional Neuroradiology"],
   conditions: [
+    { name: "Cerebral and spinal angiography", slug: "angiography" },
     { name: "Brain Aneurysm", slug: "brain-aneurysm" },
-    { name: "Stroke", slug: "stroke" },
     { name: "Arteriovenous Malformation (AVM)", slug: "avm" },
-    { name: "Carotid Stenosis", slug: "carotid-stenosis" },
-    { name: "Venous Sinus Disorders", slug: "venous-sinus-disorders" },
+    { name: "Mechanical thrombectomy for acute stroke", slug: "stroke-thrombectomy" },
+    { name: "Dural and carotid-cavernous fistula embolisation", slug: "fistulas" },
+    { name: "Venous sinus stenting", slug: "venous-sinus-stenting" },
+    { name: "Neck and intracranial angioplasty and stenting", slug: "carotid-intracranial-stenting" },
+    { name: "Paediatric interventions, including vein of Galen embolization", slug: "paediatric" },
     { name: "Chronic Subdural Haematoma", slug: "chronic-subdural-haematoma" },
+    { name: "Other embolisation: nosebleeds, tumours and trauma", slug: "other-embolisation" },
   ],
   // Approval pack G3/G4 and source-of-truth §16 gate external identity links.
+  // TODO(person-schema): when the final YouTube channel URL replaces the
+  // placeholder in content/learning-links.ts, add that exact URL here so the
+  // Person JSON-LD `sameAs` carries it. The temporary URL must never land here.
   approvedSameAs: [] as readonly string[],
 } as const;
 

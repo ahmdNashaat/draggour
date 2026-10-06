@@ -73,7 +73,6 @@ export function Footer({
 
         <div className="site-footer__bottom">
           <p>{copyright}</p>
-          <p>{brandName}</p>
         </div>
       </div>
     </footer>

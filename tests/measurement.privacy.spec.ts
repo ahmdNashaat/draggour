@@ -26,16 +26,9 @@ test("consultation information stays out of analytics, URLs, metadata, and JSON-
       gtag: typeof (window as Window & { gtag?: unknown }).gtag,
     }))).toEqual({ dataLayer: "undefined", gtag: "undefined" });
 
-    await page.locator('input[name="requesterType"][value="patient"]').check();
-    await page.locator("form button[type=submit]").click();
-    await page.locator('input[name="urgency"][value="nonEmergency"]').check();
-    await page.locator("form button[type=submit]").click();
-    await page.locator('input[name="service"][value="online"]').check();
-    await page.locator("form button[type=submit]").click();
+    // The consultation page has no form and no input, so nothing typed can leak.
+    await expect(page.locator("main form, main input, main textarea")).toHaveCount(0);
     captureInteractionRequests = true;
-    await page.locator("#full-name").fill(privateName);
-    await page.locator("#email").fill(privateEmail);
-    await page.locator("#short-description").fill(privateMedicalText);
 
     expect(page.url()).not.toContain(privateName);
     expect(page.url()).not.toContain(privateEmail);

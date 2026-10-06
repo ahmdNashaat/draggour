@@ -10,6 +10,9 @@ const publicRoutes = publicPathnames.flatMap((pathname) =>
 );
 
 test("launch routes render unique page metadata, correct language, and safe SEO signals", async ({ page }) => {
+  // Full metadata sweep across every launch route; a cold dev server needs more
+  // than the default 30s to load all of them.
+  test.setTimeout(180_000);
   const titlesByLocale: Record<(typeof launchLocales)[number], string[]> = { en: [], ar: [] };
   const descriptionsByLocale: Record<(typeof launchLocales)[number], string[]> = { en: [], ar: [] };
 

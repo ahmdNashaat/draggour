@@ -12,14 +12,13 @@ type StickyConsultationCtaProps = Readonly<{
 }>;
 
 /**
- * The consultation action is only ever promoted on the home page and the
- * conditions tree. Consultation, legal, and every other destination keep a
- * still page, so this never competes with the form or a policy page.
+ * The consultation action is promoted on Home and condition detail pages.
+ * The Conditions hub stays clear for browsing its full list of destinations.
  */
 function isStickyPath(pathname: string, locale: Locale): boolean {
   const home = `/${locale}`;
   const conditions = `${home}/conditions`;
-  return pathname === home || pathname === conditions || pathname.startsWith(`${conditions}/`);
+  return pathname === home || pathname.startsWith(`${conditions}/`);
 }
 
 /**

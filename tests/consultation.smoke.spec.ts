@@ -1,8 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { isConsultationWhatsappConfigured, whatsappPlaceholder } from "../content/whatsapp";
+
+const locales = ["en", "ar"] as const;
 const viewportWidths = [320, 360, 375, 390, 412, 430, 480, 768, 834, 1024, 1280, 1440, 1920, 2560];
-const privateTestName = "Private Test Patient 918273";
-const privateTestEmail = "private-test-918273@example.test";
+const whatsappConfigured = isConsultationWhatsappConfigured();
+// The pending CTA only exists outside production (see D-036); the suite runs on `pnpm dev`.
+const productionBuild = process.env.NODE_ENV === "production";
+
+const pixels = (value: string) => Number.parseFloat(value);
 
 async function expectNoHorizontalOverflow(page: Page) {
   const dimensions = await page.evaluate(() => ({
@@ -13,159 +19,221 @@ async function expectNoHorizontalOverflow(page: Page) {
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
 }
 
-async function choosePatientNonEmergencyOnline(page: Page, locale = "en") {
-  await page.goto(`/${locale}/remote-consultation`);
-  await page.getByRole("radio", { name: /Patient \/ Consultation|مريض \/ استشارة/ }).check();
-  await page.getByRole("button", { name: /Continue|متابعة/ }).click();
-  await page.getByRole("radio", { name: /Non-Emergency|غير طارئة/ }).check();
-  await page.getByRole("button", { name: /Continue|متابعة/ }).click();
-  await page.getByRole("radio", { name: /Online Consultation|استشارة عن بُعد/ }).check();
-  await page.getByRole("button", { name: /Continue|متابعة/ }).click();
-}
+test("the consultation page is a WhatsApp hand-off and never a form", async ({ page }) => {
+  for (const locale of locales) {
+    await page.goto(`/${locale}/remote-consultation`);
+    const main = page.locator("main[data-consultation-page]");
 
-async function completePatientJourneyToReview(page: Page) {
-  await page.locator("#full-name").fill(privateTestName);
-  await page.locator("#email").fill("invalid-email");
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.locator(".consultation-error[role=alert]")).toContainText("valid format");
-  await page.locator("#email").fill(privateTestEmail);
-  await page.getByRole("button", { name: "Continue" }).click();
+    await expect(main).toBeVisible();
+    await expect(page.locator("main form")).toHaveCount(0);
+    await expect(page.locator("main input, main textarea, main select")).toHaveCount(0);
 
-  await page.locator("#preferred-time-0").fill("2030-01-10T10:00");
-  await page.getByRole("button", { name: "Add another preferred time" }).click();
-  await page.locator("#preferred-time-1").fill("2030-01-11T11:00");
-  await page.getByRole("button", { name: "Add another preferred time" }).click();
-  await page.locator("#preferred-time-2").fill("2030-01-12T12:00");
-  await expect(page.getByRole("button", { name: "Add another preferred time" })).toBeDisabled();
-  await page.getByRole("button", { name: "Continue" }).click();
+    const cta = page.locator("[data-consultation-whatsapp-cta]");
 
-  const files = page.locator("#consultation-files");
-  await files.setInputFiles([
-    { name: "scan.pdf", mimeType: "application/pdf", buffer: Buffer.from("prototype") },
-    { name: "image.jpg", mimeType: "image/jpeg", buffer: Buffer.from("prototype") },
-    { name: "report.png", mimeType: "image/png", buffer: Buffer.from("prototype") },
-  ]);
-  await expect(page.getByText("scan.pdf", { exact: true })).toBeVisible();
-  await files.setInputFiles({ name: "extra.pdf", mimeType: "application/pdf", buffer: Buffer.from("prototype") });
-  await expect(page.locator(".consultation-error[role=alert]")).toContainText("maximum of three");
-  await page.getByRole("button", { name: "Remove scan.pdf" }).click();
-  await files.setInputFiles({ name: "not-allowed.txt", mimeType: "text/plain", buffer: Buffer.from("prototype") });
-  await expect(page.locator(".consultation-error[role=alert]")).toContainText("only PDF, JPG, and PNG");
-  await page.getByRole("button", { name: "Remove image.jpg" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
+    if (whatsappConfigured) {
+      await expect(cta).toHaveCount(1);
+      await expect(cta).toHaveAttribute("href", /^https:\/\/wa\.me\/\d{7,15}\?text=/);
+      await expect(cta).toHaveAttribute("target", "_blank");
+      await expect(cta).toHaveAttribute("rel", /noopener/);
+      await expect(cta).toHaveAttribute("rel", /noreferrer/);
+      await expect(cta).toContainText(locale === "en" ? "opens in a new tab" : "يفتح في تبويب جديد");
+      await expect(page.locator("[data-consultation-whatsapp-pending]")).toHaveCount(0);
+      await expect(main).not.toContainText(whatsappPlaceholder);
 
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.locator(".consultation-error[role=alert]")).toContainText("Consent is required");
-  await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.locator('[data-consultation-step="review"]')).toBeVisible();
-}
+      const href = (await cta.getAttribute("href")) ?? "";
+      expect(decodeURIComponent(href)).toContain(locale === "en" ? "Dr. Mohamed Aggour" : "دكتور محمد عجور");
+    } else if (productionBuild) {
+      // The page never ships a dead button: in production the CTA is omitted entirely.
+      await expect(cta).toHaveCount(0);
+      await expect(page.locator("[data-consultation-whatsapp-pending]")).toHaveCount(0);
+      await expect(main).not.toContainText(whatsappPlaceholder);
+    } else {
+      await expect(cta).toHaveCount(1);
+      await expect(cta).toBeDisabled();
+      await expect(page.locator("[data-consultation-whatsapp-pending]")).toBeVisible();
+      await expect(main).toContainText(whatsappPlaceholder);
+    }
 
-test("patient non-emergency journey supports validation, review, edit and prototype receipt", async ({ page }) => {
-  await choosePatientNonEmergencyOnline(page);
-  await completePatientJourneyToReview(page);
-
-  await expect(page.locator('[data-consultation-step="review"]')).toContainText(privateTestName);
-  await expect(page.locator('[data-consultation-step="review"]')).toContainText("Online Consultation");
-  await expect(page.locator('[data-consultation-step="review"]')).toContainText("report.png");
-
-  await page.locator('[data-consultation-step="review"] .consultation-review-group button').first().click();
-  await expect(page.locator('[data-consultation-step="requester"]')).toBeVisible();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.locator('[data-consultation-step="review"]')).toBeVisible();
-
-  const beforeUrl = page.url();
-  const beforeStorage = await page.evaluate(() => ({
-    local: window.localStorage.length,
-    session: window.sessionStorage.length,
-  }));
-  const requestsAfterSubmit: string[] = [];
-  page.on("request", (request) => {
-    requestsAfterSubmit.push(request.url());
-  });
-
-  await page.getByRole("button", { name: "Complete request preview" }).click();
-  await expect(page.locator("[data-consultation-success]")).toBeVisible();
-  expect(page.url()).toBe(beforeUrl);
-  expect(requestsAfterSubmit).toEqual([]);
-  const successText = await page.locator("[data-consultation-success]").innerText();
-  expect(successText).not.toContain(privateTestName);
-  expect(successText).not.toContain(privateTestEmail);
-  await expect(page.locator("[data-consultation-success]")).toContainText("Appointment is not confirmed.");
-  await expect(page.locator("[data-consultation-success]")).toContainText("Payment is not confirmed or processed.");
-  await expect(page.locator("[data-consultation-success]")).toContainText("No diagnosis has been provided.");
-  expect(await page.evaluate(() => ({ local: window.localStorage.length, session: window.sessionStorage.length }))).toEqual(beforeStorage);
-});
-
-test("emergency branch ends the normal flow without consultation controls", async ({ page }) => {
-  await page.goto("/en/remote-consultation");
-  await page.getByRole("radio", { name: "Patient / Consultation" }).check();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.locator('input[name="urgency"][value="emergency"]').check();
-  await page.getByRole("button", { name: "Continue" }).click();
-
-  await expect(page.locator("[data-consultation-emergency]")).toBeVisible();
-  await expect(page.locator("[data-consultation-emergency]")).toContainText("This website is not an emergency service.");
-  await expect(page.locator("[data-consultation-emergency]")).toContainText("Contact local emergency services.");
-  await expect(page.locator("[data-consultation-emergency]")).toContainText("Attend the nearest hospital.");
-  await expect(page.locator("#consultation-files")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Show prototype receipt" })).toHaveCount(0);
-  await expect(page.getByText("Online Consultation", { exact: true })).toHaveCount(0);
-
-  for (const width of [320, 768, 1440]) {
-    await page.setViewportSize({ width, height: 900 });
-    await expect(page.locator("[data-consultation-emergency]")).toBeVisible();
-    await expectNoHorizontalOverflow(page);
+    await expect(page.locator(`main a[href="/${locale}/legal"]`)).toHaveCount(1);
   }
 });
 
-test("physician referral branch exposes only professional referral fields and clinic service", async ({ page }) => {
-  await page.goto("/en/remote-consultation");
-  await page.getByRole("radio", { name: "Physician / Referral" }).check();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("radio", { name: "Non-Emergency" }).check();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("radio", { name: "Clinic Visit" }).check();
-  await page.getByRole("button", { name: "Continue" }).click();
+test("emergency guidance is a permanent strip above the content, not a card", async ({ page }) => {
+  const phrases = {
+    en: ["This website is not an emergency service.", "Contact local emergency services.", "Attend the nearest hospital."],
+    ar: ["هذا الموقع ليس خدمة طوارئ.", "اتصل بخدمات الطوارئ المحلية.", "توجه إلى أقرب مستشفى."],
+  } as const;
 
-  await expect(page.locator('[data-consultation-step="details"]')).toContainText("Physician / Referral details");
-  await expect(page.locator("#physician-name")).toBeVisible();
-  await expect(page.locator("#referral-summary")).toBeVisible();
-  await expect(page.locator("#reason")).toHaveCount(0);
-  await page.locator("#physician-name").fill("Referring physician");
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.locator('[data-consultation-step="review"]')).toContainText("Clinic Visit");
-  await expect(page.locator('[data-consultation-step="review"]')).toContainText("Referring physician");
+  for (const locale of locales) {
+    await page.goto(`/${locale}/remote-consultation`);
+    const emergency = page.locator("[data-consultation-emergency]");
+
+    await expect(emergency).toHaveCount(1);
+    await expect(emergency).toBeVisible();
+    for (const phrase of phrases[locale]) await expect(emergency).toContainText(phrase);
+
+    // One quiet line, no leftover alert card.
+    await expect(page.locator(".consultation-terminal, .consultation-alert__badge")).toHaveCount(0);
+
+    const order = await page.evaluate(() =>
+      [...document.querySelectorAll("main > *")].map((element) => [...element.classList].join(" ")),
+    );
+    const position = (name: string) => order.findIndex((classes) => classes.split(" ").includes(name));
+    expect(position("consultation-emergency")).toBeGreaterThan(position("consultation-hero"));
+    expect(position("consultation-emergency")).toBeLessThan(position("consultation-shell"));
+
+    for (const width of [320, 768, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expect(emergency).toBeVisible();
+      await expectNoHorizontalOverflow(page);
+    }
+
+    await page.setViewportSize({ width: 1280, height: 900 });
+  }
+});
+
+test("the layout keeps one hierarchy: hero, two equal columns, three numbered steps", async ({ page }) => {
+  for (const locale of locales) {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`/${locale}/remote-consultation`);
+
+    const type = await page.evaluate(() => {
+      const style = (selector: string) => {
+        const element = document.querySelector(selector);
+        if (!element) return null;
+        const computed = getComputedStyle(element);
+        return { fontSize: computed.fontSize, lineHeight: computed.lineHeight };
+      };
+      const card = (selector: string) => {
+        const element = document.querySelector(selector);
+        if (!element) return null;
+        const computed = getComputedStyle(element);
+        return { border: computed.borderTopWidth, radius: computed.borderRadius, shadow: computed.boxShadow };
+      };
+      const box = (selector: string) => {
+        const element = document.querySelector(selector);
+        if (!element) return null;
+        const rect = element.getBoundingClientRect();
+        return { left: Math.round(rect.left), width: Math.round(rect.width), height: Math.round(rect.height) };
+      };
+
+      return {
+        h1: style(".consultation-hero h1"),
+        h2: style(".consultation-panel h2"),
+        intro: style(".consultation-panel__intro"),
+        note: style(".consultation-panel__note"),
+        eyebrow: style(".consultation-hero .eyebrow"),
+        step: style(".consultation-flow__list li"),
+        cta: box("[data-consultation-whatsapp-cta]"),
+        panelBox: box(".consultation-panel"),
+        flowBox: box(".consultation-flow"),
+        panelCard: card(".consultation-panel"),
+        flowCard: card(".consultation-flow"),
+        columns: getComputedStyle(document.querySelector(".consultation-shell") as Element).gridTemplateColumns,
+        steps: document.querySelectorAll(".consultation-flow__list li").length,
+        numbers: [...document.querySelectorAll(".consultation-flow__number")].map((element) => {
+          const computed = getComputedStyle(element);
+          const rect = element.getBoundingClientRect();
+          return { text: element.textContent, radius: computed.borderRadius, size: Math.round(rect.width) };
+        }),
+      };
+    });
+
+    // H1 clearly leads the scale, headings breathe, reading text stays legible.
+    expect(pixels(type.h1!.fontSize)).toBeGreaterThan(pixels(type.h2!.fontSize) * 1.4);
+    expect(pixels(type.h1!.lineHeight) / pixels(type.h1!.fontSize)).toBeGreaterThanOrEqual(1.15);
+    expect(pixels(type.h2!.lineHeight) / pixels(type.h2!.fontSize)).toBeGreaterThanOrEqual(1.15);
+    expect(pixels(type.eyebrow!.fontSize)).toBeGreaterThanOrEqual(12);
+    expect(pixels(type.eyebrow!.fontSize)).toBeLessThanOrEqual(14);
+    expect(pixels(type.intro!.fontSize)).toBeGreaterThanOrEqual(16);
+    expect(pixels(type.note!.fontSize)).toBeGreaterThanOrEqual(14);
+    expect(pixels(type.step!.lineHeight) / pixels(type.step!.fontSize)).toBeGreaterThanOrEqual(1.5);
+    expect(type.cta!.height).toBeGreaterThanOrEqual(48);
+
+    // Two columns of the same height and the same card treatment.
+    expect(type.columns.split(" ").length).toBe(2);
+    expect(type.panelBox!.height).toBe(type.flowBox!.height);
+    expect(type.panelCard).toEqual(type.flowCard);
+
+    // The primary column leads on the right in Arabic and on the left in English.
+    if (locale === "ar") expect(type.panelBox!.left).toBeGreaterThan(type.flowBox!.left);
+    else expect(type.panelBox!.left).toBeLessThan(type.flowBox!.left);
+
+    // Exactly three steps, numbered 01–03 inside circles.
+    expect(type.steps).toBe(3);
+    expect(type.numbers.map((number) => number.text)).toEqual(["01", "02", "03"]);
+    for (const number of type.numbers) {
+      expect(pixels(number.radius)).toBeGreaterThanOrEqual(900);
+      expect(number.size).toBeGreaterThanOrEqual(32);
+    }
+
+    // Tablet stays a single column.
+    await page.setViewportSize({ width: 768, height: 900 });
+    await expect(page.locator(".consultation-shell")).toHaveCSS("grid-template-columns", /^[\d.]+px$/);
+
+    // The "collects nothing" line and the not-a-confirmation line each appear once.
+    const text = (await page.locator("main").innerText()).replace(/\s+/g, " ");
+    const collect = locale === "en" ? /collects nothing/g : /لا يجمع هذا الموقع أي بيانات/g;
+    const confirmation = locale === "en" ? /does not confirm an appointment/g : /لا تُؤكد موعداً/g;
+    expect(text.match(collect) ?? []).toHaveLength(1);
+    expect(text.match(confirmation) ?? []).toHaveLength(1);
+  }
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+});
+
+test("no other page links straight to WhatsApp, so the consultation page stays the single hand-off", async ({ page }) => {
+  for (const path of ["", "/biography", "/conditions", "/e-learning", "/contact", "/legal"]) {
+    await page.goto(`/en${path}`);
+    await expect(page.locator('a[href*="wa.me"]')).toHaveCount(0);
+  }
+});
+
+test("loading the consultation page sends no request to WhatsApp or any third party", async ({ page }) => {
+  const externalRequests: string[] = [];
+
+  page.on("request", (request) => {
+    const hostname = new URL(request.url()).hostname;
+    if (hostname !== "localhost" && hostname !== "127.0.0.1") externalRequests.push(request.url());
+  });
+
+  for (const locale of locales) await page.goto(`/${locale}/remote-consultation`);
+
+  expect(externalRequests).toEqual([]);
 });
 
 test("remote consultation stays usable in EN/AR across the required viewport matrix", async ({ page }) => {
-  for (const locale of ["en", "ar"]) {
+  // 28 locale × width page loads on a cold dev server need more than the
+  // default 30s budget, like the other viewport sweeps in this suite.
+  test.setTimeout(180_000);
+
+  for (const locale of locales) {
     for (const width of viewportWidths) {
       await page.setViewportSize({ width, height: 844 });
       await page.goto(`/${locale}/remote-consultation`);
-      await expect(page.locator("[data-consultation-prototype]")).toBeVisible();
+      await expect(page.locator("main[data-consultation-page]")).toBeVisible();
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.locator("html")).toHaveAttribute("lang", locale);
       await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+      await expect(page.locator("[data-consultation-whatsapp-cta]")).toBeVisible();
       await expectNoHorizontalOverflow(page);
     }
+  }
+
+  // The primary action is reachable without scrolling on a 390×844 phone.
+  for (const locale of locales) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`/${locale}/remote-consultation`);
+    const ctaBox = await page.locator("[data-consultation-whatsapp-cta]").boundingBox();
+    expect(ctaBox, `${locale} CTA box`).not.toBeNull();
+    expect(ctaBox!.y).toBeGreaterThanOrEqual(0);
+    expect(ctaBox!.y + ctaBox!.height).toBeLessThanOrEqual(844);
+    expect(ctaBox!.width).toBeGreaterThanOrEqual(300);
   }
 
   await page.setViewportSize({ width: 844, height: 390 });
   await page.goto("/en/remote-consultation");
   await expectNoHorizontalOverflow(page);
-  await page.getByRole("radio", { name: "Patient / Consultation" }).focus();
-  await page.keyboard.press("Space");
-  await expect(page.getByRole("radio", { name: "Patient / Consultation" })).toBeChecked();
+  await expect(page.locator("[data-consultation-whatsapp-cta]")).toBeVisible();
+  await expect(page.locator("[data-consultation-emergency]")).toBeVisible();
 });

@@ -40,6 +40,9 @@ yarn-error.log*
 /blob-report/
 /playwright/.cache/
 
+# responsive QA screenshots (regenerable artifacts, never committed)
+/screenshots/
+
 # vercel
 .vercel
 

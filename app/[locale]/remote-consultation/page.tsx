@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { getTranslations } from "next-intl/server";
-import { RemoteConsultationPrototype } from "@/components/consultation/RemoteConsultationPrototype";
+import { RemoteConsultationPage } from "@/components/consultation/RemoteConsultationPage";
 import { PlaceholderPage } from "@/components/site/PlaceholderPage";
 import { resolveRouteLocale } from "@/lib/route-locale";
 import { getLocaleMetadata } from "@/lib/seo/metadata";
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       });
 }
 
-export default async function RemoteConsultationPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function RemoteConsultationRoute({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await resolveRouteLocale(params);
-  return locale === "fr" ? <PlaceholderPage locale={locale} pageKey={pageKey} /> : <RemoteConsultationPrototype locale={locale} />;
+  return locale === "fr" ? <PlaceholderPage locale={locale} pageKey={pageKey} /> : <RemoteConsultationPage locale={locale} />;
 }

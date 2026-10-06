@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-import { conditionContent } from "../content/conditions";
+import { getBiographyContent } from "../content/biography";
+import { patientConditions } from "../content/patient-conditions";
 import { publicPathnames } from "../content/page-placeholders";
 import { siteIdentity } from "../content/site";
 import arMessages from "../messages/ar.json";
@@ -44,25 +45,26 @@ test("core identity and topical passages are present in crawlable page HTML", as
     expect(biographyHtml).toContain(siteIdentity.localizedName[locale]);
     expect(biographyHtml).toContain("ProfilePage");
     expect(biographyHtml).toContain("#person");
-    for (const section of ["currentPositions", "careerHistory", "qualifications", "societies", "teaching", "academic", "research", "clinicalExpertise"]) {
-      expect(biographyHtml).toContain(`biography-${section.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`);
-    }
+    // The approved summary is the crawlable biography content (D-040: no CV section).
+    for (const paragraph of getBiographyContent(locale).summary) expect(biographyHtml).toContain(paragraph);
+    expect(biographyHtml).not.toContain("biography-current-positions");
+    expect(biographyHtml).not.toContain("biography-external-links");
 
     const conditionsResponse = await page.request.get(`/${locale}/conditions`);
     expect(conditionsResponse.status()).toBe(200);
     const conditionsHtml = await conditionsResponse.text();
-    for (const condition of conditionContent) expect(conditionsHtml).toContain(`/${locale}/conditions/${condition.slug}`);
+    for (const condition of patientConditions) expect(conditionsHtml).toContain(`/${locale}/conditions/${condition.slug}`);
 
-    for (const condition of conditionContent) {
+    for (const condition of patientConditions) {
       const route = `/${locale}/conditions/${condition.slug}`;
       const response = await page.request.get(route);
       expect(response.status(), route).toBe(200);
       const html = await response.text();
       expect(html).toContain(condition.slug);
-      expect(html).toContain(locale === "ar" ? condition.arabicDescription : condition.description);
-      expect(html).toContain(messages[locale].content.conditions.scopeIntro);
+      const content = condition[locale];
+      expect(html).toContain(content.title);
+      for (const paragraph of content.blocks.flatMap((block) => block.paragraphs ?? [])) expect(html).toContain(paragraph);
       expect(html).toContain(`/${locale}/remote-consultation`);
-      expect(html).toContain(`/${locale}/biography`);
       expect(html).toContain(`/${locale}/legal`);
     }
 
@@ -89,7 +91,8 @@ test("core identity and topical passages are present in crawlable page HTML", as
     const legalHtml = await legalResponse.text();
     expect(legalHtml).toContain(locale === "en" ? "Privacy Notice" : "إشعار الخصوصية");
     expect(legalHtml).toContain(locale === "en" ? "Medical Disclaimer" : "إخلاء المسؤولية الطبية");
-    expect(legalHtml).toContain("[LEGAL NAME]");
+    // The operator name is published on both locales' legal pages (D-043).
+    expect(legalHtml).toContain(locale === "ar" ? "محمد عجور" : "Mohamed Aggour");
   }
 });
 

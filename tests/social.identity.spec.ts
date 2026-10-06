@@ -5,8 +5,14 @@ import { siteIdentity } from "../content/site";
 
 const locales = ["en", "ar"] as const;
 const origin = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+// Rendered, in order, by the "Professional links" list on /contact.
 const expectedVisibleProfiles = [
   "https://www.linkedin.com/in/mohamed-aggour-1414a941",
+  "https://www.esmint.eu/executive-committee/mohamed-aggour/",
+  "https://www.emedevents.com/speaker-profile/mohamed-aggour",
+  "https://www.researchgate.net/profile/Mohamed-Aggour",
+  "https://www.chc.be/Professionnels/Mohamed-AGGOUR",
+  "https://x.com/Aggour",
 ];
 const socialPlatformHosts = new Set([
   "youtube.com",
@@ -60,23 +66,24 @@ for (const locale of locales) {
     await expect(page.locator("header .brand")).toBeVisible();
     await expect(page.locator("h1")).toContainText(locale === "en" ? "Biography" : "السيرة الذاتية");
 
-    const profileSection = page.locator('section[aria-labelledby="biography-external-links"]');
-    const profileLinks = profileSection.locator("a[href]");
-    const hrefs = await profileLinks.evaluateAll((anchors) => anchors.map((anchor) => (anchor as HTMLAnchorElement).href));
-    expect([...hrefs].sort()).toEqual([...expectedVisibleProfiles].sort());
-    expect(new Set(hrefs).size).toBe(hrefs.length);
-    expect(profileSection).not.toContainText("@Aggour");
-    expect(profileSection).not.toContainText("Twitter / X");
-    expect(profileSection).not.toContainText("PubMed");
-    expect(profileSection.locator('a[href^="https://x.com/"], a[href^="https://twitter.com/"]')).toHaveCount(0);
-    expect(profileSection.locator('a[href^="https://youtube.com/"], a[href^="https://www.youtube.com/"]')).toHaveCount(0);
+    // D-040/D-042: the biography page carries no external profile links at all;
+    // the approved destinations live on /contact only.
+    const biographyHrefs = await page
+      .locator("main a[href]")
+      .evaluateAll((anchors) =>
+        anchors
+          .map((anchor) => (anchor as HTMLAnchorElement).href)
+          .filter((href) => !href.startsWith(window.location.origin)),
+      );
+    expect(biographyHrefs).toEqual([]);
+    await expect(
+      page.locator('main a[href*="linkedin.com"], main a[href*="x.com"], main a[href*="twitter.com"], main a[href*="youtube.com"]'),
+    ).toHaveCount(0);
 
-    for (const href of hrefs) {
-      const url = new URL(href);
-      expect(url.protocol).toBe("https:");
-      expect(isGenericPlatformHomepage(url)).toBe(false);
-      expect(url.hostname).not.toMatch(/localhost|vercel\.app/i);
-    }
+    const biographyText = await page.locator("main").innerText();
+    expect(biographyText).not.toContain("@Aggour");
+    expect(biographyText).not.toContain("Twitter / X");
+    expect(biographyText).not.toContain("PubMed");
 
     const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
     const openGraphUrl = await page.locator('meta[property="og:url"]').getAttribute("content");
@@ -94,14 +101,37 @@ for (const locale of locales) {
     expect(await page.locator('meta[name="twitter:image"]').getAttribute("content")).toBe(socialImage);
     await expect(page.locator('meta[name="twitter:site"], meta[name="twitter:creator"]')).toHaveCount(0);
 
-    const researchSection = page.locator('section[aria-labelledby="biography-research"]');
-    await expect(researchSection).toContainText(locale === "en" ? "PubMed listing" : "قائمة PubMed");
-    await expect(researchSection.locator('a[href="https://pubmed.ncbi.nlm.nih.gov/?term=Aggour+M&cauthor_id=32303584"]')).toHaveCount(1);
-
     await page.goto(`/${locale}/contact`);
     const contactLinks = page.locator('section[aria-labelledby="contact-links"] a[href]');
-    await expect(contactLinks).toHaveCount(1);
-    await expect(contactLinks).toHaveAttribute("href", expectedVisibleProfiles[0]);
+    await expect(contactLinks).toHaveCount(expectedVisibleProfiles.length);
+
+    const contactHrefs = await contactLinks.evaluateAll((anchors) =>
+      anchors.map((anchor) => ({
+        href: (anchor as HTMLAnchorElement).href,
+        target: (anchor as HTMLAnchorElement).target,
+        rel: (anchor as HTMLAnchorElement).rel,
+        text: anchor.textContent ?? "",
+      })),
+    );
+    expect(contactHrefs.map((link) => link.href)).toEqual(expectedVisibleProfiles);
+    expect(new Set(contactHrefs.map((link) => link.href)).size).toBe(contactHrefs.length);
+    for (const link of contactHrefs) {
+      const url = new URL(link.href);
+      expect(url.protocol).toBe("https:");
+      expect(isGenericPlatformHomepage(url)).toBe(false);
+      expect(url.hostname).not.toMatch(/localhost|vercel\.app/i);
+      expect(link.target).toBe("_blank");
+      expect(link.rel).toContain("noopener");
+      expect(link.rel).toContain("noreferrer");
+      expect(link.text).toMatch(locale === "en" ? /opens in a new tab/ : /يفتح في تبويب جديد/);
+    }
+
+    // D-042: the "Choose the appropriate route" intents block and the hero index
+    // number are gone from /contact; only the professional links section stays.
+    await expect(page.locator(".contact-intents, .content-hero__index")).toHaveCount(0);
+    await expect(
+      page.getByRole("heading", { name: locale === "en" ? "Choose the appropriate route" : "اختر المسار المناسب" }),
+    ).toHaveCount(0);
 
     await page.goto(biographyUrl);
     const jsonLdValues = await page.locator('script[type="application/ld+json"]').allTextContents();
@@ -112,16 +142,20 @@ for (const locale of locales) {
   });
 }
 
-test("the X handle stays in source review data but is not public profile content", async ({ page }) => {
+test("the X destination is the approved profile URL and never a bare handle", async ({ page }) => {
   const biography = await import("../content/biography");
   for (const content of [biography.biographyContent, biography.biographyContentArabic]) {
-    const xCandidate = content.externalLinks.find((item) => item.detail === "@Aggour");
-    expect(xCandidate?.internalOnly).toBe(true);
-    expect(xCandidate?.review).toContain("no matching public account has been verified");
+    const xLinks = content.externalLinks.filter((item) =>
+      /@aggour|x\.com|twitter|إكس/i.test(`${item.title} ${item.detail ?? ""}`),
+    );
+    expect(xLinks).toHaveLength(1);
+    expect(xLinks[0].detail).toBe("https://x.com/Aggour");
+    expect(xLinks[0].internalOnly).toBeFalsy();
+    expect(content.externalLinks.some((item) => item.detail === "@Aggour")).toBe(false);
   }
 
   for (const locale of locales) {
     await page.goto(`/${locale}/biography`);
-    await expect(page.locator('section[aria-labelledby="biography-external-links"]')).not.toContainText("@Aggour");
+    await expect(page.locator("main")).not.toContainText("@Aggour");
   }
 });

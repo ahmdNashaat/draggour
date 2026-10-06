@@ -3,28 +3,6 @@
     "hero": {
       "plainLine": "Treating brain and spine blood-vessel conditions through a small catheter, and without open surgery where suitable."
     },
-    "conditions": {
-      "items": {
-        "brainAneurysm": {
-          "summary": "A weak, bulging spot in a brain artery"
-        },
-        "stroke": {
-          "summary": "A blocked or bleeding brain vessel; timing matters"
-        },
-        "avm": {
-          "summary": "An abnormal tangle of blood vessels in the brain or spine"
-        },
-        "carotidStenosis": {
-          "summary": "Narrowing of the neck artery that feeds the brain"
-        },
-        "venousSinusDisorders": {
-          "summary": "Narrowing or clots in veins that drain the brain"
-        },
-        "chronicSubduralHaematoma": {
-          "summary": "A slow collection of blood on the brain's surface, often after a head injury"
-        }
-      }
-    },
     "biography": {
       "body": "Dr. Mohamed Aggour is a Consultant Interventional Neuroradiologist with more than nineteen years of experience treating brain and spine blood-vessel diseases through catheter-based, minimally invasive procedures."
     }
