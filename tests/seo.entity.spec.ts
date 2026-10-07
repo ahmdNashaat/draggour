@@ -16,6 +16,7 @@ type EntityNode = JsonLdValue & {
   jobTitle?: string[];
   knowsAbout?: (string | { "@type"?: string; "@id"?: string; name?: string; url?: string })[];
   sameAs?: string[];
+  image?: string;
   url?: string;
 };
 
@@ -77,6 +78,7 @@ for (const locale of ["en", "ar"] as const satisfies readonly Locale[]) {
         expect.objectContaining({ "@type": "MedicalCondition", "@id": `${testOrigin.origin}/en/conditions/other-embolisation` }),
       ]),
     );
+    expect(biographyPersons[0].image).toBe(`${testOrigin.origin}/brand/aggour-emblem-flat-1024.png`);
     expect(biographyPersons[0].sameAs ?? []).toEqual([]);
     expect(JSON.stringify(biography)).not.toMatch(/localhost|127\.0\.0\.1|\.vercel\.app|youtube\.com/i);
     expect(() => JSON.parse(JSON.stringify(biography))).not.toThrow();

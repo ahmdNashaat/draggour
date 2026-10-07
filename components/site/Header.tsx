@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 
 import type { Locale } from "@/content/site";
+
+import { Logo, logoNameFor } from "@/components/site/Logo";
 
 export type HeaderNavigationItem = Readonly<{
   href: string;
@@ -15,7 +16,7 @@ export type HeaderNavigationItem = Readonly<{
 
 type HeaderProps = Readonly<{
   locale: Locale;
-  brandName: string;
+  homeLabel: string;
   navigation: readonly HeaderNavigationItem[];
   languageSwitcher: React.ReactNode;
   menuLabel: string;
@@ -25,7 +26,7 @@ type HeaderProps = Readonly<{
 
 export function Header({
   locale,
-  brandName,
+  homeLabel,
   navigation,
   languageSwitcher,
   menuLabel,
@@ -61,20 +62,22 @@ export function Header({
   }, [isOpen]);
 
   const homeHref = `/${locale}`;
+  // Visible wordmark for this locale: AGGOUR on EN, عجـــور on AR (D-044).
+  const wordmark = logoNameFor(locale);
 
   return (
     <header className="site-header">
       <div className="site-container site-header__inner">
-        <Link className="brand" href={homeHref} aria-label={brandName} onClick={() => setIsOpen(false)}>
-          <Image
-            alt={brandName}
-            className="brand__logo"
-            height={438}
-            preload
-            src="/brand/logo-primary.png"
-            sizes="(max-width: 36rem) 8.5rem, 12rem"
-            width={880}
-          />
+        <Link
+          className="brand"
+          href={homeHref}
+          // Mirrors the visible wordmark, so the accessible name contains exactly
+          // what is on screen; it also survives the wordmark being dropped on
+          // narrow screens.
+          aria-label={`${homeLabel} - ${wordmark}`}
+          onClick={() => setIsOpen(false)}
+        >
+          <Logo name={wordmark} preload tone="color" variant="horizontal" />
         </Link>
 
         <nav

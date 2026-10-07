@@ -34,10 +34,10 @@ export async function HomePage({ locale }: HomePageProps) {
             <Image
               alt={siteIdentity.name}
               className="home-hero__logo"
-              height={438}
-              src="/brand/logo-primary.png"
+              height={1254}
+              src="/brand/aggour-brain-and-spine-emblem.png"
               sizes="(max-width: 24rem) 100vw, 20rem"
-              width={880}
+              width={1254}
             />
             <div className="home-hero__actions">
               <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>
@@ -136,7 +136,6 @@ export async function HomePage({ locale }: HomePageProps) {
       <section className="home-consultation" id="remote-consultation" aria-labelledby="consultation-title">
         <div className="site-container home-consultation__grid">
           <SectionHeading
-            eyebrow={t("consultation.eyebrow")}
             href={getLocalizedPath(locale, "/remote-consultation")}
             id="consultation-title"
             title={t("consultation.title")}

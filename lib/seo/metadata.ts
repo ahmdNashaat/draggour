@@ -21,7 +21,7 @@ export function getLocaleMetadata(locale: Locale, pathname = "", overrides: Meta
   const pageUrl = siteUrl ? new URL(canonicalPath, siteUrl).toString() : undefined;
   const localizedName = siteIdentity.localizedName[locale];
   const socialImage = siteUrl
-    ? new URL("/brand/logo-primary.png", siteUrl).toString()
+    ? new URL("/brand/aggour-og-1200x630.png", siteUrl).toString()
     : undefined;
   const title = overrides.title
     ? overrides.title === localizedName || overrides.title.startsWith(`${localizedName} |`)
@@ -54,7 +54,7 @@ export function getLocaleMetadata(locale: Locale, pathname = "", overrides: Meta
       title,
       description: overrides.description ?? siteIdentity.description,
       ...(pageUrl ? { url: pageUrl } : {}),
-      ...(socialImage ? { images: [{ url: socialImage, width: 880, height: 440, alt: siteIdentity.name }] } : {}),
+      ...(socialImage ? { images: [{ url: socialImage, width: 1200, height: 630, alt: siteIdentity.name }] } : {}),
     },
     twitter: {
       card: "summary_large_image",

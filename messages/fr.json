@@ -21,7 +21,6 @@
     "skipToMainContent": "Passer au contenu principal"
   },
   "footer": {
-    "description": "Dr. Mohamed Aggour.",
     "copyright": "© {year} Dr. Mohamed Aggour."
   },
   "home": {
@@ -32,8 +31,7 @@
       "statement": "French professional statement not activated",
       "cta": "French consultation CTA not activated",
       "secondaryCta": "French Biography CTA not activated",
-      "portraitLabel": "Portrait of Dr. Mohamed Aggour",
-      "logoLabel": "Dr. Mohamed Aggour logo"
+      "portraitLabel": "Portrait of Dr. Mohamed Aggour"
     },
     "biography": {
       "eyebrow": "French content not activated",
@@ -54,7 +52,6 @@
       "cta": "French E-learning CTA not activated"
     },
     "consultation": {
-      "eyebrow": "French content not activated",
       "title": "Remote Consultation — French content not activated",
       "description": "French consultation content is not activated for launch.",
       "steps": {

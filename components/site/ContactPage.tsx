@@ -22,7 +22,6 @@ export async function ContactPage({ locale }: ContactPageProps) {
           <div>
             <p className="eyebrow">{ui("contactPage.eyebrow")}</p>
             <h1 id="contact-title">{ui("contactPage.title")}</h1>
-            <p className="content-hero__description">{ui("contactPage.description")}</p>
           </div>
         </div>
       </section>

@@ -27,11 +27,13 @@ test("profile imagery reserves its aspect ratio and declares responsive source s
 
 test("below-fold footer mark is lazy loaded at its rendered size", async ({ page }) => {
   await page.goto("/en/conditions");
-  const mark = page.locator(".brand__monogram");
+  const mark = page.locator(".site-footer .logo__emblem");
   await expect(mark).toHaveAttribute("loading", "lazy");
-  await expect(mark).toHaveAttribute("width", "581");
-  await expect(mark).toHaveAttribute("height", "259");
-  await expect(mark).toHaveAttribute("sizes", "3.25rem");
+  await expect(mark).toHaveAttribute("width", "751");
+  await expect(mark).toHaveAttribute("height", "751");
+  // The emblem is an unoptimized vector, so its size comes from CSS: 3.5rem.
+  const renderedHeight = await mark.evaluate((image) => (image as HTMLImageElement).getBoundingClientRect().height);
+  expect(renderedHeight).toBe(56);
 });
 
 test("English pages do not fetch Arabic fonts as preloads and pages make no third-party requests", async ({ page }) => {

@@ -11,7 +11,7 @@ import { Header } from "@/components/site/Header";
 import { LanguageSwitcher } from "@/components/site/LanguageSwitcher";
 import { StickyConsultationCta } from "@/components/site/StickyConsultationCta";
 import { legalNavigation, primaryNavigation } from "@/content/navigation";
-import { getLocalizedPath, locales, localeDirections, hasLocale, siteIdentity, type Locale } from "@/content/site";
+import { getLocalizedPath, locales, localeDirections, hasLocale, type Locale } from "@/content/site";
 import { getLocaleMetadata } from "@/lib/seo/metadata";
 
 const displayFont = Libre_Baskerville({ subsets: ["latin"], variable: "--font-display-en", weight: ["400", "700"] });
@@ -85,8 +85,8 @@ export default async function LocaleLayout({
             {navigationTranslations("skipToMainContent")}
           </a>
           <Header
-            brandName={siteIdentity.localizedName[locale]}
             closeMenuLabel={navigationTranslations("menuClose")}
+            homeLabel={navigationTranslations("home")}
             languageSwitcher={
               <LanguageSwitcher
                 label={navigationTranslations("languageLabel")}
@@ -102,9 +102,7 @@ export default async function LocaleLayout({
           {children}
           <StickyConsultationCta locale={locale} />
           <Footer
-            brandName={siteIdentity.localizedName[locale]}
             copyright={footerTranslations("copyright", { year })}
-            description={footerTranslations("description")}
             legalLabel={navigationTranslations("legalLabel")}
             legalNavigation={footerLegalNavigation}
             locale={locale}

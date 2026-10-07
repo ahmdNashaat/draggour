@@ -27,6 +27,9 @@ function personEntity(origin: URL): JsonLdValue {
       }),
     ],
     url: new URL("/en/biography", origin).toString(),
+    // Square 1024 emblem on the canonical domain; sameAs and every other
+    // property stay exactly as they were.
+    image: new URL("/brand/aggour-emblem-flat-1024.png", origin).toString(),
   };
 
   if (personEntityConfig.approvedSameAs.length > 0) {

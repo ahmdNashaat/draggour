@@ -19,7 +19,6 @@
     "skipToMainContent": "تخطي إلى المحتوى الرئيسي"
   },
   "footer": {
-    "description": "[Arabic footer description pending approval]",
     "socialPlaceholder": "[Arabic social-link placeholder pending approval]",
     "copyright": "© {year} Dr. Mohamed Aggour. [Arabic copyright wording pending approval]"
   },
@@ -31,8 +30,7 @@
       "statement": "[Arabic professional statement pending approval]",
       "cta": "[Arabic consultation CTA pending approval]",
       "secondaryCta": "[Arabic Biography CTA pending approval]",
-      "portraitLabel": "Portrait asset; Arabic alt text pending approval",
-      "logoLabel": "Dr. Mohamed Aggour logo"
+      "portraitLabel": "Portrait asset; Arabic alt text pending approval"
     },
     "biography": {
       "eyebrow": "[Arabic section label pending approval]",
@@ -74,7 +72,6 @@
       "cta": "[Arabic E-learning CTA pending approval]"
     },
     "consultation": {
-      "eyebrow": "[Arabic section label pending approval]",
       "title": "Remote Consultation — Arabic title pending approval",
       "description": "[Arabic consultation description pending approval]",
       "steps": {

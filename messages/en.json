@@ -22,7 +22,6 @@
     "skipToMainContent": "Skip to main content"
   },
   "footer": {
-    "description": "Professional website of Dr. Mohamed Aggour.",
     "copyright": "© {year} Dr. Mohamed Aggour. All rights reserved."
   },
   "home": {
@@ -32,8 +31,7 @@
       "professionalTitle": "Consultant Interventional Neuroradiologist",
       "cta": "Request a remote consultation",
       "secondaryCta": "Explore the professional profile",
-      "portraitLabel": "Portrait of Dr. Mohamed Aggour",
-      "logoLabel": "Dr. Mohamed Aggour logo"
+      "portraitLabel": "Portrait of Dr. Mohamed Aggour"
     },
     "biography": {
       "eyebrow": "The profile",
@@ -53,7 +51,6 @@
       "cta": "View the E-learning page"
     },
     "consultation": {
-      "eyebrow": "A clear next step",
       "title": "Remote Consultation",
       "description": "Submit a request for review. Appointment and payment are handled only after staff review and confirmation.",
       "steps": {
@@ -127,7 +124,6 @@
       "homeCta": "Return home"
     },
     "consultationPage": {
-      "eyebrow": "A considered next step",
       "title": "Remote Consultation",
       "description": "Start a remote consultation with Dr. Mohamed Aggour on WhatsApp. Nothing is collected here; every request is reviewed before an appointment is confirmed.",
       "lead": "Start a remote consultation with Dr. Mohamed Aggour on WhatsApp.",

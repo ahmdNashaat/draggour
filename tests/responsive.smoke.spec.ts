@@ -17,6 +17,11 @@ async function expectNoHorizontalOverflow(page: Page) {
 }
 
 test("localized homepage renders without horizontal overflow", async ({ page }) => {
+  // 28 full homepage loads (2 locales × 14 required widths) plus per-width
+  // assertions take ~80s on this machine; the default 30s budget aborts the
+  // sweep mid-run before every required width is verified.
+  test.setTimeout(120_000);
+
   for (const locale of ["en", "ar"]) {
     for (const width of viewportWidths) {
       await page.setViewportSize({ width, height: 844 });
@@ -32,7 +37,7 @@ test("localized homepage renders without horizontal overflow", async ({ page }) 
       }
       await expect(page.locator("html")).toHaveAttribute("lang", locale);
       await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
-      await expect(page.locator(".brand__logo")).toHaveAttribute("src", /logo-primary/);
+      await expect(page.locator("header .logo__emblem")).toHaveAttribute("src", /aggour-emblem-flat/);
       await expect(page.locator(".home-hero__portrait-image")).toHaveAttribute("src", /dr-mohamed-aggour/);
       await expect(page.locator(".home-hero__portrait-image")).toHaveJSProperty("complete", true);
       const portraitWidth = await page.locator(".home-hero__portrait-image").evaluate((image) => (image as HTMLImageElement).naturalWidth);
@@ -82,9 +87,12 @@ test("mobile navigation and language switching are usable", async ({ page }) => 
 });
 
 test("Biography and all ten Conditions routes render professional content", async ({ page }) => {
-  // This sweep visits every profile/condition route at all 14 required widths
-  // in both launch locales; allow the full matrix to finish on a cold server.
-  test.setTimeout(300_000);
+  // The QA matrix requires every profile/condition route verified at all 14
+  // required widths in both locales. Each route is loaded once per locale and
+  // the full assertion set then runs after every resize: reloading for each
+  // width (336 page loads) stalls the browser session on this machine before
+  // the matrix can finish, while the assertions themselves are width-independent.
+  test.setTimeout(600_000);
 
   const conditionRoutes = [
     "angiography",
@@ -100,15 +108,20 @@ test("Biography and all ten Conditions routes render professional content", asyn
   ];
 
   for (const locale of ["en", "ar"]) {
+    const dir = locale === "ar" ? "rtl" : "ltr";
+
+    await page.goto(`/${locale}/biography`);
     for (const width of viewportWidths) {
       await page.setViewportSize({ width, height: 844 });
-      await page.goto(`/${locale}/biography`);
       await expect(page.locator("[data-biography-page]")).toBeVisible();
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-      await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+      await expect(page.locator("html")).toHaveAttribute("dir", dir);
       await expectNoHorizontalOverflow(page);
+    }
 
-      await page.goto(`/${locale}/conditions`);
+    await page.goto(`/${locale}/conditions`);
+    for (const width of viewportWidths) {
+      await page.setViewportSize({ width, height: 844 });
       await expect(page.locator("[data-conditions-page]")).toBeVisible();
       await expect(page.locator(".condition-index__item")).toHaveCount(10);
       await expectNoHorizontalOverflow(page);
@@ -119,9 +132,9 @@ test("Biography and all ten Conditions routes render professional content", asyn
     }
 
     for (const slug of conditionRoutes) {
+      await page.goto(`/${locale}/conditions/${slug}`);
       for (const width of viewportWidths) {
         await page.setViewportSize({ width, height: 844 });
-        await page.goto(`/${locale}/conditions/${slug}`);
         await expect(page.locator(`[data-condition-page="${slug}"]`)).toBeVisible();
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
         await expect(page.locator('main a.button--primary[href$="/remote-consultation"]')).toBeVisible();
@@ -147,7 +160,9 @@ test("approved route skeletons and French placeholders render correctly", async 
 });
 
 test("professional, educational, contact and legal pages remain localized and responsive", async ({ page }) => {
-  test.setTimeout(180_000);
+  // 84 localized page loads plus console-error collection sit right at the
+  // old 180s ceiling on this machine; keep the sweep from aborting mid-run.
+  test.setTimeout(300_000);
   const runtimeErrors: string[] = [];
   page.on("pageerror", (error) => runtimeErrors.push(error.message));
   page.on("console", (message) => {

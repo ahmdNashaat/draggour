@@ -1,7 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 
 import type { Locale } from "@/content/site";
+
+import { Logo } from "@/components/site/Logo";
 
 export type FooterNavigationItem = Readonly<{
   href: string;
@@ -10,8 +11,6 @@ export type FooterNavigationItem = Readonly<{
 
 type FooterProps = Readonly<{
   locale: Locale;
-  brandName: string;
-  description: string;
   navigation: readonly FooterNavigationItem[];
   legalNavigation: readonly FooterNavigationItem[];
   navigationLabel: string;
@@ -21,8 +20,6 @@ type FooterProps = Readonly<{
 
 export function Footer({
   locale,
-  brandName,
-  description,
   navigation,
   legalNavigation,
   navigationLabel,
@@ -35,21 +32,12 @@ export function Footer({
         <div className="site-footer__main">
           <div className="site-footer__identity">
             <Link className="brand brand--footer" href={`/${locale}`}>
-              <Image
-                alt=""
-                className="brand__monogram"
-                height={259}
-                src="/brand/logo-monogram.png"
-                sizes="3.25rem"
-                width={581}
-              />
-              <span className="brand__name">{brandName}</span>
+              <Logo tone="light" variant="stacked" />
             </Link>
-            <p>{description}</p>
           </div>
 
+          {/* No visible heading: the aria-label alone names the landmark (WCAG 2.4.6). */}
           <nav aria-label={navigationLabel}>
-            <p className="site-footer__label">{navigationLabel}</p>
             <ul className="site-footer__links">
               {navigation.map((item) => (
                 <li key={item.href}>
@@ -60,7 +48,6 @@ export function Footer({
           </nav>
 
           <nav aria-label={legalLabel}>
-            <p className="site-footer__label">{legalLabel}</p>
             <ul className="site-footer__links">
               {legalNavigation.map((item) => (
                 <li key={item.href}>

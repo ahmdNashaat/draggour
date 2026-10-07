@@ -19,7 +19,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm dev",
+    // Webpack, not Turbopack: Turbopack requires the native SWC binding, which
+    // Smart App Control blocks on the current Windows machine (WASM fallback).
+    command: "pnpm dev:webpack",
     url: "http://localhost:3000/en",
     reuseExistingServer: true,
     timeout: 120_000,

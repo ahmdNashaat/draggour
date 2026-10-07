@@ -36,7 +36,6 @@ export async function RemoteConsultationPage({ locale }: Readonly<{ locale: Loca
     <main id="main-content" className="consultation-page" data-consultation-page data-locale={locale}>
       <section className="consultation-hero" aria-labelledby="consultation-title">
         <div className="site-container">
-          <p className="eyebrow">{t("eyebrow")}</p>
           <h1 id="consultation-title">{t("title")}</h1>
           <p className="consultation-hero__description">{t("lead")}</p>
         </div>

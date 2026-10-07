@@ -432,34 +432,45 @@ as `[APPROVAL REQUIRED]` and are needed before the related handling
 
 ## 23. Brand & typography (`PROPOSED` — approval is visual)
 
-- **Logo direction:** `MA` monogram with a restrained vascular/catheter feel in
-  the negative space; wordmark `MOHAMED AGGOUR`; flat, no gradients; must work
-  in the header, favicon, business card, certificate, conference slide, social
-  profile and black-and-white. Rejected: brain icon, caduceus, red cross,
-  stethoscope, ECG, DNA.
+- **Logo direction:** the delivered **AGGOUR** emblem pack (D-044): a circular
+  brain/circuit mark in flat colour, mono-light and mono-dark vectors. The
+  header shows the emblem with a localized live-text wordmark — `AGGOUR` on
+  the EN site, `عجـــور` on the AR site — while the footer lockup and its
+  tagline (`Interventional Neuroradiology` / `Brain & Spine`, one segment per
+  line, the stack centred inside a lockup that shares the header lockup's
+  container-edge alignment) stay English in both
+  locales. The favicon and search-engine icon are rendered from the flat
+  emblem (the exact header artwork), not from the pack's simplified favicon
+  variant. It replaces the earlier `MA`
+  monogram / `MOHAMED AGGOUR` proposal, including that proposal's rejection of a
+  brain icon, and must still work in the header, favicon, business card,
+  certificate, conference slide, social profile and black-and-white.
 - **Typography candidates:** Libre Baskerville + IBM Plex Sans (EN/FR);
   Noto Serif Arabic + IBM Plex Sans Arabic (AR); loaded via `next/font`.
   Not approved until compared visually. Current build still uses the
   placeholder font.
 
-### Asset inventory (received 2026-09-28 — prototype raster, not approved)
+### Asset inventory (logo pack delivered 2026-10-06 — D-044; visual approval still required)
 
 | Asset                                        | Path                                          | Dimensions           | Status                                             |
 | -------------------------------------------- | --------------------------------------------- | -------------------- | -------------------------------------------------- |
-| Primary logo (monogram + wordmark + tagline) | `public/brand/logo-primary.png`               | 880×438              | `PROTOTYPE RASTER` — `NO` until approved           |
-| Monogram, wide (MA only, navy on light)      | `public/brand/logo-monogram.png`              | 581×259              | `PROTOTYPE RASTER` — `NO` until approved           |
-| Favicon / app icon (MA on navy tile)         | `app/icon.png`                                | 512×512              | `PROTOTYPE RASTER` — `NO` until approved           |
+| Emblem, flat colour (header, light surfaces) | `public/brand/aggour-emblem-flat.svg`         | 751×751 vector, `-1024.png` 1024×1024 | `DELIVERED` — visual approval required |
+| Emblem, mono light (dark footer)             | `public/brand/aggour-emblem-mono-light.svg`   | 751×751 vector, `-1024.png` 1024×1024 | `DELIVERED` — visual approval required |
+| Emblem, mono dark (light surfaces / print)   | `public/brand/aggour-emblem-mono-dark.svg`    | 751×751 vector, `-1024.png` 1024×1024 | `DELIVERED` — visual approval required |
+| Browser tab / search icon                    | `app/favicon.ico`, `app/icon.svg`, `app/icon.png` | ICO 16/32/48 (32bpp), SVG vector, PNG 48×48 | `DELIVERED` — rendered from the flat emblem (header artwork); visual approval required |
+| iOS home-screen icon                         | `app/apple-icon.png`                          | 180×180              | `DELIVERED` — visual approval required            |
+| Original 3D artwork — large placements only  | `public/brand/aggour-brain-and-spine-emblem.png` | 1254×1254, RGBA     | `DELIVERED` — never used under 240px wide         |
+| Social / Open Graph image                    | `public/brand/aggour-og-1200x630.png`         | 1200×630             | `DELIVERED` — generated from the artwork          |
+| PWA icons (not wired: no web manifest)       | `newlogofiles/icon-192.png`, `newlogofiles/icon-512.png` | 192×192, 512×512 | `HELD` — needs a manifest decision first       |
 | Doctor portrait                              | `public/images/doctor/dr-mohamed-aggour.png` | 1024×1536, RGBA cutout (transparent) | `PROTOTYPE` — `NO` until approved                  |
-| Source originals (PNG + WebP)                | `dr-aggour-brand-assets/` (outside `public/`) | —                    | source folder, keep high-resolution originals here (`dr-mohamed-aggour.png` = current portrait master) |
+| Source originals                             | `dr-aggour-brand-assets/` (outside `public/`) | —                    | source folder, keep high-resolution originals here (`dr-mohamed-aggour.png` = current portrait master) |
 
 Outstanding before production:
 
-- **No SVG masters exist yet:** `public/brand/logo-primary.svg`,
-  `public/brand/logo-monogram.svg`, `public/brand/logo-monochrome.svg`,
-  `app/icon.svg`. Raster-only means the logo will soften when scaled; extract
-  clean vectors from the direction before launch.
+- **The vectors are traced, not drawn:** `newlogofiles/README.md` records that
+  the three emblems and the favicon were traced from the supplied PNG. Treat
+  them as working assets until the designer supplies final vector files.
 - No `dr-mohamed-aggour-profile.webp` crop yet (needed for Biography).
-- No `app/apple-icon.png` yet.
 - Brand presentation boards are reference material only and are never placed in
   `public/` or used as a logo.
 - Every asset above still requires doctor approval; none is final.

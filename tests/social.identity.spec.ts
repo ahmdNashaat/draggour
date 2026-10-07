@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { personEntityConfig } from "../lib/seo/person-entity";
 import { siteIdentity } from "../content/site";
+import { logoNameFor } from "../components/site/Logo";
 
 const locales = ["en", "ar"] as const;
 const origin = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -62,8 +63,14 @@ for (const locale of locales) {
   test(`${locale} public profile links and social metadata use consistent approved destinations`, async ({ page }) => {
     const biographyUrl = `/${locale}/biography`;
     await page.goto(biographyUrl);
-    await expect(page.locator("header .brand")).toHaveAttribute("aria-label", siteIdentity.localizedName[locale]);
+    // The header wordmark follows the page language (D-044): AGGOUR on EN, and
+    // عجـــور on AR. The home link's accessible name mirrors the visible text
+    // (WCAG 2.5.3), so it is localized the same way.
+    const homeLabel = locale === "en" ? "Home" : "الرئيسية";
+    const wordmark = logoNameFor(locale);
+    await expect(page.locator("header .brand")).toHaveAttribute("aria-label", `${homeLabel} - ${wordmark}`);
     await expect(page.locator("header .brand")).toBeVisible();
+    await expect(page.locator("header .logo__name")).toHaveText(wordmark);
     await expect(page.locator("h1")).toContainText(locale === "en" ? "Biography" : "السيرة الذاتية");
 
     // D-040/D-042: the biography page carries no external profile links at all;
@@ -93,7 +100,7 @@ for (const locale of locales) {
     expect(await page.locator('meta[property="og:description"]').getAttribute("content")).toBeTruthy();
     expect(await page.locator('meta[property="og:site_name"]').getAttribute("content")).toBe(siteIdentity.name);
 
-    const socialImage = `${origin}/brand/logo-primary.png`;
+    const socialImage = `${origin}/brand/aggour-og-1200x630.png`;
     expect(await page.locator('meta[property="og:image"]').getAttribute("content")).toBe(socialImage);
     expect(await page.locator('meta[name="twitter:card"]').getAttribute("content")).toBe("summary_large_image");
     expect(await page.locator('meta[name="twitter:title"]').getAttribute("content")).toBe(await page.title());

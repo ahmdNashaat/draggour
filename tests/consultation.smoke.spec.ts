@@ -122,7 +122,6 @@ test("the layout keeps one hierarchy: hero, two equal columns, three numbered st
         h2: style(".consultation-panel h2"),
         intro: style(".consultation-panel__intro"),
         note: style(".consultation-panel__note"),
-        eyebrow: style(".consultation-hero .eyebrow"),
         step: style(".consultation-flow__list li"),
         cta: box("[data-consultation-whatsapp-cta]"),
         panelBox: box(".consultation-panel"),
@@ -143,8 +142,6 @@ test("the layout keeps one hierarchy: hero, two equal columns, three numbered st
     expect(pixels(type.h1!.fontSize)).toBeGreaterThan(pixels(type.h2!.fontSize) * 1.4);
     expect(pixels(type.h1!.lineHeight) / pixels(type.h1!.fontSize)).toBeGreaterThanOrEqual(1.15);
     expect(pixels(type.h2!.lineHeight) / pixels(type.h2!.fontSize)).toBeGreaterThanOrEqual(1.15);
-    expect(pixels(type.eyebrow!.fontSize)).toBeGreaterThanOrEqual(12);
-    expect(pixels(type.eyebrow!.fontSize)).toBeLessThanOrEqual(14);
     expect(pixels(type.intro!.fontSize)).toBeGreaterThanOrEqual(16);
     expect(pixels(type.note!.fontSize)).toBeGreaterThanOrEqual(14);
     expect(pixels(type.step!.lineHeight) / pixels(type.step!.fontSize)).toBeGreaterThanOrEqual(1.5);

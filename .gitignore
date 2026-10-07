@@ -43,6 +43,10 @@ yarn-error.log*
 # responsive QA screenshots (regenerable artifacts, never committed)
 /screenshots/
 
+# client logo source pack (raw delivery — the assets actually used are the
+# promoted copies in /public/brand and the app icon set)
+/newlogofiles/
+
 # vercel
 .vercel
 

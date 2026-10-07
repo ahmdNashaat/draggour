@@ -20,7 +20,7 @@ refuse what has already been extracted from your CV.
 | A2  | Arabic title `استشاري الأشعة التداخلية العصبية`                      | APPROVE / CORRECT |
 | A3  | Arabic name spelling `د. محمد عجور`                                  | CORRECTED 2026-09-28 (client) |
 | A4  | Portrait — send approved portrait, or keep placeholder               |                   |
-| A5  | Logo — approve one `MA` monogram direction (§23)                     | APPROVE / CORRECT |
+| A5  | Logo — approve the delivered AGGOUR emblem pack (§23, D-044)          | APPROVE / CORRECT |
 
 ## B. Positions & currency — source-of-truth §3–§5
 

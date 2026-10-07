@@ -247,48 +247,111 @@ a {
   text-decoration: none;
 }
 
-.brand__logo {
-  display: block;
-  width: clamp(8rem, 16vw, 12rem);
-  max-width: 100%;
-  height: auto;
+/* ------------------------------------------------------------------ *
+ * Brand lockup — one emblem vector plus a live-text wordmark (D-044).
+ * The emblem never carries the name; the name is always text, and it
+ * follows the page language (AGGOUR on EN, عجـــور on AR, footer English).
+ * ------------------------------------------------------------------ */
+.logo {
+  display: inline-flex;
+  min-width: 0;
+  max-inline-size: 100%;
+  align-items: center;
+  gap: 0.625rem;
 }
 
-.brand__mark {
-  display: inline-grid;
+.logo__emblem {
+  display: block;
   flex: 0 0 auto;
-  width: 2.5rem;
-  height: 2.5rem;
-  place-items: center;
-  border: 1px solid var(--color-navy-950);
-  border-radius: 50%;
-  color: var(--color-navy-950);
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
+  inline-size: auto;
+  block-size: 2.75rem;
 }
 
-.brand__monogram {
-  display: block;
+.logo__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.site-footer .brand__monogram {
-  filter: invert(1) brightness(2);
-}
-
-.brand__monogram {
-  display: block;
-  width: 3.25rem;
-  height: auto;
-  flex: 0 0 auto;
-}
-
-.brand__name {
+/* The English wordmark uses the Latin display face of the EN locale — even on
+   RTL pages — and the Arabic wordmark (header, `/ar`) switches to the Arabic
+   display face of the AR locale. */
+.logo__name {
   overflow: hidden;
-  font-size: 0.9375rem;
-  letter-spacing: 0.01em;
+  color: inherit;
+  font-family: var(--font-display-en), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Arabic script: no Latin tracking, and a taller line box so the tatweel and
+   the descender of ع are not clipped by the overflow box. */
+.logo__name[lang="ar"] {
+  font-family: var(--font-display-ar), Georgia, serif;
+  letter-spacing: normal;
+  line-height: 1.45;
+}
+
+.logo__tagline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-inline-size: 24rem;
+  color: inherit;
+  font-family: var(--font-body-en), Arial, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+/* Header emblem: 48px, above the 44px minimum touch/legibility floor. */
+.logo--horizontal .logo__emblem {
+  block-size: 3rem;
+}
+
+/* The footer lockup mirrors the hero: emblem on top, name under it, each
+   tagline segment on its own line, everything centred. */
+.logo--stacked {
+  align-items: center;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.logo--stacked .logo__emblem {
+  block-size: 3.5rem;
+}
+
+.logo--stacked .logo__text {
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.logo--stacked .logo__name {
+  font-size: 1.25rem;
+}
+
+/* Tone drives the emblem file and the wordmark colour it sits with. */
+.logo--color {
+  color: var(--color-navy-950);
+}
+
+.logo--dark {
+  color: var(--color-navy-950);
+}
+
+.logo--light {
+  color: var(--color-on-dark);
+}
+
+.logo--light .logo__tagline {
+  color: rgb(247 248 250 / 72%);
 }
 
 .site-header__nav {
@@ -935,10 +998,6 @@ a {
   color: rgb(247 248 250 / 76%);
 }
 
-.home-consultation .section-heading__eyebrow {
-  color: var(--color-red-200);
-}
-
 .home-learning .arrow-link {
   margin-block-start: var(--space-5);
 }
@@ -949,13 +1008,6 @@ a {
   color: rgb(247 248 250 / 68%);
   font-size: 0.875rem;
   line-height: 1.7;
-}
-
-.site-footer__label {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 .home-consultation {
@@ -1012,22 +1064,11 @@ a {
   min-block-size: 2.75rem;
 }
 
-.brand--footer .brand__mark {
-  border-color: rgb(247 248 250 / 60%);
-  color: var(--color-on-dark);
-}
-
-.site-footer__identity > p {
-  max-width: 22rem;
-  margin: var(--space-3) 0 0;
-  color: rgb(247 248 250 / 68%);
-  font-size: 0.875rem;
-  line-height: 1.7;
-}
-
-.site-footer__label {
-  margin: 0 0 var(--space-3);
-  color: var(--color-red-200);
+/* The lockup hugs the same container edge as the header lockup — the two
+   marks share one alignment line in both text directions; only the stack
+   inside the box is centred, mirroring the hero composition. */
+.site-footer__identity {
+  text-align: start;
 }
 
 .site-footer__links {
@@ -1794,10 +1835,6 @@ a {
   background: var(--color-surface);
 }
 
-.consultation-hero .eyebrow {
-  font-size: 0.75rem;
-}
-
 .consultation-hero h1 {
   max-width: 16ch;
   margin: 0;
@@ -2238,6 +2275,20 @@ a {
     min-height: 4.5rem;
   }
 
+  /* The brand column is only what the language switcher and the menu button
+     leave behind. Below ~136px the 44px emblem and the wordmark cannot share
+     the line, so the lockup drops to the emblem alone — the home link still
+     carries its localized accessible name either way. */
+  .site-header .brand {
+    container-type: inline-size;
+  }
+
+  @container (max-width: 8.5rem) {
+    .logo--horizontal .logo__text {
+      display: none;
+    }
+  }
+
   .site-header__nav {
     grid-column: 1 / -1;
     grid-row: 2;
@@ -2387,8 +2438,18 @@ a {
 }
 
 @media (max-width: 35.999rem) {
-  .brand__logo {
-    width: 8.5rem;
+  /* Tightest header: the emblem steps down to its 44px floor and the wordmark
+     follows it so emblem + name still sit on one line where they fit. */
+  .logo {
+    gap: 0.5rem;
+  }
+
+  .logo--horizontal .logo__emblem {
+    block-size: 2.75rem;
+  }
+
+  .logo__name {
+    font-size: 1rem;
   }
 
   /* Primary action spans the column; the secondary link sits below it. */
