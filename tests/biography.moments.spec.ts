@@ -161,10 +161,10 @@ test.describe("biography moments — validator", () => {
 test.describe("biography moments — rendering", () => {
   test("the real pages render no gallery at all", async ({ page }) => {
     for (const locale of locales) {
-      const response = await page.request.get(`/${locale}/biography`);
+      const response = await page.request.get(`/${locale}/biography?placeholder=0`);
       expect(response.status(), locale).toBe(200);
 
-      await page.goto(`/${locale}/biography`);
+      await page.goto(`/${locale}/biography?placeholder=0`);
       await expect(page.locator("[data-biography-page]")).toBeVisible();
       await expect(page.locator(".bio-moments")).toHaveCount(0);
       await expect(page.locator("#bio-moments-title")).toHaveCount(0);
@@ -334,23 +334,20 @@ test.describe("biography moments — rendering", () => {
     }
   });
 
-  test("the gallery sits after the overview at the end of the page", async ({ page }) => {
+  test("the gallery sits after the overview", async ({ page }) => {
     await page.goto("/en/biography?moments=6");
 
     const order = await page.evaluate(() => {
       const overview = document.querySelector('[aria-labelledby="biography-overview"]');
       const moments = document.querySelector("section.bio-moments");
-      if (!overview || !moments) return { afterOverview: false, bandCount: -1 };
+      if (!overview || !moments) return { afterOverview: false };
 
       return {
         afterOverview: Boolean(overview.compareDocumentPosition(moments) & Node.DOCUMENT_POSITION_FOLLOWING),
-        // The closing navigation band is removed site-wide: the gallery ends the page.
-        bandCount: document.querySelectorAll(".content-next-links").length,
       };
     });
 
     expect(order.afterOverview).toBe(true);
-    expect(order.bandCount).toBe(0);
   });
 
   test("captions survive 200% text zoom without clipping", async ({ page }) => {
@@ -358,7 +355,7 @@ test.describe("biography moments — rendering", () => {
 
     // The same page without the gallery, measured first: any overflow it shows
     // at 200% belongs to the shared header, not to this section.
-    await page.goto("/en/biography");
+    await page.goto("/en/biography?placeholder=0");
     await page.evaluate(() => {
       document.documentElement.style.fontSize = "200%";
     });

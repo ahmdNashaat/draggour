@@ -2550,12 +2550,19 @@ a {
   padding-block: clamp(2.5rem, 5vw, 4rem);
 }
 
-/* Narrower portrait column: 16rem keeps the 2/3 ratio uncropped (256 x 384)
-   and lands the desktop hero at ~513px. Below 48rem the single-column hero
-   and its 24rem portrait are untouched. */
+/* Adaptive portrait: height from viewport height (55svh) clamped between 24rem
+   and 30rem, 2/3 ratio, track adapts so the text column never shrinks. Below
+   48rem the single-column hero and its 24rem portrait are untouched. */
 @media (min-width: 48rem) {
   .biography-page .content-hero__grid {
-    grid-template-columns: minmax(0, 1fr) minmax(14rem, 16rem);
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .biography-page .content-hero__portrait {
+    width: auto;
+    height: clamp(24rem, 55svh, 30rem);
+    aspect-ratio: 2 / 3;
+    justify-self: end;
   }
 }
 
@@ -2578,10 +2585,10 @@ a {
   line-height: 1.95;
 }
 
-/* The overview drops its visible heading and its two-column split. The
-   section stays labelled by a visually hidden H2, and the two approved
-   paragraphs start on the same inline-start edge as the hero text block,
-   at the 36rem reading width, with the hero's hairline divider above them. */
+/* The overview drops its visible heading. The section stays labelled by a
+   visually hidden H2. Below 60rem: single 36rem column. From 60rem: two columns
+   (one paragraph each), space-between so column 1 stays pinned to the hero text's
+   inline-start edge and column 2 lines up with the container's end edge. */
 .biography-page .biography-overview {
   padding-block-start: clamp(1.5rem, 3vw, 2.5rem);
   padding-block-end: var(--space-section-compact, clamp(2.5rem, 5vw, 4rem));
@@ -2608,6 +2615,20 @@ a {
   margin-block-start: 0;
 }
 
+@media (min-width: 60rem) {
+  .biography-overview__body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 36rem));
+    justify-content: space-between;
+    column-gap: clamp(2rem, 4vw, 4rem);
+    max-width: none;
+  }
+
+  .biography-overview__body p + p {
+    margin-block-start: 0;
+  }
+}
+
 /* --- Biography: moments ---------------------------------------------------
    Dormant until `content/biography.ts` declares `moments`. While it does not,
    no element carries these classes: no wrapper, no extra spacing, no image
@@ -2616,7 +2637,7 @@ a {
 
 .bio-moments .site-container {
   display: grid;
-  gap: var(--space-5);
+  gap: clamp(2rem, 4vw, 2.5rem);
 }
 
 /* The temporary sample gallery announces itself before anything else in the
@@ -2648,7 +2669,7 @@ a {
 .bio-moments__grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: clamp(1.25rem, 2.5vw, 2rem);
+  gap: clamp(2rem, 4vw, 2.5rem) clamp(1.25rem, 2.5vw, 2rem);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -2681,7 +2702,9 @@ a {
 }
 
 /* The site eyebrow, restated (not reused) so Arabic can drop the letter
-   spacing and the uppercase, both of which break Arabic letter joining. */
+   spacing and the uppercase, both of which break Arabic letter joining.
+   Reserved 2lh so two-line meta (e.g. London) does not push its caption
+   below its neighbours in the row. */
 .bio-moment__meta {
   margin: 0;
   color: var(--color-red-900);
@@ -2689,6 +2712,8 @@ a {
   font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1.4;
+  min-height: calc(2 * 1.4 * 0.9375rem);
+  min-block-size: 2lh;
   overflow-wrap: anywhere;
   text-transform: uppercase;
 }

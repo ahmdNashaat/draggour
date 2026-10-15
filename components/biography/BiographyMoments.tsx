@@ -28,7 +28,7 @@ export function BiographyMoments({ moments, placeholder }: Readonly<{ moments: B
     <section className="content-section bio-moments" aria-labelledby="bio-moments-title">
       <div className="site-container">
         {placeholder ? (
-          <p className="bio-moments__placeholder">Placeholder: sample photos and captions, not real content.</p>
+          <p className="bio-moments__placeholder" dir="ltr" lang="en">Placeholder: sample photos and captions, not real content.</p>
         ) : null}
         <h2 id="bio-moments-title">{moments.title}</h2>
         {moments.intro ? <p className="bio-moments__intro">{moments.intro}</p> : null}

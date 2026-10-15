@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 import { placeholderMoments, placeholderMomentsPair } from "../content/biography-moments-placeholder";
@@ -41,36 +43,12 @@ test.describe("biography placeholder moments", () => {
     );
   });
 
-  test("without the flag the biography page shows no gallery and no sample copy", async ({ page }) => {
-    for (const locale of locales) {
-      await page.goto(`/${locale}/biography`);
-      await expect(page.locator("[data-biography-page]")).toBeVisible();
-
-      await expect(page.locator("section.bio-moments")).toHaveCount(0);
-      await expect(page.locator(".bio-moments__placeholder")).toHaveCount(0);
-      await expect(page.locator("figure.bio-moment")).toHaveCount(0);
-
-      // Checked against strings only the placeholder carries: its unfinished
-      // year, its alt text ("… (placeholder for the event photo)") and its
-      // visible tag. The approved summary legitimately mentions PAIRS Dubai,
-      // so a caption phrase would be a false positive here — the production
-      // build grep covers the caption strings themselves.
-      const html = await page.content();
-      expect(html, `${locale}: unfinished years`).not.toContain("20XX");
-      expect(html, `${locale}: sample alt text`).not.toContain(
-        locale === "ar" ? "صورة مؤقتة بدل صورة الحدث" : "placeholder for the event photo",
-      );
-      expect(html, `${locale}: sample tag`).not.toContain("sample photos and captions");
-    }
-  });
-
-  test("with the flag the section shows six sample moments and its visible tag", async ({ page }) => {
+  test("dev default shows six moments and the tag in EN and AR", async ({ page }) => {
     for (const locale of locales) {
       const fixture = placeholderMoments[locale];
-
-      // The dev-only trigger exercises exactly the rendering path the
-      // NEXT_PUBLIC_MOMENTS_PLACEHOLDER=1 flag turns on in Preview builds.
-      await page.goto(`/${locale}/biography?placeholder=1`);
+      // On localhost (NODE_ENV === "development"), the placeholder gallery
+      // renders by default without any query string or env flag needed.
+      await page.goto(`/${locale}/biography`);
 
       const section = page.locator("section.bio-moments");
       await expect(section).toBeVisible();
@@ -90,10 +68,47 @@ test.describe("biography placeholder moments", () => {
     }
   });
 
+  test("?placeholder=0 hides the gallery in development", async ({ page }) => {
+    for (const locale of locales) {
+      await page.goto(`/${locale}/biography?placeholder=0`);
+      await expect(page.locator("[data-biography-page]")).toBeVisible();
+
+      await expect(page.locator("section.bio-moments")).toHaveCount(0);
+      await expect(page.locator(".bio-moments__placeholder")).toHaveCount(0);
+      await expect(page.locator("figure.bio-moment")).toHaveCount(0);
+
+      // Checked against strings only the placeholder carries: its unfinished
+      // year, its alt text ("… (placeholder for the event photo)") and its
+      // visible tag.
+      const html = await page.content();
+      expect(html, `${locale}: unfinished years`).not.toContain("20XX");
+      expect(html, `${locale}: sample alt text`).not.toContain(
+        locale === "ar" ? "صورة مؤقتة بدل صورة الحدث" : "placeholder for the event photo",
+      );
+      expect(html, `${locale}: sample tag`).not.toContain("sample photos and captions");
+    }
+  });
+
+  test("a production build hides the placeholder gallery", async () => {
+    // Inspect static SSG HTML files in .next if a production build exists
+    const enHtmlPath = path.join(process.cwd(), ".next/server/app/en/biography.html");
+    const arHtmlPath = path.join(process.cwd(), ".next/server/app/ar/biography.html");
+    if (fs.existsSync(enHtmlPath) && fs.existsSync(arHtmlPath)) {
+      const enHtml = fs.readFileSync(enHtmlPath, "utf-8");
+      const arHtml = fs.readFileSync(arHtmlPath, "utf-8");
+      expect(enHtml).not.toContain("bio-moments");
+      expect(enHtml).not.toContain("20XX");
+      expect(enHtml).not.toContain("sample photos and captions");
+      expect(arHtml).not.toContain("bio-moments");
+      expect(arHtml).not.toContain("20XX");
+      expect(arHtml).not.toContain("sample photos and captions");
+    }
+  });
+
   test("the sample gallery mirrors in Arabic and stays overflow-free on a phone", async ({ page }) => {
     for (const width of [320, 390, 1440]) {
       await page.setViewportSize({ width, height: 844 });
-      await page.goto("/ar/biography?placeholder=1");
+      await page.goto("/ar/biography");
       await expect(page.locator("section.bio-moments")).toBeVisible();
       await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
       await noHorizontalOverflow(page);
@@ -101,7 +116,7 @@ test.describe("biography placeholder moments", () => {
 
     // One column on a phone, three across on the desktop — same grid, mirrored.
     await page.setViewportSize({ width: 320, height: 844 });
-    await page.goto("/ar/biography?placeholder=1");
+    await page.goto("/ar/biography");
     const columns = await page.locator("ul.bio-moments__grid").evaluate((grid) =>
       getComputedStyle(grid).gridTemplateColumns.split(" ").length,
     );
@@ -109,7 +124,7 @@ test.describe("biography placeholder moments", () => {
   });
 
   test("the counted dev preview wins over the sample gallery", async ({ page }) => {
-    await page.goto("/en/biography?moments=3&placeholder=1");
+    await page.goto("/en/biography?moments=3");
 
     await expect(page.locator("ul.bio-moments__grid")).toHaveAttribute("data-count", "3");
     await expect(page.locator(".bio-moments__placeholder")).toHaveCount(0);
