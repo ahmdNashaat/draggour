@@ -14,6 +14,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Developer scripts: measurement, diagnostic, QA tooling only — not source.
     "qa/**",
+    "scripts/**",
   ]),
 ]);
 

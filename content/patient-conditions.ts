@@ -303,27 +303,41 @@ export function getConditionDescription(page: PatientConditionPage): string {
   return `${slice.trimEnd()}…`;
 }
 
-const META_DESCRIPTION_LIMIT = 160;
+const META_DESCRIPTION_LIMIT = 155;
 const SENTENCE_ENDINGS = new Set([".", "!", "?", "؟", "۔"]);
 
 /**
  * Description for <meta name="description">, Open Graph and anything else a
- * crawler reads: one sentence where possible, never longer than 160
- * characters, and never carrying the emergency `urgentLead`.
+ * crawler reads: up to two sentences within 155 characters from the approved
+ * paragraph, and never carrying the emergency `urgentLead`.
  */
 export function getConditionMetaDescription(page: PatientConditionPage): string {
   const text = stripConditionMarkup(page.body);
   if (text.length <= META_DESCRIPTION_LIMIT) return text;
 
-  const slice = text.slice(0, META_DESCRIPTION_LIMIT);
-  for (let index = slice.length - 1; index >= 0; index -= 1) {
-    const character = slice[index];
+  // Find sentence endings within the limit
+  const sentenceEndings: number[] = [];
+  for (let index = 0; index < Math.min(text.length, META_DESCRIPTION_LIMIT); index += 1) {
+    const character = text[index];
     if (!character || !SENTENCE_ENDINGS.has(character)) continue;
     const next = text[index + 1];
-    if (next === undefined || /\s/.test(next)) return slice.slice(0, index + 1).trimEnd();
+    if (next === undefined || /\s/.test(next)) {
+      sentenceEndings.push(index + 1);
+    }
   }
 
-  // No sentence fits: cut on a word boundary and mark the truncation.
+  // Up to two sentences within 155 characters
+  if (sentenceEndings.length >= 2) {
+    return text.slice(0, sentenceEndings[1]).trimEnd();
+  }
+  if (sentenceEndings.length === 1) {
+    return text.slice(0, sentenceEndings[0]).trimEnd();
+  }
+
+  // No full sentence fits: cut on a word boundary and mark the truncation.
+  const slice = text.slice(0, META_DESCRIPTION_LIMIT);
+  const wordBoundary = slice.lastIndexOf(" ");
+  if (wordBoundary > 0) return `${slice.slice(0, wordBoundary).trimEnd()}…`;
   return `${slice.slice(0, META_DESCRIPTION_LIMIT - 1).trimEnd()}…`;
 }
 

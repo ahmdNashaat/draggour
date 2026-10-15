@@ -48,6 +48,19 @@ export async function ConditionsPage({ locale }: ConditionsPageProps) {
       {/* Each entry repeats the condition's own paragraph, so the hub reads
           completely while the linked heading still opens the condition page. */}
       <section className="conditions-index" aria-label={ui("title")}>
+        <noscript>
+          <style>{`
+            .condition-collapsible__clamp {
+              display: block !important;
+              -webkit-line-clamp: none !important;
+              line-clamp: none !important;
+              overflow: visible !important;
+            }
+            .condition-collapsible__toggle {
+              display: none !important;
+            }
+          `}</style>
+        </noscript>
         <div className="site-container">
           <ol className="condition-index">
             {listing.map((condition) => (
