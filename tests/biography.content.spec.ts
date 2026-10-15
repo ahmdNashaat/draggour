@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import { getBiographyContent } from "../content/biography";
 
@@ -49,14 +49,9 @@ async function expectNoHorizontalOverflow(page: Page) {
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
 }
 
-async function expectAtLeast(locator: Locator, minimum: number, label: string) {
-  const count = await locator.count();
-  expect(count, `${label}: expected at least ${minimum} items, received ${count}`).toBeGreaterThanOrEqual(minimum);
-}
-
 /** The summary paragraphs are approved word for word; never paraphrased in the view. */
 async function expectApprovedSummary(page: Page, locale: Locale) {
-  const paragraphs = page.locator('section[aria-labelledby="biography-overview"] .content-section__body > p');
+  const paragraphs = page.locator('section[aria-labelledby="biography-overview"] .biography-overview__body > p');
   await expect(paragraphs).toHaveCount(2);
 
   const rendered = (await paragraphs.allInnerTexts()).map((value) => value.trim());
@@ -89,18 +84,22 @@ test("Biography shows the approved summary and nothing else in English", async (
   await expectApprovedSummary(page, "en");
   await expectSummaryOnly(page);
 
-  // The section outline stays a single H1 + one H2.
+  // The section outline stays a single H1 + one H2. The overview heading is
+  // for screen readers only: the paragraphs carry the section visually.
   await expect(page.locator("main h1")).toHaveCount(1);
   await expect(page.locator("main h2")).toHaveCount(1);
-  await expect(page.locator('main h2#biography-overview')).toContainText("Professional Overview");
+  await expect(page.locator('main h2#biography-overview')).toHaveText("Professional Overview");
+  await expectVisuallyHidden(page, "main h2#biography-overview");
 
   // Reading measure: the summary never fills the whole wide grid column.
-  const measure = await page.locator(".content-section__body").evaluate((element) => element.getBoundingClientRect().width);
+  const measure = await page.locator(".biography-overview__body").evaluate((element) => element.getBoundingClientRect().width);
   expect(measure).toBeLessThanOrEqual(600);
 
-  // Navigation links stay reachable and operable from the keyboard.
-  const conditionsCta = page.locator('.content-next-links a[href="/en/conditions"]');
-  await expectAtLeast(page.locator(".content-next-links a[href]"), 4, "biography navigation links");
+  // The closing navigation band is removed site-wide; the header navigation
+  // stays reachable and operable from the keyboard.
+  await expect(page.locator(".content-next-links")).toHaveCount(0);
+  const conditionsCta = page.locator('#primary-navigation a[href="/en/conditions"]');
+  await expect(conditionsCta).toBeVisible();
   await conditionsCta.focus();
   await expect(conditionsCta).toBeFocused();
   await page.keyboard.press("Enter");
@@ -118,12 +117,13 @@ test("Biography shows the same approved summary in Arabic, right to left", async
   await expectApprovedSummary(page, "ar");
   await expectSummaryOnly(page);
 
-  await expect(page.locator('main h2#biography-overview')).toContainText("نبذة مهنية");
+  await expect(page.locator('main h2#biography-overview')).toHaveText("نبذة مهنية");
+  await expectVisuallyHidden(page, "main h2#biography-overview");
 
   const bodyText = await page.locator("body").innerText();
   expect(bodyText).toMatch(/[\u0600-\u06ff]/);
 
-  await expectAtLeast(page.locator(".content-next-links a[href]"), 4, "biography navigation links");
+  await expect(page.locator(".content-next-links")).toHaveCount(0);
 
   await expectNoHorizontalOverflow(page);
 });
@@ -186,6 +186,24 @@ test("Biography stays free of horizontal overflow across the required width matr
   }
 });
 
+/** A screen-reader-only heading: in the outline, but drawn at 1×1 px. */
+async function expectVisuallyHidden(page: Page, selector: string) {
+  const heading = page.locator(selector);
+  await expect(heading).toHaveClass(/sr-only/);
+  const box = await heading.evaluate((node) => node.getBoundingClientRect());
+  expect(box.width, `${selector}: drawn width`).toBeLessThanOrEqual(1);
+  expect(box.height, `${selector}: drawn height`).toBeLessThanOrEqual(1);
+}
+
+/** The inline-start edge of the first match, mirrored with the page direction. */
+async function startEdge(page: Page, selector: string) {
+  const rtl = (await page.locator("html").getAttribute("dir")) === "rtl";
+  return page.locator(selector).first().evaluate((node, isRtl) => {
+    const box = node.getBoundingClientRect();
+    return isRtl ? box.right : box.left;
+  }, rtl);
+}
+
 /** Part B: the compact hero, the larger reading text and its measured contrast. */
 test("the polished hero and the overview keep their rhythm, size and contrast", async ({ page }) => {
   const expected = {
@@ -213,7 +231,7 @@ test("the polished hero and the overview keep their rhythm, size and contrast", 
 
     // Professional Overview: per-language body size, line height and at least
     // 4.5:1 contrast on the surface behind it.
-    const reading = await page.locator(".content-section__body > p").first().evaluate((element) => {
+    const reading = await page.locator(".biography-overview__body > p").first().evaluate((element) => {
       const parse = (value: string) => (value.match(/[0-9.]+/g) ?? []).slice(0, 3).map(Number);
       const channel = (value: number) => {
         const s = value / 255;
@@ -248,7 +266,27 @@ test("the polished hero and the overview keep their rhythm, size and contrast", 
     expect(reading.contrast, `${locale}: overview contrast ${reading.color} on ${reading.background}`).toBeGreaterThanOrEqual(4.5);
 
     // The reading measure stays capped: the summary never fills the column.
-    const measure = await page.locator(".content-section__body").evaluate((element) => element.getBoundingClientRect().width);
+    const measure = await page.locator(".biography-overview__body").evaluate((element) => element.getBoundingClientRect().width);
     expect(measure, `${locale}: reading measure`).toBeLessThanOrEqual(600);
+
+    // The paragraphs sit on the hero text's own inline-start edge — English at
+    // the left, Arabic at the right — and begin a compact gap under the
+    // hero's hairline divider.
+    for (const width of [1440, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/${locale}/biography`);
+      await expect(page.locator(".biography-overview__body > p").first()).toBeVisible();
+
+      const heroEdge = await startEdge(page, ".content-hero__grid > div");
+      const paragraphEdge = await startEdge(page, ".biography-overview__body > p");
+      expect(Math.abs(heroEdge - paragraphEdge), `${locale} at ${width}: start edges line up`).toBeLessThanOrEqual(1);
+
+      const gap = await page.locator(".biography-overview__body > p").first().evaluate((node) => {
+        const divider = (document.querySelector(".content-hero") as Element).getBoundingClientRect();
+        return node.getBoundingClientRect().top - divider.bottom;
+      });
+      const expectedGap = Math.min(Math.max(0.03 * width, 24), 40);
+      expect(Math.abs(gap - expectedGap), `${locale} at ${width}: gap under the divider (${gap}px)`).toBeLessThanOrEqual(2);
+    }
   }
 });

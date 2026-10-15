@@ -14,8 +14,12 @@ function focusPosition(focus: BiographyMoment["focus"]): string {
  * The captioned photo gallery. Renders nothing while the doctor has not
  * approved photos, so the page carries no heading, no wrapper and no image
  * request for it (the `moments` key is absent from the content).
+ *
+ * `placeholder` marks the temporary sample gallery: it adds one visible,
+ * plainly worded tag at the top of the section so nobody can mistake the
+ * repeated portrait and the sample captions for real content.
  */
-export function BiographyMoments({ moments }: Readonly<{ moments: BiographyMoments | undefined }>) {
+export function BiographyMoments({ moments, placeholder }: Readonly<{ moments: BiographyMoments | undefined; placeholder?: boolean }>) {
   if (!moments || moments.moments.length === 0) return null;
 
   const count = moments.moments.length;
@@ -23,6 +27,9 @@ export function BiographyMoments({ moments }: Readonly<{ moments: BiographyMomen
   return (
     <section className="content-section bio-moments" aria-labelledby="bio-moments-title">
       <div className="site-container">
+        {placeholder ? (
+          <p className="bio-moments__placeholder">Placeholder: sample photos and captions, not real content.</p>
+        ) : null}
         <h2 id="bio-moments-title">{moments.title}</h2>
         {moments.intro ? <p className="bio-moments__intro">{moments.intro}</p> : null}
         <ul className="bio-moments__grid" role="list" data-count={count}>

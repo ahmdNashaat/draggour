@@ -334,23 +334,23 @@ test.describe("biography moments — rendering", () => {
     }
   });
 
-  test("the gallery sits after the overview and before the navigation band", async ({ page }) => {
+  test("the gallery sits after the overview at the end of the page", async ({ page }) => {
     await page.goto("/en/biography?moments=6");
 
     const order = await page.evaluate(() => {
       const overview = document.querySelector('[aria-labelledby="biography-overview"]');
       const moments = document.querySelector("section.bio-moments");
-      const band = document.querySelector(".content-next-links");
-      if (!overview || !moments || !band) return { afterOverview: false, beforeBand: false };
+      if (!overview || !moments) return { afterOverview: false, bandCount: -1 };
 
       return {
         afterOverview: Boolean(overview.compareDocumentPosition(moments) & Node.DOCUMENT_POSITION_FOLLOWING),
-        beforeBand: Boolean(moments.compareDocumentPosition(band) & Node.DOCUMENT_POSITION_FOLLOWING),
+        // The closing navigation band is removed site-wide: the gallery ends the page.
+        bandCount: document.querySelectorAll(".content-next-links").length,
       };
     });
 
     expect(order.afterOverview).toBe(true);
-    expect(order.beforeBand).toBe(true);
+    expect(order.bandCount).toBe(0);
   });
 
   test("captions survive 200% text zoom without clipping", async ({ page }) => {

@@ -2565,7 +2565,7 @@ a {
    column itself stays capped by `.content-section__body` at 36rem — inside
    the 46rem ceiling — so the summary never fills the grid column. */
 .biography-page .content-section {
-  padding-block: var(--space-section-compact);
+  padding-block: var(--space-section-compact, clamp(2.5rem, 5vw, 4rem));
 }
 
 .biography-page .content-section__body > p {
@@ -2578,6 +2578,36 @@ a {
   line-height: 1.95;
 }
 
+/* The overview drops its visible heading and its two-column split. The
+   section stays labelled by a visually hidden H2, and the two approved
+   paragraphs start on the same inline-start edge as the hero text block,
+   at the 36rem reading width, with the hero's hairline divider above them. */
+.biography-page .biography-overview {
+  padding-block-start: clamp(1.5rem, 3vw, 2.5rem);
+  padding-block-end: var(--space-section-compact, clamp(2.5rem, 5vw, 4rem));
+}
+
+.biography-overview__body {
+  max-width: 36rem;
+  color: var(--color-neutral-600);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  text-align: start;
+}
+
+[dir="rtl"] .biography-overview__body {
+  font-size: 1.125rem;
+  line-height: 1.95;
+}
+
+.biography-overview__body p + p {
+  margin-block-start: var(--space-5);
+}
+
+.biography-overview__body p:first-child {
+  margin-block-start: 0;
+}
+
 /* --- Biography: moments ---------------------------------------------------
    Dormant until `content/biography.ts` declares `moments`. While it does not,
    no element carries these classes: no wrapper, no extra spacing, no image
@@ -2587,6 +2617,19 @@ a {
 .bio-moments .site-container {
   display: grid;
   gap: var(--space-5);
+}
+
+/* The temporary sample gallery announces itself before anything else in the
+   section: one quiet outlined line, no colour of its own, impossible to miss
+   when the section is read. */
+.bio-moments__placeholder {
+  justify-self: start;
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-line-strong);
+  color: var(--color-neutral-600);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .bio-moments__intro {
