@@ -89,7 +89,13 @@
       "backToConditions": "Back to Conditions",
       "emergencyTitle": "Emergency guidance",
       "emergencyBody": "This website is not an emergency service. Contact local emergency services and attend the nearest hospital. Do not wait for a response from this website.",
-      "medicalDisclaimerCta": "Read the medical disclaimer"
+      "medicalDisclaimerCta": "Read the medical disclaimer",
+      "indexLabel": "Conditions index",
+      "otherConditions": "Other conditions",
+      "actionsLabel": "Next steps",
+      "playVideo": "Play video: {title}",
+      "readMore": "Read more",
+      "showLess": "Show less"
     },
     "eLearningPage": {
       "eyebrow": "Physician education",
