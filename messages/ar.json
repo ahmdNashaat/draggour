@@ -93,7 +93,9 @@
       "indexLabel": "فهرس الحالات",
       "otherConditions": "حالات أخرى",
       "actionsLabel": "الخطوات التالية",
-      "playVideo": "تشغيل الفيديو: {title}"
+      "playVideo": "تشغيل الفيديو: {title}",
+      "readMore": "اقرأ المزيد",
+      "showLess": "إخفاء"
     },
     "eLearningPage": {
       "eyebrow": "التعليم للأطباء",

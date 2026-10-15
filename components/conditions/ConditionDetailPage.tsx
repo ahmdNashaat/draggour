@@ -31,10 +31,12 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
         { name: ui("title"), href: getLocalizedPath(locale, "/conditions") },
         { name: content.title },
       ]} />
-      <section className="content-hero" aria-labelledby="condition-title">
-        <div className="site-container">
-          <h1 id="condition-title">{content.title}</h1>
-          <ConditionReviewLine locale={locale} />
+      <section className="content-hero condition-detail-hero" aria-labelledby="condition-title">
+        <div className="site-container condition-detail-hero__grid">
+          <div className="condition-detail-hero__intro">
+            <h1 id="condition-title">{content.title}</h1>
+            <ConditionReviewLine locale={locale} />
+          </div>
           <div className="content-hero__actions">
             <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>
               {home("consultation.cta")}
@@ -44,20 +46,20 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
       </section>
 
       <article className="condition-document content-section content-section--surface">
-        <div className="site-container condition-document__content">
-          {content.urgentLead ? (
-            <EmergencyNotice body={content.urgentLead} label={ui("emergencyTitle")} />
-          ) : null}
-          {content.media ? (
-            <ConditionMediaView
-              detailHref={getLocalizedPath(locale, `/conditions/${condition.slug}`)}
-              locale={locale}
-              media={content.media}
-              playLabel={ui("playVideo", { title: content.title })}
-              surface="detail"
-            />
-          ) : null}
-          {renderConditionText(content.body)}
+        <div className="site-container">
+          <div className="condition-document__content">
+            {content.urgentLead ? (
+              <EmergencyNotice body={content.urgentLead} label={ui("emergencyTitle")} />
+            ) : null}
+            {content.media ? (
+              <ConditionMediaView
+                locale={locale}
+                media={content.media}
+                playLabel={ui("playVideo", { title: content.title })}
+              />
+            ) : null}
+            {renderConditionText(content.body)}
+          </div>
         </div>
       </article>
 

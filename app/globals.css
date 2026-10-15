@@ -1141,6 +1141,43 @@ a {
   background: var(--color-surface);
 }
 
+/* A4: The condition detail hero carries only a title, a review line and a CTA;
+   it uses a compact rhythm (≤240px at 1440) matching the hub's compact hero.
+   On desktop (≥60rem) the intro and action button sit alongside each other. */
+.condition-detail-hero {
+  padding-block: clamp(1.75rem, 3.5vw, 2.5rem);
+}
+
+.condition-detail-hero__grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.condition-detail-hero__intro {
+  min-width: 0;
+}
+
+.condition-detail-hero .condition-reviewed-by {
+  margin-block-start: var(--space-2);
+}
+
+.condition-detail-hero .content-hero__actions {
+  margin-block-start: 0;
+}
+
+@media (min-width: 60rem) {
+  .condition-detail-hero__grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+  }
+
+  .condition-detail-hero .content-hero__actions {
+    flex: 0 0 auto;
+  }
+}
+
 .content-hero__grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(14rem, 24rem);
@@ -1232,29 +1269,31 @@ a {
 }
 
 /* The detail page's reading column: the urgent lead (when there is one), the
-   optional media, then the single paragraph, each one gap apart. */
+   optional media, then the single paragraph, each one gap apart. The
+   max-width matches the paragraph measure (42rem) so the column starts at
+   the same inline-start edge as the breadcrumb and the H1 above it. */
 .condition-document__content {
   display: grid;
   gap: 1.25rem;
-  max-width: 54rem;
+  max-width: 42rem;
 }
 
 /* --- The one-paragraph patient text -------------------------------------
    Shared by the hub row and the detail page, so both read identically.
-   Measure sits between 62 and 68ch in each language; ink, never the muted
-   grey, at a size that stays comfortable on a phone. */
+   1.125rem in both languages, with the measure capped at 42rem by the column
+   it sits in: that lands between 70 and 78 characters a line at 1440 in EN,
+   which is inside the comfortable reading range, and keeps Arabic at a size
+   that stays legible on a phone. */
 .condition-paragraph {
-  max-inline-size: 66ch;
+  max-inline-size: 42rem;
   margin: 0;
   color: var(--color-neutral-900);
-  font-size: 1.0625rem;
-  line-height: 1.8;
+  font-size: 1.125rem;
+  line-height: 1.75;
   overflow-wrap: anywhere;
 }
 
 [dir="rtl"] .condition-paragraph {
-  max-inline-size: 64ch;
-  font-size: 1.125rem;
   line-height: 1.95;
 }
 
@@ -1264,16 +1303,22 @@ a {
   font-weight: 600;
 }
 
-/* "!!Call emergency services!!" — the dark eyebrow accent, weight 600, and an
-   underline, so the warning never depends on colour alone (contrast of
-   --color-red-900 on every surface in the system is >= 8:1). */
+/* "!!Call emergency services!!" — weight 600 plus a faint tint of the alarm
+   colour, so the warning never depends on colour alone and never reads as a
+   link: an underline was tried in round 1 and both cut through Arabic
+   diacritics and looked tappable. The tint is 8% red-900 over the surface,
+   which measures 8.46:1 against red-900 text on the page surface (and 8.38:1
+   on the white cards) — well past the 4.5:1 requirement. `box-decoration-
+   break: clone` keeps the tint continuous across a line break, and no
+   letter-spacing is set anywhere in this rule, because tracking damages
+   Arabic letter joining. */
 .condition-urgent {
+  padding-inline: 0.2em;
+  background: color-mix(in srgb, var(--color-red-900) 8%, transparent);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
   color: var(--color-red-900);
   font-weight: 600;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-decoration-color: currentColor;
-  text-underline-offset: 0.18em;
 }
 
 .condition-medical-disclaimer {
@@ -2197,6 +2242,88 @@ a {
   min-width: 0;
 }
 
+/* --- The mobile collapse (hub rows only) --------------------------------
+   Below 60rem each row clamps its paragraph to five lines and offers a
+   Read more / Show less toggle. The full text is always in the DOM — the
+   clamp is a line-clamp on a child, not an unmount — so crawlers and screen
+   readers always read the whole approved paragraph, and the safety tail
+   sits outside the clamp so a collapsed row still shows the warning. */
+
+.condition-collapsible {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.condition-collapsible__clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--clamp, 5);
+  line-clamp: var(--clamp, 5);
+  overflow: hidden;
+}
+
+/* Expanded, or with no JavaScript, the clamp releases and the button goes
+   away — the paragraph then reads exactly as it does on the detail page. */
+.condition-collapsible[data-expanded="true"] .condition-collapsible__clamp {
+  display: block;
+  -webkit-line-clamp: none;
+  line-clamp: none;
+  overflow: visible;
+}
+
+.condition-collapsible__text {
+  margin: 0;
+}
+
+/* Without JS the paragraph is never shortened, so a toggle would lie about
+   its effect; the CSS hides it and the paragraphs render in full. */
+.condition-collapsible__toggle {
+  justify-self: start;
+  min-height: 2.75rem;
+  padding: 0.375rem 0.9rem;
+  border: 1px solid var(--color-navy-950);
+  border-radius: var(--radius-small, 0.25rem);
+  background: transparent;
+  color: var(--color-navy-950);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.condition-collapsible__toggle:hover {
+  background: var(--color-navy-950);
+  color: var(--color-on-dark, #fff);
+}
+
+.condition-collapsible__toggle:focus-visible {
+  outline: 2px solid var(--color-navy-950);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .condition-collapsible__toggle {
+    transition: none;
+  }
+}
+
+/* From 60rem up there is no clamp and no toggle: the desktop hub is exactly
+   as it was in round 1. */
+@media (min-width: 60rem) {
+  .condition-collapsible__clamp {
+    display: block;
+    -webkit-line-clamp: none;
+    line-clamp: none;
+    overflow: visible;
+  }
+
+  .condition-collapsible__toggle {
+    display: none;
+  }
+}
+
 @media (min-width: 60rem) {
   .conditions-hero__grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 28rem);
@@ -2249,7 +2376,7 @@ a {
   }
 
   .condition-index__item {
-    grid-template-columns: minmax(12rem, 21rem) minmax(0, 46rem);
+    grid-template-columns: minmax(12rem, 21rem) minmax(0, 42rem);
     column-gap: clamp(2rem, 4vw, 4rem);
     row-gap: 0;
     align-items: start;
@@ -2435,17 +2562,37 @@ a {
   line-height: 1.7;
 }
 
-/* Inside a condition row the callout has no heading, sits in a narrower
-   column, and reads at body size rather than callout size. */
+/* Inside a condition row the callout has no heading, sits in the same column
+   as the paragraph below it, and reads at body size rather than callout size.
+   Round 2 turns it from a neutral outline into a warning: a red inline-start
+   rule, the same faint red tint the inline urgent marker uses, and the first
+   sentence in bold (`.emergency-notice__lead`), so it reads as guidance to
+   act on rather than as an info box. The wording itself is untouched. */
 .condition-emergency-lead {
-  max-width: none;
+  max-width: 42rem;
+  background: color-mix(in srgb, var(--color-red-900) 8%, transparent);
+  border: 0;
+  border-inline-start: 4px solid var(--color-red-900);
+}
+
+.condition-emergency-lead .emergency-notice__icon {
+  color: var(--color-red-900);
 }
 
 .condition-emergency-lead .emergency-notice__body p {
   max-width: none;
   margin-block-start: 0;
-  font-size: 1rem;
-  line-height: 1.7;
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+
+.condition-emergency-lead .emergency-notice__lead {
+  color: var(--color-red-900);
+  font-weight: 600;
+}
+
+[dir="rtl"] .condition-emergency-lead .emergency-notice__body p {
+  line-height: 1.95;
 }
 
 .condition-sections__list {

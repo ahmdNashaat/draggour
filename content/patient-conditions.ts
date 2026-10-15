@@ -274,12 +274,33 @@ export const conditionMedicalDisclaimer = {
   ar: "تشرح هذه الصفحة الحالة بشكل عام، وليست نصيحة طبية لحالتك الخاصة، ولا يمكنها الاستجابة للطوارئ. عند ظهور ضعف مفاجئ أو صعوبة في الكلام أو فقدان البصر أو صداع شديد مفاجئ أو تشنج، اتصل بالإسعاف فورًا.",
 } as const;
 
+const CARD_DESCRIPTION_LIMIT = 180;
+
 /**
- * The condition description: the whole paragraph with its inline markers
- * removed. The home card clamps it with CSS; nothing else prints it.
+ * The condition description for the home card: the paragraph plain text,
+ * trimmed to end at a sentence boundary within ~180 characters so the card
+ * never stops mid-sentence. Falls back to the nearest word boundary if no
+ * sentence ending fits.
  */
 export function getConditionDescription(page: PatientConditionPage): string {
-  return stripConditionMarkup(page.body);
+  const text = stripConditionMarkup(page.body);
+  if (text.length <= CARD_DESCRIPTION_LIMIT) return text;
+
+  const slice = text.slice(0, CARD_DESCRIPTION_LIMIT);
+
+  // Walk backwards: find the last sentence-ending punctuation followed by
+  // whitespace or end-of-slice, so we never cut inside a decimal or abbreviation.
+  for (let index = slice.length - 1; index >= 0; index -= 1) {
+    const character = slice[index];
+    if (!character || !SENTENCE_ENDINGS.has(character)) continue;
+    const next = text[index + 1];
+    if (next === undefined || /\s/.test(next)) return slice.slice(0, index + 1).trimEnd();
+  }
+
+  // No sentence fits: cut on the last word boundary.
+  const wordBoundary = slice.lastIndexOf(" ");
+  if (wordBoundary > 0) return `${slice.slice(0, wordBoundary).trimEnd()}…`;
+  return `${slice.trimEnd()}…`;
 }
 
 const META_DESCRIPTION_LIMIT = 160;

@@ -3,9 +3,10 @@ import { getTranslations } from "next-intl/server";
 
 import { getConditionListing } from "@/content/patient-conditions";
 import { getLocalizedPath, type Locale } from "@/content/site";
-import { renderConditionText } from "@/lib/condition-text";
+import { ConditionClampedBody, ConditionSafetyBody } from "@/lib/condition-text";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { JsonLd } from "@/components/site/JsonLd";
+import { ConditionCollapsible } from "@/components/conditions/ConditionCollapsible";
 import { ConditionMediaView } from "@/components/conditions/ConditionMediaView";
 import { ConditionMedicalDisclaimer, ConditionReviewLine } from "@/components/conditions/ConditionNotices";
 import { ConditionsCtaBand } from "@/components/conditions/ConditionsCtaBand";
@@ -62,14 +63,19 @@ export async function ConditionsPage({ locale }: ConditionsPageProps) {
                   ) : null}
                   {condition.media ? (
                     <ConditionMediaView
-                      detailHref={getLocalizedPath(locale, `/conditions/${condition.slug}`)}
                       locale={locale}
                       media={condition.media}
                       playLabel={ui("playVideo", { title: condition.title })}
-                      surface="index"
                     />
                   ) : null}
-                  {renderConditionText(condition.body)}
+                  <ConditionCollapsible
+                    maxLines={5}
+                    readMore={ui("readMore")}
+                    safety={<ConditionSafetyBody text={condition.body} />}
+                    showLess={ui("showLess")}
+                  >
+                    <ConditionClampedBody text={condition.body} />
+                  </ConditionCollapsible>
                 </div>
               </li>
             ))}

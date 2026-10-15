@@ -426,3 +426,34 @@ The implemented CSS in `globals.css` is the source of truth for the visual syste
 - New tests: `tests/condition.text.spec.ts` (parser, including unbalanced markers and every published paragraph), `tests/condition.content.spec.ts` (one non-empty marked-up paragraph per locale, balanced markers, no raw `**`/`!!` in the DOM, `urgentLead` only for stroke-thrombectomy), `tests/condition.media.spec.ts` (validation rules, zero media markup or video-host requests on real pages, the player chunk staying out of a media-free page's download, the fixture in both locales, RTL mirroring).
 
 
+
+### D-048 — Conditions round 2: visual polish, mobile collapse, shared media on hub and detail, and duplicate-text mitigation
+
+**Date**: 2026-10-15
+**Context**: Round 1 (D-047) was reviewed against screenshots and a measurement report. The doctor chose to keep the full paragraph on both hub and detail. Three downstream problems followed: very long mobile hub pages (EN 12,092 px, AR 10,430 px at 390 wide); video available only on detail pages; and unavoidable text duplication between the hub and detail paragraphs. This round fixes all three without removing the full paragraph from either surface.
+**Decisions**:
+
+**A — Visual polish (from round-1 review):**
+- **A1 `.condition-urgent`**: Underline removed (cut through Arabic diacritics and read as a link). Weight 600 and `--color-red-900` kept. Tint: `background: color-mix(in srgb, var(--color-red-900) 8%, transparent)`, `padding-inline: 0.2em`, `box-decoration-break: clone` (+ `-webkit-` prefix). No `letter-spacing` (damages Arabic letter joining). Text-on-tint contrast measured at 7.84:1 (page surface), 8.55:1 (card), 9.29:1 (white) — all ≥4.5:1.
+- **A2 `urgentLead` / `EmergencyNotice`**: Converted from a neutral outline to a warning notice: `border-inline-start: 4px solid var(--color-red-900)`, 8% red tint background, hairline or no other borders. First sentence of `urgentLead` rendered in `<strong class="emergency-notice__lead">` (plain-text data unchanged; split at first `.` in `EmergencyNotice.tsx`). Icon colour changed to red. Width capped at 42rem (paragraph column width), paragraph-size text (1.125rem/1.75).
+- **A3 Hub paragraph measure**: Hub grid second column `minmax(0, 42rem)` (was `minmax(0, 46rem)`). `.condition-paragraph` set to `max-inline-size: 42rem`, `font-size: 1.125rem`, `line-height: 1.75` (RTL 1.95). Measured chars/line at 1440: EN ≈72, AR ≈76 — both inside the 70–78 target.
+- **A4 Detail page**: `.condition-detail-page .content-hero` scoped to `padding-block: clamp(2rem, 4vw, 3.5rem)` — hero reduces from 527 px to ≤240 px at 1440 while the shared `.content-hero` rule is unchanged. `.condition-document__content` `max-width` reduced from 54rem to 42rem so the reading column aligns to the same inline-start edge as the breadcrumb and H1.
+- **A5 Home-card description**: `getConditionDescription()` now truncates at a sentence end within ~180 characters (falling back to word boundary) so cards no longer stop mid-sentence. The detail page's `getConditionMetaDescription()` (160-char, same algorithm) is unchanged.
+
+**B — Mobile collapse (hub only, below 60rem)**:
+- `ConditionCollapsible` client component (`components/conditions/ConditionCollapsible.tsx`) wraps each hub row's paragraph. Collapsed by default (5 lines via CSS `-webkit-line-clamp`). Full text always in the DOM. Safety tail (`!!…!!` segments) extracted by `splitConditionSafety()` into `ConditionSafetyBody`, rendered outside the clamp so it stays visible when collapsed. `urgentLead` already sits outside the paragraph.
+- No layout shift on load/hydration (CSS-driven clamp, initial state matches component default). Works without JS (paragraphs render in full — the toggle is hidden from 60rem up, and without JS the clamp still shows but no button lies about toggling it; the whole text is accessible). Keyboard operable, `:focus-visible` ring, `prefers-reduced-motion` transition suppressed.
+- New message keys `readMore` / `showLess` in `messages/en.json` and `messages/ar.json` ("Read more" / "Show less"; "اقرأ المزيد" / "إخفاء").
+- Measured hub heights at 390 wide after collapse: EN ≈5,200 px, AR ≈4,600 px (both below the 5,500 px target, down from 12,092 / 10,430 px).
+
+**C — Hub media (same as detail)**:
+- Round-1 rule (hub shows only a poster link for videos) is reversed. `ConditionMediaView.tsx` now has no `surface` or `detailHref` prop. One component serves both surfaces: images as images; videos as the same 16:9 click-to-play facade. Nothing is requested from YouTube before the click on either surface. `condition-media-fixture/page.tsx` and `tests/condition.media.spec.ts` updated to reflect this.
+
+**D — Duplicate text**:
+- No change to routes, redirects, canonical, or robots. Each detail page has its own unique `<title>` and meta description (≤160 chars, first sentence of the paragraph). The hub's title and description come from the shared `messages/` translations, not the condition's paragraph. The `condition-media-fixture` route returns 404 in a production build when `CONDITION_MEDIA_FIXTURE` is not set.
+
+**Consequences**:
+- Hub heights at 390 wide roughly halved vs round 1. Desktop hub and detail pages unchanged in reading experience.
+- `condition.media.spec.ts` tests rewritten: hub video row now asserts the facade, not a poster link.
+- `condition.content.spec.ts` line 51 still passes (10 × `.condition-paragraph`): all 10 conditions have a single paragraph body and their entire urgent content is trailing (safety tail is empty), so `ConditionClampedBody` produces exactly one `<p class="condition-paragraph">` per condition with no `ConditionSafetyBody` paragraph alongside it.
+- The text duplication between hub and detail remains structural (doctor's choice). `canonical` and `robots` are already correct (detail pages are canonical; hub is the index). No further mitigation is applied in this round.

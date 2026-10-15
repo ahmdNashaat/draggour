@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 
 import type { ConditionMedia } from "@/content/patient-conditions";
 
@@ -7,16 +6,8 @@ import { ConditionVideoLazy } from "./ConditionVideoLazy";
 
 type ConditionMediaViewProps = Readonly<{
   media: ConditionMedia;
-  /**
-   * `index` (the hub) shows an image, and shows a video as its poster linked
-   * to the condition page: ten players on one page would be far too heavy.
-   * `detail` shows the image, or the click-to-play facade for the video.
-   */
-  surface: "index" | "detail";
   /** Localized "Play video: {title}". */
   playLabel: string;
-  /** Where the hub's poster link goes. */
-  detailHref: string;
   /** Locale code for the player interface and captions. */
   locale: string;
 }>;
@@ -25,11 +16,15 @@ type ConditionMediaViewProps = Readonly<{
  * Renders a condition's optional media, or nothing at all when it has none:
  * no wrapper, no placeholder, no reserved height and no extra request.
  *
+ * One component serves both surfaces — the hub row and the detail page — so a
+ * condition's illustration or video looks and behaves identically in both
+ * places (round 2 replaced the hub's poster link with the real facade).
+ *
  * Images carry their real width and height, so they never shift the layout,
  * and load lazily; the video is deferred to a client chunk that only pages
  * with a video ever download.
  */
-export function ConditionMediaView({ media, surface, playLabel, detailHref, locale }: ConditionMediaViewProps) {
+export function ConditionMediaView({ media, playLabel, locale }: ConditionMediaViewProps) {
   const caption = media.caption;
   const credit = media.type === "image" ? media.credit : undefined;
   const durationLabel = media.type === "video" ? media.durationLabel : undefined;
@@ -43,7 +38,7 @@ export function ConditionMediaView({ media, surface, playLabel, detailHref, loca
           className="condition-media__image"
           height={media.height}
           loading="lazy"
-          sizes="(max-width: 60rem) calc(100vw - 2rem), 46rem"
+          sizes="(max-width: 60rem) calc(100vw - 2rem), 42rem"
           src={media.src}
           width={media.width}
         />
@@ -51,30 +46,6 @@ export function ConditionMediaView({ media, surface, playLabel, detailHref, loca
           <figcaption className="condition-media__caption">
             {caption}
             {credit ? <span className="condition-media__credit">{credit}</span> : null}
-          </figcaption>
-        ) : null}
-      </figure>
-    );
-  }
-
-  if (surface === "index") {
-    return (
-      <figure className="condition-media condition-media--poster">
-        <Link aria-label={playLabel} className="condition-media__poster" href={detailHref}>
-          <Image
-            alt={media.title}
-            className="condition-media__image"
-            height={media.posterHeight}
-            loading="lazy"
-            sizes="(max-width: 60rem) calc(100vw - 2rem), 46rem"
-            src={media.poster}
-            width={media.posterWidth}
-          />
-        </Link>
-        {hasCaption ? (
-          <figcaption className="condition-media__caption">
-            {caption}
-            {durationLabel ? <span className="condition-media__duration">{durationLabel}</span> : null}
           </figcaption>
         ) : null}
       </figure>

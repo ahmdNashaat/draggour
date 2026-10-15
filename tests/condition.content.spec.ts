@@ -79,3 +79,43 @@ test("the rendered pages carry no marker syntax and no pre-paragraph markup", as
     }
   }
 });
+
+test("hub rows collapse on mobile below 60rem with accessible toggle and keep full text in DOM", async ({ page }) => {
+  // Mobile viewport (below 60rem / 960px): toggle buttons appear and are collapsed by default
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/en/conditions");
+
+  const toggles = page.locator(".condition-collapsible__toggle");
+  await expect(toggles).toHaveCount(10);
+  await expect(toggles.first()).toBeVisible();
+  await expect(toggles.first()).toHaveAttribute("aria-expanded", "false");
+  await expect(toggles.first()).toHaveText("Read more");
+
+  // Controls attribute references the clamped element's id
+  const clampId = await toggles.first().getAttribute("aria-controls");
+  expect(clampId).toBeTruthy();
+  await expect(page.locator(`[id="${clampId}"]`)).toBeAttached();
+
+  // Expanding changes button state and label
+  await toggles.first().click();
+  await expect(toggles.first()).toHaveAttribute("aria-expanded", "true");
+  await expect(toggles.first()).toHaveText("Show less");
+
+  // Collapsing restores initial state
+  await toggles.first().click();
+  await expect(toggles.first()).toHaveAttribute("aria-expanded", "false");
+  await expect(toggles.first()).toHaveText("Read more");
+
+  // Arabic mobile labels
+  await page.goto("/ar/conditions");
+  const arToggles = page.locator(".condition-collapsible__toggle");
+  await expect(arToggles.first()).toBeVisible();
+  await expect(arToggles.first()).toHaveText("اقرأ المزيد");
+  await arToggles.first().click();
+  await expect(arToggles.first()).toHaveText("إخفاء");
+
+  // Desktop viewport (≥60rem): toggles are hidden via CSS
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(arToggles.first()).toBeHidden();
+});
+

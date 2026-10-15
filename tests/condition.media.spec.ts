@@ -101,7 +101,7 @@ const playLabels = {
 } as const;
 
 for (const locale of locales) {
-  test(`${locale} media fixture renders an image, a poster link and a click-to-play facade`, async ({ page }) => {
+  test(`${locale} media fixture renders an image and click-to-play facades on hub and detail`, async ({ page }) => {
     const youtube = recordYouTube(page);
 
     await page.goto(`/${locale}/condition-media-fixture`);
@@ -117,17 +117,20 @@ for (const locale of locales) {
     await expect(image.locator(".condition-media__caption")).toContainText(imageFixture.caption ?? "");
     await expect(image.locator(".condition-media__credit")).toHaveText(imageFixture.credit ?? "");
 
-    // The hub never hosts a player: a video shows as its poster, linked to the
-    // condition page, with no button and no frame.
-    const poster = page.locator("#fixture-video-index .condition-media--poster");
-    await expect(poster.locator("a")).toHaveAttribute("href", `/${locale}/conditions/angiography`);
-    await expect(poster.locator("a")).toHaveAttribute("aria-label", playLabels[locale]);
-    // next/image rewrites the src through the optimizer, but the fixture file
-    // is still what gets served.
-    await expect(poster.locator("img")).toHaveAttribute("src", /aggour-emblem-flat-1024\.png/);
-    await expect(poster.locator(".condition-media__duration")).toHaveText(videoFixture.durationLabel ?? "");
-    await expect(page.locator("#fixture-video-index button")).toHaveCount(0);
+    // Hub video row: round 2 shows the same click-to-play facade as the
+    // detail page — no poster link, no inline navigation to another page.
+    const hubFacade = page.locator("#fixture-video-index .condition-video__facade");
+    await expect(hubFacade).toBeVisible();
+    await expect(hubFacade).toHaveAttribute("aria-label", playLabels[locale]);
+    await expect(hubFacade.locator(".condition-video__poster")).toHaveAttribute(
+      "src",
+      /aggour-emblem-flat-1024\.png/,
+    );
+    await expect(hubFacade.locator(".condition-video__play")).toBeVisible();
+    await expect(hubFacade.locator(".condition-video__duration")).toHaveText(videoFixture.durationLabel ?? "");
     await expect(page.locator("#fixture-video-index iframe")).toHaveCount(0);
+    // Nothing from YouTube is requested before any click.
+    expect(youtube).toEqual([]);
 
     // Detail: the facade is 16:9 from the first paint and nothing is requested
     // until it is clicked.

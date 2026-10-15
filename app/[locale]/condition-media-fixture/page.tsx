@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { getLocalizedPath } from "@/content/site";
 import { renderConditionText } from "@/lib/condition-text";
 import { resolveRouteLocale } from "@/lib/route-locale";
 import { ConditionMediaView } from "@/components/conditions/ConditionMediaView";
@@ -38,7 +37,6 @@ export default async function ConditionMediaFixturePage({
   }
 
   const ui = await getTranslations("content.conditions");
-  const detailHref = getLocalizedPath(locale, "/conditions/angiography");
   const playLabel = ui("playVideo", { title: videoFixture.type === "video" ? videoFixture.title : "" });
 
   return (
@@ -56,11 +54,9 @@ export default async function ConditionMediaFixturePage({
               <h2 className="condition-index__title">Fixture image row</h2>
               <div className="condition-row__content">
                 <ConditionMediaView
-                  detailHref={detailHref}
                   locale={locale}
                   media={imageFixture}
                   playLabel={playLabel}
-                  surface="index"
                 />
                 {renderConditionText("Fixture paragraph for the image row.")}
               </div>
@@ -69,11 +65,9 @@ export default async function ConditionMediaFixturePage({
               <h2 className="condition-index__title">Fixture video index row</h2>
               <div className="condition-row__content">
                 <ConditionMediaView
-                  detailHref={detailHref}
                   locale={locale}
                   media={videoFixture}
                   playLabel={playLabel}
-                  surface="index"
                 />
                 {renderConditionText("Fixture paragraph for the poster row.")}
               </div>
@@ -83,16 +77,16 @@ export default async function ConditionMediaFixturePage({
       </section>
 
       <article className="condition-document content-section content-section--surface" data-fixture-detail>
-        <div className="site-container condition-document__content">
-          <EmergencyNotice body="Fixture emergency lead." label={ui("emergencyTitle")} />
+        <div className="site-container">
+          <div className="condition-document__content">
+            <EmergencyNotice body="Fixture emergency lead." label={ui("emergencyTitle")} />
           <ConditionMediaView
-            detailHref={detailHref}
             locale={locale}
             media={videoFixture}
             playLabel={playLabel}
-            surface="detail"
           />
           {renderConditionText("Fixture paragraph for the player row. **Ask your doctor:** a fixture question?")}
+          </div>
         </div>
       </article>
     </main>

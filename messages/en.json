@@ -93,7 +93,9 @@
       "indexLabel": "Conditions index",
       "otherConditions": "Other conditions",
       "actionsLabel": "Next steps",
-      "playVideo": "Play video: {title}"
+      "playVideo": "Play video: {title}",
+      "readMore": "Read more",
+      "showLess": "Show less"
     },
     "eLearningPage": {
       "eyebrow": "Physician education",
