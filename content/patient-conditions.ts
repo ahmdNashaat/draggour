@@ -78,15 +78,15 @@ export const patientConditions: readonly PatientCondition[] = [
     slug: "angiography",
     en: {
       slug: "angiography",
-      title: "Cerebral and spinal angiography",
+      title: "Diagnostic cerebral catheter angiography",
       body: "A catheter angiogram is an X-ray test that shows the blood vessels of your brain or spine in fine detail. A thin tube (a catheter) is guided through an artery at the wrist or groin to the vessel being studied, contrast dye is injected, and pictures are taken. Many people only need a CT or MRI scan first; angiography is used when more detail is needed, usually to plan treatment. You are usually awake, with local anaesthetic, although children and people who cannot lie still may have sedation or a general anaesthetic. You may feel warmth when the dye is injected. The test takes from under an hour to longer if the case is complex, and afterwards you rest for a few hours; many people go home the same day. Risks include bruising or bleeding where the catheter went in, a reaction to the dye, kidney strain in people with kidney disease, and a small risk of stroke, so tell the team about allergies, kidney problems, diabetes medicines, blood thinners and pregnancy. **Ask your doctor:** Do I need this test, or would a scan answer the question? Which route will you use? Which medicines should I stop?",
-      searchTerms: ["cerebral angiogram", "catheter angiography"],
+      searchTerms: ["cerebral angiogram", "catheter angiography", "diagnostic cerebral catheter angiography"],
     },
     ar: {
       slug: "angiography",
-      title: "تصوير الأوعية الدماغية والشوكية بالقسطرة",
+      title: "قسطرة المخ التشخيصية",
       body: "تصوير الأوعية بالقسطرة فحص بالأشعة يُظهر أوعية الدماغ أو العمود الفقري بأدق تفاصيلها. يُمرَّر أنبوب رفيع (قسطرة) عبر شريان في الرسغ أو أعلى الفخذ حتى الوعاء المراد فحصه، ثم تُحقن مادة التباين (الصبغة) ويُلتقط التصوير. يكفي كثيرًا من المرضى في البداية أشعة مقطعية أو رنين مغناطيسي، ونلجأ إلى القسطرة التشخيصية عندما نحتاج تفاصيل أدق، غالبًا للتخطيط للعلاج. تكون غالبًا مستيقظًا مع تخدير موضعي، وقد يُعطى الأطفال ومن لا يستطيعون الثبات مهدئًا أو تخديرًا كليًا، وقد تشعر بدفء عند حقن الصبغة. يستغرق الفحص أقل من ساعة وقد يطول في الحالات المعقدة، وبعده ترتاح بضع ساعات ويعود كثير من المرضى إلى منازلهم في اليوم نفسه. أما المخاطر فهي كدمة أو نزيف في مكان إدخال القسطرة، وحساسية من الصبغة، وإجهاد للكلى عند المصابين بأمراض الكلى، واحتمال ضئيل لحدوث سكتة دماغية، ولذلك أخبر الفريق بأي حساسية أو مشكلة في الكلى أو أدوية السكري أو مميعات الدم أو الحمل. **اسأل طبيبك:** هل أحتاج هذا الفحص أم تكفي الأشعة؟ ما المسار الذي ستستخدمونه؟ أي أدوية أوقف؟",
-      searchTerms: ["قسطرة تشخيصية للمخ", "تصوير الأوعية الدماغية بالقسطرة"],
+      searchTerms: ["قسطرة تشخيصية للمخ", "تصوير الأوعية الدماغية بالقسطرة", "قسطرة المخ التشخيصية"],
     },
   },
   {
@@ -108,15 +108,15 @@ export const patientConditions: readonly PatientCondition[] = [
     slug: "avm",
     en: {
       slug: "avm",
-      title: "Brain and spinal AVM embolisation",
+      title: "Brain and spinal AVM treatment by catheter",
       body: "An AVM (arteriovenous malformation) is a tangle of abnormal vessels where arteries connect straight to veins, skipping the normal fine vessels in between. People are born with it. It may be found after a bleed or a seizure, or by chance on a scan, and it can also occur in the spine. Not every AVM needs treatment: a team decides, using the AVM's size, position, drainage and bleeding history, and your general health. The options are observation, embolisation, surgery, radiosurgery (focused radiation), or a combination. A large study of AVMs that had not bled found that, over the first few years, people who had treatment for simple AVMs did worse than those who were watched, which is why treatment is chosen carefully for each person, depending on the AVM's architecture, bleeding history and risk. In embolisation, a catheter is guided through the vessels into the AVM and an embolic liquid is injected to block the abnormal vessels. It is often done in one or several sessions, depending on the size and complexity of the AVM, and is sometimes used on its own and sometimes to prepare the AVM for surgery or radiosurgery. Risks include bleeding, stroke, new weakness or vision or speech problems, and in rare cases death; the team will explain the risk for your AVM, and you will need follow-up scans. !!Get urgent help for a sudden severe headache, a seizure or sudden weakness.!!",
-      searchTerms: ["brain AVM treatment", "AVM embolisation", "spinal AVM"],
+      searchTerms: ["brain AVM treatment", "AVM embolisation", "spinal AVM", "brain and spinal AVM catheter"],
     },
     ar: {
       slug: "avm",
-      title: "علاج التشوهات الشريانية الوريدية في المخ والعمود الفقري بالانسداد",
+      title: "علاج التشوهات الشريانية الوريدية في المخ والعمود الفقري عن طريق القسطرة المخية",
       body: "التشوه الشرياني الوريدي (AVM) كتلة من أوعية غير طبيعية تتصل فيها الشرايين مباشرة بالأوردة متجاوزةً الأوعية الدقيقة الطبيعية. يولد معظم المرضى بالتشوه ولا يكتسبونه. وقد يُكتشف بعد نزيف أو تشنج أو بالمصادفة في أشعة، وقد يحدث أيضًا في العمود الفقري. لا يحتاج كل تشوه إلى علاج؛ فالفريق هو من يقرر بحسب حجمه وموضعه وتصريفه وتاريخ النزيف وصحتك العامة. والخيارات: المراقبة أو العلاج بالقسطرة أو الجراحة أو العلاج الإشعاعي المركّز أو الجمع بينها. وجدت دراسة كبيرة لتشوهات لم تنزف أن من عولجوا بأي تدخل كانت نتائجهم خلال السنوات الأولى أسوأ ممن اكتفوا بالمراقبة، ولهذا يُختار العلاج بعناية لكل شخص حسب وجود نزيف (أو احتمالية عالية للنزيف) أو درجة تعقيد التشوه. في العلاج بالقسطرة تُمرَّر قسطرة عبر الشرايين إلى داخل التشوه ثم يُحقن سائل شبه صمغي لسدّ الأوعية غير الطبيعية. ويتم العلاج في جلسة أو أكثر حسب حجم التشوه وتعقيده، ويُستخدم أحيانًا وحده وأحيانًا لتمهيد التشوه للجراحة أو العلاج الإشعاعي. من المخاطر: النزيف أو السكتة الدماغية أو ضعف جديد أو مشكلات في البصر أو الكلام، وفي حالات نادرة الوفاة. سيشرح الفريق الخطر في حالتك، وستحتاج فحوص متابعة. !!اطلب الإسعاف عند صداع مفاجئ شديد أو تشنج أو ضعف مفاجئ.!!",
-      searchTerms: ["تشوه شرياني وريدي بالمخ", "علاج التشوهات الشريانية الوريدية"],
+      searchTerms: ["تشوه شرياني وريدي بالمخ", "علاج التشوهات الشريانية الوريدية", "قسطرة التشوه الشرياني الوريدي"],
     },
   },
   {

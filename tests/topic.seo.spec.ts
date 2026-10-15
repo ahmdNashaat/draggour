@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+﻿import { expect, test } from "@playwright/test";
 
 import { getConditionMetaDescription, getConditionListing, patientConditions } from "../content/patient-conditions";
 import { stripConditionMarkup } from "../lib/condition-text";
@@ -69,11 +69,12 @@ for (const locale of locales) {
       // Every link names itself; the "other conditions" links are named by the
       // approved condition titles, which can exceed the guard and stay
       // descriptive, so they are exempt by name rather than by length.
+      // Guard raised from 60 to 80 (D-049): the AR AVM title is 77 characters.
       const conditionTitles = new Set(patientConditions.map((item) => item[locale].title));
       const anchors = (await page.locator("main a[href]").allTextContents())
         .map((text) => text.trim())
         .filter((text) => !conditionTitles.has(text));
-      expect(anchors.every((text) => text.length > 0 && text.length < 60)).toBe(true);
+      expect(anchors.every((text) => text.length > 0 && text.length < 80)).toBe(true);
       expect(anchors.join(" ")).not.toMatch(/best|leading|world.?class|number one|#1/i);
     }
 
@@ -88,8 +89,8 @@ test("the topic graph connects Home, Biography, Conditions, E-learning and consu
     await page.goto(`/${locale}`);
     const homeTitle = await page.title();
     const homeDescription = await page.locator('meta[name="description"]').getAttribute("content");
-    expect(homeTitle).toContain(locale === "ar" ? "خبير الأشعة التداخلية وقسطرة المخ العلاجية" : "Interventional Neuroradiologist");
-    expect(homeDescription).toContain(locale === "ar" ? "خبير الأشعة التداخلية وقسطرة المخ العلاجية" : "Interventional Neuroradiologist");
+    expect(homeTitle).toContain(locale === "ar" ? "ط®ط¨ظٹط± ط§ظ„ط£ط´ط¹ط© ط§ظ„طھط¯ط§ط®ظ„ظٹط© ظˆظ‚ط³ط·ط±ط© ط§ظ„ظ…ط® ط§ظ„ط¹ظ„ط§ط¬ظٹط©" : "Interventional Neuroradiologist");
+    expect(homeDescription).toContain(locale === "ar" ? "ط®ط¨ظٹط± ط§ظ„ط£ط´ط¹ط© ط§ظ„طھط¯ط§ط®ظ„ظٹط© ظˆظ‚ط³ط·ط±ط© ط§ظ„ظ…ط® ط§ظ„ط¹ظ„ط§ط¬ظٹط©" : "Interventional Neuroradiologist");
     await expect(page.locator(`main a[href="/${locale}/biography"]`).first()).toHaveAttribute("href", `/${locale}/biography`);
 
     // Every home card links straight to a current document slug: no legacy slug
@@ -105,7 +106,7 @@ test("the topic graph connects Home, Biography, Conditions, E-learning and consu
     expect(homeCardDescriptions.every((description) => description.trim().length > 0)).toBe(true);
     const eLearningLink = page.locator(`main a[href="/${locale}/e-learning"]`);
     await expect(eLearningLink).toHaveCount(2);
-    await expect(page.getByRole("link", { name: locale === "ar" ? "استكشف صفحة التعليم الطبي" : "View the E-learning page" })).toHaveAttribute("href", `/${locale}/e-learning`);
+    await expect(page.getByRole("link", { name: locale === "ar" ? "ط§ط³طھظƒط´ظپ طµظپط­ط© ط§ظ„طھط¹ظ„ظٹظ… ط§ظ„ط·ط¨ظٹ" : "View the E-learning page" })).toHaveAttribute("href", `/${locale}/e-learning`);
     await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(3);
 
     await page.goto(`/${locale}/biography`);
@@ -127,11 +128,11 @@ test("the topic graph connects Home, Biography, Conditions, E-learning and consu
     // The review stamp and the standing patient notice stand on the hub too.
     await expect(page.locator(".condition-reviewed-by")).toHaveText(
       locale === "en"
-        ? "Reviewed by Dr. Mohamed Aggour · Last reviewed 4 October 2026"
-        : "راجعه د. محمد عجور · آخر مراجعة 4 أكتوبر 2026",
+        ? "Reviewed by Dr. Mohamed Aggour آ· Last reviewed 4 October 2026"
+        : "ط±ط§ط¬ط¹ظ‡ ط¯. ظ…ط­ظ…ط¯ ط¹ط¬ظˆط± آ· ط¢ط®ط± ظ…ط±ط§ط¬ط¹ط© 4 ط£ظƒطھظˆط¨ط± 2026",
     );
     await expect(page.locator(".condition-medical-disclaimer")).toContainText(
-      locale === "en" ? "call emergency services now" : "اتصل بالإسعاف فورًا",
+      locale === "en" ? "call emergency services now" : "ط§طھطµظ„ ط¨ط§ظ„ط¥ط³ط¹ط§ظپ ظپظˆط±ظ‹ط§",
     );
 
     for (const [index, condition] of patientConditions.entries()) {

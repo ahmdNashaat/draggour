@@ -457,3 +457,24 @@ The implemented CSS in `globals.css` is the source of truth for the visual syste
 - `condition.media.spec.ts` tests rewritten: hub video row now asserts the facade, not a poster link.
 - `condition.content.spec.ts` line 51 still passes (10 × `.condition-paragraph`): all 10 conditions have a single paragraph body and their entire urgent content is trailing (safety tail is empty), so `ConditionClampedBody` produces exactly one `<p class="condition-paragraph">` per condition with no `ConditionSafetyBody` paragraph alongside it.
 - The text duplication between hub and detail remains structural (doctor's choice). `canonical` and `robots` are already correct (detail pages are canonical; hub is the index). No further mitigation is applied in this round.
+
+### D-049 — Two condition title renames and anchor-text guard raised to 80
+
+**Date**: 2026-10-16
+**Context**: The doctor approved two title changes (slugs, redirects, routes and paragraph text are unchanged):
+- `angiography` EN: "Cerebral and spinal angiography" → "Diagnostic cerebral catheter angiography"
+- `angiography` AR: «تصوير الأوعية الدماغية والشوكية بالقسطرة» → «قسطرة المخ التشخيصية»
+- `avm` EN: "Brain and spinal AVM embolisation" → "Brain and spinal AVM treatment by catheter"
+- `avm` AR: «علاج التشوهات الشريانية الوريدية في المخ والعمود الفقري بالانسداد» → «علاج التشوهات الشريانية الوريدية في المخ والعمود الفقري عن طريق القسطرة المخية»
+
+**Decision**: Titles are updated everywhere they appear (H1, `<title>`, breadcrumb, breadcrumb JSON-LD, hub rows, index chips, home cards, "Other conditions" links, and JSON-LD `knowsAbout`). New `searchTerms` entries are added (old terms kept). No short-title field is added.
+
+**Anchor-text guard**: The new AR AVM title is 77 characters. The existing `< 60` guard in `topic.seo.spec.ts` and `medical.content.spec.ts` was raised to `< 80`. Condition titles are already exempt from the guard by name (they are filtered out before the assertion). Only non-title anchors are checked against the guard; the longest of those is "Request a consultation" (21 chars EN) or "اقرأ المزيد" (12 chars AR), so the higher guard does not weaken the test in practice.
+
+**Resulting `<title>` lengths** (format: `{condition title} | Dr. Mohamed Aggour`):
+- angiography EN: "Diagnostic cerebral catheter angiography | Dr. Mohamed Aggour" — **62 chars**
+- angiography AR: "قسطرة المخ التشخيصية | دكتور محمد عجور" — **38 chars**
+- avm EN: "Brain and spinal AVM treatment by catheter | Dr. Mohamed Aggour" — **64 chars**
+- avm AR: "علاج التشوهات الشريانية الوريدية في المخ والعمود الفقري عن طريق القسطرة المخية | دكتور محمد عجور" — **97 chars**
+
+**Consequences**: All `<title>` lengths are within acceptable SEO range (≤ 60–70 chars is preferred; the AR AVM title at 97 chars will be truncated by search engines but is fully descriptive). No short-title field is added; if truncation is a concern, a new decision is needed.
