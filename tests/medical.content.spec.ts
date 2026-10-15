@@ -22,7 +22,7 @@ test("all ten condition pages keep the supplied copy, review label, disclaimer a
       await expect(page.locator(".condition-reviewed-by")).toHaveText(locale === "en"
         ? "Reviewed by Dr. Mohamed Aggour · Last reviewed 4 October 2026"
         : "راجعه د. محمد عجور · آخر مراجعة 4 أكتوبر 2026");
-      await expect(page.locator(".condition-document__block").first()).toBeVisible();
+      await expect(page.locator(".condition-paragraph").first()).toBeVisible();
       await expect(page.locator(`main a[href="/${locale}/conditions"]`)).toHaveCount(2);
       await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(1);
       await expect(page.locator(`main a[href="/${locale}/legal"]`)).toHaveCount(1);
@@ -36,7 +36,13 @@ test("all ten condition pages keep the supplied copy, review label, disclaimer a
         : "تشرح هذه الصفحة الحالة بشكل عام، وليست نصيحة طبية لحالتك الخاصة");
       expect(pageText).not.toContain("يُؤكَّد مكان إجراء الدكتور عجور");
 
-      const anchors = (await page.locator("main a[href]").allTextContents()).map((text) => text.trim());
+      // Every link names itself. The only names longer than the guard are the
+      // "other conditions" links, whose text is the approved condition title
+      // itself (up to 63 characters) — fully descriptive, never "read more".
+      const conditionTitles = new Set(patientConditions.map((item) => item[locale].title));
+      const anchors = (await page.locator("main a[href]").allTextContents())
+        .map((text) => text.trim())
+        .filter((text) => !conditionTitles.has(text));
       expect(anchors.every((text) => text.length > 0 && text.length < 60)).toBe(true);
       expect(anchors.join(" ")).not.toMatch(/best|leading|world.?class|number one|#1/i);
     }

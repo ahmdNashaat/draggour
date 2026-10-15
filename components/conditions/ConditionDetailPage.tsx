@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import type { PatientCondition } from "@/content/patient-conditions";
+import { getConditionListing, type PatientCondition } from "@/content/patient-conditions";
 import { getLocalizedPath, type Locale } from "@/content/site";
+import { renderConditionText } from "@/lib/condition-text";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { JsonLd } from "@/components/site/JsonLd";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
-import { ConditionBlocks } from "@/components/conditions/ConditionBlocks";
+import { ConditionMediaView } from "@/components/conditions/ConditionMediaView";
 import { ConditionMedicalDisclaimer, ConditionReviewLine } from "@/components/conditions/ConditionNotices";
+import { ConditionsCtaBand } from "@/components/conditions/ConditionsCtaBand";
+import { EmergencyNotice } from "@/components/conditions/EmergencyNotice";
 
 type ConditionDetailPageProps = Readonly<{
   locale: Locale;
@@ -18,6 +21,9 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
   const ui = await getTranslations("content.conditions");
   const home = await getTranslations("home");
   const content = condition[locale === "ar" ? "ar" : "en"];
+  const otherConditions = getConditionListing(locale === "ar" ? "ar" : "en").filter(
+    (item) => item.slug !== condition.slug,
+  );
 
   return (
     <main id="main-content" className="content-page condition-detail-page" data-condition-page={condition.slug}>
@@ -36,18 +42,47 @@ export async function ConditionDetailPage({ locale, condition }: ConditionDetail
           </div>
         </div>
       </section>
+
       <article className="condition-document content-section content-section--surface">
         <div className="site-container condition-document__content">
-          <ConditionBlocks blocks={content.blocks} headingLevel={2} blockKey={condition.slug} />
+          {content.urgentLead ? (
+            <EmergencyNotice body={content.urgentLead} label={ui("emergencyTitle")} />
+          ) : null}
+          {content.media ? (
+            <ConditionMediaView
+              detailHref={getLocalizedPath(locale, `/conditions/${condition.slug}`)}
+              locale={locale}
+              media={content.media}
+              playLabel={ui("playVideo", { title: content.title })}
+              surface="detail"
+            />
+          ) : null}
+          {renderConditionText(content.body)}
         </div>
       </article>
-      <ConditionMedicalDisclaimer locale={locale} />
-      <div className="content-section">
-        <div className="site-container content-actions">
-          <Link className="text-link" href={getLocalizedPath(locale, "/conditions")}>{ui("backToConditions")}</Link>
-          <Link className="text-link" href={getLocalizedPath(locale, "/legal")}>{ui("medicalDisclaimerCta")}</Link>
+
+      {/* A single paragraph would leave a thin page: the rest of the index,
+          as links, keeps the visitor moving through the same approved copy. */}
+      <section className="condition-other" aria-labelledby="condition-other-title">
+        <div className="site-container condition-other__inner">
+          <h2 id="condition-other-title">{ui("otherConditions")}</h2>
+          <ul className="condition-other__list">
+            {otherConditions.map((item) => (
+              <li key={item.slug}>
+                <Link href={getLocalizedPath(locale, `/conditions/${item.slug}`)}>{item.title}</Link>
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
+      </section>
+
+      <ConditionMedicalDisclaimer locale={locale} />
+
+      <ConditionsCtaBand label={ui("actionsLabel")}>
+        <Link className="text-link" href={getLocalizedPath(locale, "/conditions")}>{ui("backToConditions")}</Link>
+        <Link className="text-link" href={getLocalizedPath(locale, "/legal")}>{ui("medicalDisclaimerCta")}</Link>
+      </ConditionsCtaBand>
+
       <JsonLd value={buildBreadcrumbJsonLd(locale, [
         { name: ui("title"), pathname: "/conditions" },
         { name: content.title, pathname: `/conditions/${condition.slug}` },
