@@ -2,13 +2,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { getBiographyContent } from "@/content/biography";
+import { getBiographyContent, type BiographyMoments } from "@/content/biography";
 import { getLocalizedPath, siteIdentity, type Locale } from "@/content/site";
+import { assertBiographyMomentsValid } from "@/lib/biography-moments";
 import { buildBiographyJsonLd, buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
+import { BiographyMoments as MomentsGallery } from "@/components/biography/BiographyMoments";
 import { JsonLd } from "@/components/site/JsonLd";
 
 type BiographyPageProps = Readonly<{
   locale: Locale;
+  /** Development-only gallery preview; never set in production. */
+  momentsPreview?: BiographyMoments;
 }>;
 
 function BiographyLinks({ locale, ui }: Readonly<{ locale: Locale; ui: Awaited<ReturnType<typeof getTranslations>> }>) {
@@ -24,10 +28,12 @@ function BiographyLinks({ locale, ui }: Readonly<{ locale: Locale; ui: Awaited<R
   );
 }
 
-export async function BiographyPage({ locale }: BiographyPageProps) {
+export async function BiographyPage({ locale, momentsPreview }: BiographyPageProps) {
   const ui = await getTranslations("content");
   const home = await getTranslations("home");
   const content = getBiographyContent(locale);
+  // Fails the render (and so the build) while an approved gallery breaks a rule.
+  assertBiographyMomentsValid();
   const biographyJsonLd = buildBiographyJsonLd(locale);
   const isArabic = locale === "ar";
   const portraitAlt = home("hero.portraitLabel");
@@ -69,6 +75,8 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
           </div>
         </div>
       </section>
+
+      <MomentsGallery moments={momentsPreview ?? content.moments} />
 
       <BiographyLinks locale={locale} ui={ui} />
       {biographyJsonLd ? (

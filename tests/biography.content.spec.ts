@@ -185,3 +185,70 @@ test("Biography stays free of horizontal overflow across the required width matr
     await expectNoHorizontalOverflow(page);
   }
 });
+
+/** Part B: the compact hero, the larger reading text and its measured contrast. */
+test("the polished hero and the overview keep their rhythm, size and contrast", async ({ page }) => {
+  const expected = {
+    en: { fontSize: "17px", lineHeight: "30.6px" },
+    ar: { fontSize: "18px", lineHeight: "35.1px" },
+  } as const;
+
+  for (const locale of locales) {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`/${locale}/biography`);
+    await expect(page.locator("[data-biography-page]")).toBeVisible();
+
+    // Hero: about 500px tall at 1440, with the portrait, its shadow and the
+    // eyebrow untouched.
+    const hero = await page.locator(".content-hero").boundingBox();
+    expect(hero, locale).not.toBeNull();
+    expect(hero!.height, `${locale}: hero height at 1440`).toBeGreaterThan(450);
+    expect(hero!.height, `${locale}: hero height at 1440`).toBeLessThan(560);
+
+    await expect(page.locator(".content-hero__portrait")).toBeVisible();
+    await expect(page.locator(".content-hero .eyebrow")).toHaveCount(1);
+    await expect(page.locator(".content-hero__lead")).toBeVisible();
+    const shadow = await page.locator(".content-hero__portrait").evaluate((element) => getComputedStyle(element).boxShadow);
+    expect(shadow, `${locale}: portrait shadow`).not.toBe("none");
+
+    // Professional Overview: per-language body size, line height and at least
+    // 4.5:1 contrast on the surface behind it.
+    const reading = await page.locator(".content-section__body > p").first().evaluate((element) => {
+      const parse = (value: string) => (value.match(/[0-9.]+/g) ?? []).slice(0, 3).map(Number);
+      const channel = (value: number) => {
+        const s = value / 255;
+        return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+      };
+      const luminance = ([r, g, b]: number[]) =>
+        0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+
+      const style = getComputedStyle(element);
+      let node: Element | null = element;
+      let background = style.backgroundColor;
+      while (node && (background === "rgba(0, 0, 0, 0)" || background === "transparent")) {
+        node = node.parentElement;
+        background = node ? getComputedStyle(node).backgroundColor : "rgb(0, 0, 0)";
+      }
+
+      const text = luminance(parse(style.color));
+      const surface = luminance(parse(background));
+      const ratio = (Math.max(text, surface) + 0.05) / (Math.min(text, surface) + 0.05);
+
+      return {
+        background,
+        color: style.color,
+        contrast: Math.round(ratio * 100) / 100,
+        fontSize: style.fontSize,
+        lineHeight: style.lineHeight,
+      };
+    });
+
+    expect(reading.fontSize, `${locale}: overview body size`).toBe(expected[locale].fontSize);
+    expect(reading.lineHeight, `${locale}: overview line height`).toBe(expected[locale].lineHeight);
+    expect(reading.contrast, `${locale}: overview contrast ${reading.color} on ${reading.background}`).toBeGreaterThanOrEqual(4.5);
+
+    // The reading measure stays capped: the summary never fills the column.
+    const measure = await page.locator(".content-section__body").evaluate((element) => element.getBoundingClientRect().width);
+    expect(measure, `${locale}: reading measure`).toBeLessThanOrEqual(600);
+  }
+});
