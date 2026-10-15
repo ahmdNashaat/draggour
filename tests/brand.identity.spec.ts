@@ -56,15 +56,16 @@ test("the standalone emblem keeps its English alt in both locales", () => {
   expect(LOGO_STANDALONE_ALT).toBe("AGGOUR - Interventional Neuroradiology");
 });
 
-test("the favicon set is rendered from the header emblem artwork", async ({ page }) => {
-  const [iconSvg, emblem] = await Promise.all([
+test("the favicon set is rendered from the simplified small-size mark", async ({ page }) => {
+  const [iconSvg, mark] = await Promise.all([
     page.request.get("/icon.svg"),
-    page.request.get("/brand/aggour-emblem-flat.svg"),
+    page.request.get("/brand/aggour-favicon-simplified.svg"),
   ]);
   expect(iconSvg.status()).toBe(200);
-  expect(emblem.status()).toBe(200);
-  // The SVG favicon IS the header emblem, byte for byte (D-044).
-  expect(await iconSvg.text()).toBe(await emblem.text());
+  expect(mark.status()).toBe(200);
+  // The SVG favicon IS the simplified small-size mark, byte for byte (D-048):
+  // the full emblem turned to texture at 16px, so tab icons get their own file.
+  expect(await iconSvg.text()).toBe(await mark.text());
 
   // favicon.ico carries the same mark at the classic icon sizes.
   const ico = await (await page.request.get("/favicon.ico")).body();
