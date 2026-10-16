@@ -314,9 +314,10 @@ a {
   line-height: 1.5;
 }
 
-/* Header emblem: 48px, above the 44px minimum touch/legibility floor. */
+/* Header emblem: 56px desktop, stepping to 48px below 36rem — both clear of
+   the 44px touch/legibility floor. */
 .logo--horizontal .logo__emblem {
-  block-size: 3rem;
+  block-size: 3.5rem;
 }
 
 /* The footer lockup mirrors the hero: emblem on top, name under it, each
@@ -341,12 +342,30 @@ a {
   font-size: 1.25rem;
 }
 
-/* Tone drives the emblem file and the wordmark colour it sits with. */
-.logo--color {
-  color: var(--color-navy-950);
+/* Hero lockup: the home-hero's stacked scale — 96px emblem, 2.25rem name,
+   uppercase tracked taglines — capped at 15rem so the text column stays calm.
+   Inherits the stacked geometry (column, centred) and the tone colour. */
+.logo--hero {
+  display: flex;
+  max-inline-size: min(100%, 15rem);
 }
 
-.logo--dark {
+.logo--hero .logo__emblem {
+  block-size: 6rem;
+}
+
+.logo--hero .logo__name {
+  font-size: 2.25rem;
+}
+
+.logo--hero .logo__tagline {
+  font-size: 0.875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Tone drives the emblem file and the wordmark colour it sits with. */
+.logo--color {
   color: var(--color-navy-950);
 }
 
@@ -568,6 +587,8 @@ a {
 
 .home-hero__content {
   max-width: 42rem;
+  /* Fixed7a: without it the actions row hugs the section edge on short viewports. */
+  padding-block-end: clamp(4rem, 10vw, 9rem);
 }
 
 .eyebrow,
@@ -618,10 +639,9 @@ a {
   line-height: 1.7;
 }
 
+/* Scale lives on .logo--hero; this only seats the lockup in the content stack.
+   The <=48rem rule further down still hides it (same class, later source order). */
 .home-hero__logo {
-  display: block;
-  width: min(100%, 20rem);
-  height: auto;
   margin-block-start: var(--space-6);
 }
 
@@ -727,8 +747,9 @@ a {
   position: relative;
   aspect-ratio: 2 / 3;
   overflow: hidden;
-  /* Soft radial highlight behind the cutout so it separates from the section surface. */
-  background: radial-gradient(circle at 50% 58%, rgb(247 245 240 / 90%) 0 34%, rgb(247 245 240 / 0%) 74%);
+  /* Soft radial highlight behind the cutout so it separates from the section surface.
+     Fixed 7b: closest-side keeps the glow inside the frame instead of washing past it. */
+  background: radial-gradient(circle closest-side at 50% 58%, rgb(247 245 240 / 90%) 0 34%, rgb(247 245 240 / 0%) 74%);
 }
 
 .home-hero__portrait-image {
@@ -2887,14 +2908,14 @@ a {
 }
 
 @media (max-width: 35.999rem) {
-  /* Tightest header: the emblem steps down to its 44px floor and the wordmark
+  /* Tightest header: the emblem steps down to 48px and the wordmark
      follows it so emblem + name still sit on one line where they fit. */
   .logo {
     gap: 0.5rem;
   }
 
   .logo--horizontal .logo__emblem {
-    block-size: 2.75rem;
+    block-size: 3rem;
   }
 
   .logo__name {

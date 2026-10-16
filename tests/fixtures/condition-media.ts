@@ -14,9 +14,9 @@ export type VideoFixture = Extract<ConditionMedia, { type: "video" }>;
  */
 export const imageFixture: ImageFixture = {
   type: "image",
-  src: "/brand/aggour-brain-and-spine-emblem.png",
-  width: 1254,
-  height: 1254,
+  src: "/brand/aggour-emblem-flat-1024.png",
+  width: 1024,
+  height: 1024,
   alt: "Illustration used as a fixture for the condition media layout",
   caption: "Fixture illustration caption",
   credit: "Fixture credit",
