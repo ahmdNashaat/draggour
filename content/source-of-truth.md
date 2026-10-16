@@ -433,15 +433,16 @@ as `[APPROVAL REQUIRED]` and are needed before the related handling
 ## 23. Brand & typography (`PROPOSED` — approval is visual)
 
 - **Logo direction:** the delivered **AGGOUR** emblem pack (D-044): a circular
-  brain/circuit mark in flat colour, mono-light and mono-dark vectors. The
+  brain/circuit mark in flat colour and mono-light vectors — the v2 retinted
+  delivery replaced the v1 traced pair, and mono-dark is retired (D-054). The
   header shows the emblem with a localized live-text wordmark — `AGGOUR` on
   the EN site, `عجـــور` on the AR site — while the footer lockup and its
   tagline (`Interventional Neuroradiology` / `Brain & Spine`, one segment per
   line, the stack centred inside a lockup that shares the header lockup's
   container-edge alignment) stay English in both
-  locales. The favicon and search-engine icon are rendered from the flat
-  emblem (the exact header artwork), not from the pack's simplified favicon
-  variant. It replaces the earlier `MA`
+  locales. The favicon and search-engine icon are rendered from the pack's
+  simplified small-size mark (`aggour-favicon-simplified.svg`) because the
+  full emblem turns to texture at 16px (D-054). It replaces the earlier `MA`
   monogram / `MOHAMED AGGOUR` proposal, including that proposal's rejection of a
   brain icon, and must still work in the header, favicon, business card,
   certificate, conference slide, social profile and black-and-white.
@@ -450,26 +451,26 @@ as `[APPROVAL REQUIRED]` and are needed before the related handling
   Not approved until compared visually. Current build still uses the
   placeholder font.
 
-### Asset inventory (logo pack delivered 2026-10-06 — D-044; visual approval still required)
+### Asset inventory (logo pack delivered 2026-10-06, v2 flat artwork 2026-10-08 — D-044 / D-054; visual approval still required)
 
 | Asset                                        | Path                                          | Dimensions           | Status                                             |
 | -------------------------------------------- | --------------------------------------------- | -------------------- | -------------------------------------------------- |
-| Emblem, flat colour (header, light surfaces) | `public/brand/aggour-emblem-flat.svg`         | 751×751 vector, `-1024.png` 1024×1024 | `DELIVERED` — visual approval required |
-| Emblem, mono light (dark footer)             | `public/brand/aggour-emblem-mono-light.svg`   | 751×751 vector, `-1024.png` 1024×1024 | `DELIVERED` — visual approval required |
-| Emblem, mono dark (light surfaces / print)   | `public/brand/aggour-emblem-mono-dark.svg`    | 751×751 vector, `-1024.png` 1024×1024 | `DELIVERED` — visual approval required |
-| Browser tab / search icon                    | `app/favicon.ico`, `app/icon.svg`, `app/icon.png` | ICO 16/32/48 (32bpp), SVG vector, PNG 48×48 | `DELIVERED` — rendered from the flat emblem (header artwork); visual approval required |
-| iOS home-screen icon                         | `app/apple-icon.png`                          | 180×180              | `DELIVERED` — visual approval required            |
-| Original 3D artwork — large placements only  | `public/brand/aggour-brain-and-spine-emblem.png` | 1254×1254, RGBA     | `DELIVERED` — never used under 240px wide         |
-| Social / Open Graph image                    | `public/brand/aggour-og-1200x630.png`         | 1200×630             | `DELIVERED` — generated from the artwork          |
+| Emblem, flat colour (header, light surfaces) | `public/brand/aggour-emblem-flat.svg`         | 1000×1000 viewBox vector, `-1024.png` 1024×1024 | `DELIVERED` — v2 retinted (D-054); visual approval required |
+| Emblem, mono light (dark footer)             | `public/brand/aggour-emblem-mono-light.svg`   | 640×640 crop (viewBox `180 20 640 640`), `-1024.png` 1024×1024 | `DELIVERED` — v2 retinted (D-054); visual approval required |
+| Browser tab / search icon                    | `app/favicon.ico`, `app/icon.svg`, `app/icon.png` | ICO 16/32/48 (32bpp), SVG vector, PNG 48×48 | `DELIVERED` — rendered from `public/brand/aggour-favicon-simplified.svg` (D-054); visual approval required |
+| iOS home-screen icon                         | `app/apple-icon.png`                          | 180×180 RGB, no alpha | `DELIVERED` — full-bleed brand tile, mark ~78% wide (D-054); visual approval required |
+| Social / Open Graph image                    | `public/brand/aggour-og-1200x630.png`         | 1200×630             | `DELIVERED` — flat emblem on the brand field (D-054) |
 | PWA icons (not wired: no web manifest)       | `newlogofiles/icon-192.png`, `newlogofiles/icon-512.png` | 192×192, 512×512 | `HELD` — needs a manifest decision first       |
 | Doctor portrait                              | `public/images/doctor/dr-mohamed-aggour.png` | 1024×1536, RGBA cutout (transparent) | `PROTOTYPE` — `NO` until approved                  |
 | Source originals                             | `dr-aggour-brand-assets/` (outside `public/`) | —                    | source folder, keep high-resolution originals here (`dr-mohamed-aggour.png` = current portrait master) |
 
 Outstanding before production:
 
-- **The vectors are traced, not drawn:** `newlogofiles/README.md` records that
-  the three emblems and the favicon were traced from the supplied PNG. Treat
-  them as working assets until the designer supplies final vector files.
+- **Working assets, not signed-off artwork:** `newlogofiles/README.md` records
+  the v1 set as traced from the supplied PNG; the v2 delivery (2026-10-08)
+  replaced the served flat/mono-light vectors and the favicon source but ships
+  no README of its own (D-054). Treat all vectors as working assets until the
+  designer supplies final vector files.
 - No `dr-mohamed-aggour-profile.webp` crop yet (needed for Biography).
 - Brand presentation boards are reference material only and are never placed in
   `public/` or used as a logo.
