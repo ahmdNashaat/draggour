@@ -2,11 +2,12 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
 import { getBiographyContent, type BiographyMoments } from "@/content/biography";
-import { siteIdentity, type Locale } from "@/content/site";
+import { getLocalizedPath, siteIdentity, type Locale } from "@/content/site";
 import { assertBiographyMomentsValid } from "@/lib/biography-moments";
 import { buildBiographyJsonLd, buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
 import { BiographyMoments as MomentsGallery } from "@/components/biography/BiographyMoments";
 import { JsonLd } from "@/components/site/JsonLd";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 type BiographyPageProps = Readonly<{
   locale: Locale;
@@ -19,6 +20,7 @@ type BiographyPageProps = Readonly<{
 export async function BiographyPage({ locale, momentsPreview, placeholderMoments }: BiographyPageProps) {
   const ui = await getTranslations("content");
   const home = await getTranslations("home");
+  const nav = await getTranslations("navigation");
   const content = getBiographyContent(locale);
   // Fails the render (and so the build) while an approved gallery breaks a rule.
   assertBiographyMomentsValid();
@@ -32,6 +34,11 @@ export async function BiographyPage({ locale, momentsPreview, placeholderMoments
 
   return (
     <main id="main-content" className="content-page biography-page" data-biography-page>
+      {/* One breadcrumb rule across every internal page (UI/UX committee K9). */}
+      <Breadcrumbs items={[
+        { name: nav("home"), href: getLocalizedPath(locale, "") },
+        { name: ui("biography.title") }
+      ]} />
       <section className="content-hero" aria-labelledby="biography-title">
         <div className="site-container content-hero__grid">
           <div>

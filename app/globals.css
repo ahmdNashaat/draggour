@@ -20,13 +20,20 @@
   --color-surface-subtle: #eeebe3;
   /* Cool navy-tinted surface; separates physician-facing sections from warm beige. */
   --color-surface-cool: #dde5ec;
-  --color-line: #d9e0e7;
-  --color-line-strong: #b8c4cf;
+  /* Warm stone borders, darkened from the old cool #d9e0e7 (1.12:1 on the
+     cream section bg) to 1.39:1 so card and section boundaries read on warm
+     surfaces (UI/UX committee C2/L1). line-strong keeps a clear step above
+     it at 1.91:1, now warm too (it borders warm surfaces in 8 of 10 uses). */
+  --color-line: #d0c8bc;
+  --color-line-strong: #b5ab98;
   --color-on-dark: #f7f8fa;
   /* Sticky header surface: warm off-white at 92% so the backdrop blur still reads. */
   --color-header: rgb(247 245 240 / 92%);
   /* Decorative accent on light surfaces (bullets, resting arrows). Never used on text. */
   --color-navy-950-a45: rgb(11 42 68 / 45%);
+  /* Resting card arrows: 45% measured 2.65:1, below the 3:1 non-text minimum;
+     60% lands at 4.02:1 on surface and 3.76:1 on surface-cool (UI/UX A1/K4). */
+  --color-navy-950-a60: rgb(11 42 68 / 60%);
   /* Interactive coral, darkened so white text keeps >= 6:1 on hover and focus. */
   --color-red-hover: #a8401f;
 
@@ -54,6 +61,9 @@
   --radius-card: 1rem;
   --radius-small: 0.375rem;
   --radius-pill: 999px;
+  /* One underline language for every underlined text link (UI/UX committee L4). */
+  --link-underline-thickness: 2px;
+  --link-underline-offset: 0.2em;
   --shadow-soft: 0 1.5rem 4rem rgb(16 42 67 / 10%);
   --duration-fast: 160ms;
   --duration-standard: 240ms;
@@ -85,14 +95,36 @@ html[dir="rtl"] {
   --font-display: var(--font-display-ar), Georgia, serif;
 }
 
+/* T3: Naskh at 600 made the Arabic display headings read heavier than the
+   English serif at 400. Weight 500 keeps the letterforms clear at the large
+   display sizes while smaller Arabic UI text keeps the denser 600. */
+html[dir="rtl"] :is(
+  .home-hero h1,
+  .content-hero h1,
+  .consultation-hero h1,
+  .section-heading h2,
+  .foundation-title
+) {
+  font-weight: 500;
+}
+
 body {
   min-width: 0;
-  min-height: 100svh;
+  /* `dvh` follows the mobile browser chrome, and the flex column lets `main`
+     absorb the slack so the footer pins to the viewport bottom on short
+     pages (UI/UX committee S8/A5). */
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
   margin: 0;
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-body);
   text-rendering: optimizeLegibility;
+}
+
+main {
+  flex: 1 0 auto;
 }
 
 /* Keeps headings from leaving a single orphaned word, which is common in Arabic titles. */
@@ -108,6 +140,12 @@ p {
 
 a {
   color: inherit;
+}
+
+/* T6: an Arabic underline must run through descenders («استكشف الملف المهني»)
+   instead of breaking around every letter with a bowl. */
+[dir="rtl"] a {
+  text-decoration-skip-ink: none;
 }
 
 button,
@@ -129,7 +167,7 @@ a {
 
 .foundation-shell {
   display: grid;
-  min-height: 100svh;
+  min-height: 100dvh;
   place-items: center;
   padding-block: var(--space-section);
   padding-inline: var(--space-page-inline);
@@ -207,21 +245,25 @@ a {
   padding-inline: var(--space-page-inline);
 }
 
+/* A5: the hide offset must scale with the link itself. A fixed `top: -40px`
+   leaves the bar peeking out once root font size grows (130%/200% text zoom),
+   so the link parks above the viewport by a percentage of its own height. */
 .skip-link {
   position: absolute;
-  top: -40px;
+  top: 0;
   inset-inline-start: 0;
+  transform: translateY(-120%);
   background: var(--color-navy-950);
   color: var(--color-on-dark);
   padding: 8px 16px;
   z-index: 100;
-  transition: top var(--duration-fast) ease;
+  transition: transform var(--duration-fast) ease;
   text-decoration: none;
   font-weight: 700;
 }
 
 .skip-link:focus {
-  top: 0;
+  transform: translateY(0);
 }
 
 .site-header {
@@ -400,11 +442,18 @@ a {
   transition: color var(--duration-fast) ease;
 }
 
+/* Hover/focus on small text links: the dark accent (--color-red-900, 8.4:1
+   on cream) replaces the coral #c44e2f, whose 4.36:1 failed AA (UI/UX
+   committee C1). The footer sits on ink, so there the accent lightens
+   instead: --color-red-200 keeps ~8.7:1 on #061826. */
 .site-header__nav a:hover,
-.site-header__nav a:focus-visible,
+.site-header__nav a:focus-visible {
+  color: var(--color-red-900);
+}
+
 .site-footer__links a:hover,
 .site-footer__links a:focus-visible {
-  color: var(--color-red-700);
+  color: var(--color-red-200);
 }
 
 .site-header__nav a.is-active,
@@ -438,7 +487,9 @@ a {
 }
 
 .site-breadcrumb {
-  padding-block: var(--space-4);
+  /* The links below carry the 44px touch target (UI/UX committee A4), so the
+     band itself returns to a compact rhythm. */
+  padding-block: 0.5rem;
   background: var(--color-surface);
   border-block-end: 1px solid var(--color-line);
 }
@@ -455,6 +506,10 @@ a {
 }
 
 .site-breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  /* 44px minimum touch target, without changing the visible type size. */
+  min-block-size: 2.75rem;
   color: var(--color-neutral-600);
   text-decoration: none;
   transition: color var(--duration-fast) ease;
@@ -462,7 +517,7 @@ a {
 
 .site-breadcrumb a:hover,
 .site-breadcrumb a:focus-visible {
-  color: var(--color-red-700);
+  color: var(--color-red-900);
 }
 
 .site-breadcrumb [aria-current="page"] {
@@ -475,7 +530,9 @@ a {
   margin-inline-start: 0.5rem;
 }
 
-/* One compact two-segment control: the other language leads, the current one stays quiet. */
+/* One compact button naming the target language only (UI/UX committee K1):
+   no current-language segment, no short-code fallback — a single link is
+   ~85px wide, well under the old two-segment control. */
 .language-switcher {
   display: inline-flex;
   align-items: center;
@@ -494,27 +551,18 @@ a {
   justify-content: center;
   padding-inline: 0.75rem;
   border-radius: var(--radius-pill);
-  color: var(--color-neutral-600);
+  color: var(--color-navy-950);
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
   transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease;
 }
 
-.language-switcher__link--other {
-  color: var(--color-navy-950);
-  font-weight: 600;
-}
-
 .language-switcher__link:hover,
 .language-switcher__link:focus-visible {
   background: rgb(215 208 198 / 35%);
-}
-
-.language-switcher__code {
-  display: none;
 }
 
 /* Each label keeps its own script's font: Arabic body type is not applied on
@@ -525,18 +573,6 @@ a {
 
 .language-switcher__name[lang="en"] {
   font-family: var(--font-body-en), Arial, sans-serif;
-}
-
-@media (max-width: 24rem) {
-  /* At 24rem and below the current-language segment falls back to its short code
-     so the two full names cannot push the 320px header past its container. */
-  .language-switcher__link--current .language-switcher__name {
-    display: none;
-  }
-
-  .language-switcher__link--current .language-switcher__code {
-    display: inline;
-  }
 }
 
 .menu-toggle {
@@ -559,7 +595,9 @@ a {
   margin-inline: auto;
   background: currentColor;
   content: "";
-  transition: transform var(--duration-fast) ease;
+  transition:
+    transform var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
 }
 
 .menu-toggle__lines::before {
@@ -570,9 +608,29 @@ a {
   transform: translateY(0.35rem);
 }
 
+/* Open state draws the cross in place of the hamburger (UI/UX committee M5):
+   the bar itself clears so only the two rotated strokes remain. */
+.menu-toggle[aria-expanded="true"] .menu-toggle__lines {
+  background-color: transparent;
+}
+
+.menu-toggle[aria-expanded="true"] .menu-toggle__lines::before {
+  transform: translateY(0) rotate(45deg);
+}
+
+.menu-toggle[aria-expanded="true"] .menu-toggle__lines::after {
+  transform: translateY(0) rotate(-45deg);
+}
+
 .home-hero {
-  border-block-end: 1px solid var(--color-line);
+  /* L2: the biography section below changes background, which is already the
+     separator — a hairline here read as a double rule. */
   background: var(--color-surface-subtle);
+  /* P0 (v17): the portrait frame extends past its layout cell on purpose;
+     clip horizontally at the section boundary so that spill never becomes
+     page scroll on phones (overflow-y stays visible — the uncut hair may
+     rise above the cell). */
+  overflow-x: clip;
 }
 
 .home-hero__grid {
@@ -589,6 +647,16 @@ a {
   max-width: 42rem;
   /* Fixed7a: without it the actions row hugs the section edge on short viewports. */
   padding-block-end: clamp(4rem, 10vw, 9rem);
+}
+
+/* M1/S2 + P0 (v17): the portrait scale no longer crops anything (the
+   container does), so the head now rises ~11px above its cell instead of
+   being severed at it — the content column keeps that much more room so the
+   visible link → head gap stays inside the committee's 70–80px. */
+@media (max-width: 47.999rem) {
+  .home-hero__content {
+    padding-block-end: clamp(3.75rem, 10vw, 5rem);
+  }
 }
 
 .eyebrow,
@@ -613,7 +681,10 @@ a {
   margin: 0;
   color: var(--color-navy-950);
   font-family: var(--font-display);
-  font-size: clamp(3rem, 8vw, 7.25rem);
+  /* Capped at 6rem (was 7.25): the three-line EN name keeps its editorial
+     weight while the CTA row clears the fold at 1440×900 and 1366×768
+     (UI/UX committee S1/H2). */
+  font-size: clamp(3rem, 8vw, 6rem);
   font-weight: var(--font-weight-heading, 400);
   letter-spacing: -0.055em;
   line-height: 0.96;
@@ -712,15 +783,15 @@ a {
   font-size: 1rem;
   font-weight: 700;
   text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
+  text-decoration-thickness: var(--link-underline-thickness);
+  text-underline-offset: var(--link-underline-offset);
 }
 
 .text-link:hover,
 .text-link:focus-visible,
 .arrow-link:hover,
 .arrow-link:focus-visible {
-  color: var(--color-red-700);
+  color: var(--color-red-900);
 }
 
 .arrow-link__icon {
@@ -738,15 +809,29 @@ a {
 }
 
 .home-hero__portrait {
+  position: relative;
   width: min(100%, 32rem);
+  aspect-ratio: 2 / 3;
   align-self: end;
   margin-inline: auto;
 }
 
+/* P0 (v17): the clip box now carries the 12% enlargement instead of the
+   image transform. The cell above keeps the exact 2/3 footprint the hero
+   layout always had, while the frame grows around it (-6% each side, bottom
+   anchored, height from the same 2/3 ratio = +12% upward). The cut-out PNG
+   renders untransformed and fills that enlarged box, so its transparent
+   margins (8.8% top, 3.3% left, 0.14% right) stay inside the clip: no hair,
+   sleeve or elbow is ever severed by a straight edge. */
 .home-hero__portrait-frame {
-  position: relative;
+  position: absolute;
+  inset-inline: -6%;
+  inset-block-end: 0;
   aspect-ratio: 2 / 3;
   overflow: hidden;
+  /* 1px inset so no resampled edge pixel of the PNG can land on the frame's
+     own edge rows/columns (the strict alpha = 0 edge rule of the committee). */
+  padding: 1px;
   /* Soft radial highlight behind the cutout so it separates from the section surface.
      Fixed 7b: closest-side keeps the glow inside the frame instead of washing past it. */
   background: radial-gradient(circle closest-side at 50% 58%, rgb(247 245 240 / 90%) 0 34%, rgb(247 245 240 / 0%) 74%);
@@ -769,7 +854,9 @@ a {
   align-content: center;
   gap: var(--space-5);
   padding: var(--space-6);
-  border: 1px solid var(--color-line-strong);
+  /* This box lives on a deliberately cool gradient, so it keeps the old cool
+     border literal while the shared line tokens warm up (C2/L1). */
+  border: 1px solid #b8c4cf;
   background:
     radial-gradient(circle at 50% 37%, rgb(255 255 255 / 75%) 0 9%, transparent 9.5%),
     linear-gradient(145deg, #d8e0e7, #aebdca 55%, #8296a7);
@@ -819,7 +906,8 @@ a {
 
 .home-biography {
   background: var(--color-surface);
-  border-block-end: 1px solid var(--color-line);
+  /* S3: the preview section closes ~25% tighter than the standard rhythm. */
+  padding-block: clamp(2.25rem, 6vw, 6rem);
 }
 
 .home-biography__grid,
@@ -829,6 +917,12 @@ a {
   gap: clamp(2rem, 8vw, 8rem);
   align-items: start;
 }
+
+/* S3 (v17): the desktop-only 64–80px column gap override is gone — the
+   committee ruled S5 wins the column question for cross-page alignment, so
+   the biography grid keeps the shared token (content starts at ≈48% like
+   every other split page). S3's remaining scope is the typographic ramp
+   (lead / rest / link) and the ~25% tighter vertical padding. */
 
 .section-heading {
   max-width: 38rem;
@@ -851,8 +945,8 @@ a {
   color: inherit;
   text-decoration: none;
   text-decoration-color: transparent;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
+  text-decoration-thickness: var(--link-underline-thickness);
+  text-underline-offset: var(--link-underline-offset);
   transition: text-decoration-color var(--duration-fast) ease;
 }
 
@@ -867,8 +961,7 @@ a {
   outline-offset: 0.15em;
 }
 
-.section-heading__description,
-.home-biography__copy > p {
+.section-heading__description {
   max-width: 42rem;
   margin: var(--space-5) 0 0;
   color: var(--color-neutral-600);
@@ -882,11 +975,22 @@ a {
   padding-block-start: 0;
 }
 
-/* Spec 3.3: the preview paragraph reads at 1.125rem / 1.7 inside a 38rem measure. */
-.home-biography__copy > p {
+/* S3: the preview leads with its first sentence at 20–22px and continues at
+   16–17px, so the block carries hierarchy without any new content. */
+.home-biography__lead {
   max-width: 38rem;
-  font-size: 1.125rem;
-  line-height: 1.7;
+  margin: var(--space-5) 0 0;
+  color: var(--color-neutral-600);
+  font-size: clamp(1.25rem, 1.6vw, 1.375rem);
+  line-height: 1.6;
+}
+
+.home-biography__rest {
+  max-width: 38rem;
+  margin: 0.75rem 0 0;
+  color: var(--color-neutral-600);
+  font-size: clamp(1rem, 1.15vw, 1.0625rem);
+  line-height: 1.75;
 }
 
 .home-biography__copy .arrow-link {
@@ -895,7 +999,6 @@ a {
 
 .home-conditions {
   background: var(--color-surface-subtle);
-  border-block-end: 1px solid var(--color-line);
 }
 
 /* Home condition cards: 3 columns on desktop, 2 on tablet, 1 on mobile.
@@ -923,6 +1026,10 @@ a {
   min-width: 0;
   padding: clamp(1.25rem, 3vw, 1.75rem);
   border: 1px solid var(--color-line);
+  /* One radius for every card family: flat (here), raised
+     (consultation-panel, foundation-card) and dark (learning primary) all
+     share --radius-card (UI/UX committee K2). */
+  border-radius: var(--radius-card);
   background: var(--color-surface);
   color: var(--color-navy-950);
   text-decoration: none;
@@ -960,11 +1067,9 @@ a {
   font-size: 0.9375rem;
   line-height: 1.7;
   overflow-wrap: anywhere;
-  /* The full approved paragraph stays in the DOM; only its height is limited. */
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  /* No visual clamp: the summary carries its own ~130-character ceiling
+     (getConditionDescription), so nothing is clipped mid-line or mid-word
+     (UI/UX committee P0-K3). */
 }
 
 .condition-card:hover .condition-card__description,
@@ -976,10 +1081,12 @@ a {
   align-self: flex-end;
   width: 1.125rem;
   height: 1.125rem;
-  margin-block-start: auto;
+  /* The arrow follows the description instead of pinning to the card floor:
+     auto-pushing it down left a third of a short card empty and stranded the
+     arrow away from its text (UI/UX committee S7 follow-up). */
   /* Identity transform by default so RTL only flips this variable. */
   --arrow-mirror: scaleX(1);
-  color: var(--color-navy-950-a45);
+  color: var(--color-navy-950-a60);
   transform: var(--arrow-mirror);
   transition: color var(--duration-standard) ease;
 }
@@ -1000,14 +1107,15 @@ a {
 
   .condition-cards > li:last-child:nth-child(3n + 1) > .condition-card {
     display: grid;
-    grid-template-columns: minmax(12rem, 20rem) minmax(0, 1fr) auto;
+    /* Wider title column: the closing card's long title ("Other
+       embolisation…") keeps to two lines instead of three (UI/UX H5). */
+    grid-template-columns: minmax(12rem, 28rem) minmax(0, 1fr) auto;
     align-items: center;
     gap: clamp(1rem, 3vw, 2.5rem);
   }
 
   .condition-cards > li:last-child:nth-child(3n + 1) .condition-card__arrow {
     align-self: center;
-    margin-block-start: 0;
   }
 }
 
@@ -1020,9 +1128,12 @@ a {
 
 .home-learning__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  /* S5: same two-column token as the other title/content splits. This band
+     was the committee's lone ≈54% outlier — every content column now starts
+     at ≈48% of the container. */
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   align-items: center;
-  gap: clamp(2rem, 8vw, 6rem);
+  gap: clamp(2rem, 8vw, 8rem);
 }
 
 .home-learning__aside {
@@ -1099,7 +1210,11 @@ a {
 
 .site-footer__main {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(0, 0.7fr));
+  /* The identity column spans the same ≈48% the content columns use on the
+     pages above, so the primary-navigation column starts on the shared grid
+     line (UI/UX S5); the Legal column starts on the 75% quarter line — the
+     committee's v17 decision on the previously open sub-point (D-058). */
+  grid-template-columns: minmax(0, 1.73fr) minmax(0, 0.89fr) minmax(0, 1fr);
   gap: clamp(1.5rem, 4vw, 4rem);
   padding-block-start: clamp(2.25rem, 4.5vw, 4rem);
   padding-block-end: clamp(1.5rem, 3.5vw, 3rem);
@@ -1158,8 +1273,14 @@ a {
 
 .content-hero {
   padding-block: clamp(4.5rem, 10vw, 9rem);
-  border-block-end: 1px solid var(--color-line);
   background: var(--color-surface);
+}
+
+/* L2: where the section below keeps the same surface, the hairline is the
+   only separator and stays; where the background changes, the change itself
+   separates and no rule is drawn. */
+.content-hero:has(+ .content-section--surface) {
+  border-block-end: 1px solid var(--color-line);
 }
 
 /* A4: The condition detail hero carries only a title, a review line and a CTA;
@@ -1273,11 +1394,24 @@ a {
 
 .content-section {
   padding-block: var(--space-section);
-  border-block-end: 1px solid var(--color-line);
+}
+
+/* L2: consecutive same-surface sections keep a hairline as their only
+   separator; a surface→subtle change (e.g. the condition document into its
+   body sections) separates by background and draws no rule. */
+.content-section:not(.content-section--surface) + .content-section:not(.content-section--surface) {
+  border-block-start: 1px solid var(--color-line);
 }
 
 .content-section--surface {
   background: var(--color-surface);
+}
+
+/* H3: on Contact the eyebrow, H1 and H2 all spoke at nearly one size, which
+   flattened the hierarchy. The H2 steps down so the section heading reads as
+   a clear second tier under the title. */
+[data-contact-page] .content-section h2 {
+  font-size: clamp(1.375rem, 2vw, 1.75rem);
 }
 
 .condition-reviewed-by {
@@ -1291,22 +1425,24 @@ a {
 
 /* The detail page's reading column: the urgent lead (when there is one), the
    optional media, then the single paragraph, each one gap apart. The
-   max-width matches the paragraph measure (42rem) so the column starts at
-   the same inline-start edge as the breadcrumb and the H1 above it. */
+   max-width matches the paragraph measure (37rem, see .condition-paragraph)
+   so the column starts at the same inline-start edge as the breadcrumb and
+   the H1 above it. */
 .condition-document__content {
   display: grid;
   gap: 1.25rem;
-  max-width: 42rem;
+  max-width: 37rem;
 }
 
 /* --- The one-paragraph patient text -------------------------------------
    Shared by the hub row and the detail page, so both read identically.
-   1.125rem in both languages, with the measure capped at 42rem by the column
-   it sits in: that lands between 70 and 78 characters a line at 1440 in EN,
-   which is inside the comfortable reading range, and keeps Arabic at a size
-   that stays legible on a phone. */
+   1.125rem in both languages, measure capped at 37rem (was 42rem): the old
+   cap put 83–87 characters on an English line at 1440 — the previous
+   comment's "70–78" was wrong — well above the comfortable 60–75 band
+   (UI/UX committee T1); 37rem lands near it, and Arabic shrinks
+   proportionally while staying legible on a phone. */
 .condition-paragraph {
-  max-inline-size: 42rem;
+  max-inline-size: 37rem;
   margin: 0;
   color: var(--color-neutral-900);
   font-size: 1.125rem;
@@ -1324,26 +1460,15 @@ a {
   font-weight: 600;
 }
 
-/* "!!Call emergency services!!" — weight 600 plus a faint tint of the alarm
-   colour, so the warning never depends on colour alone and never reads as a
-   link: an underline was tried in round 1 and both cut through Arabic
-   diacritics and looked tappable. The tint is 8% red-900 over the surface,
-   which measures 8.46:1 against red-900 text on the page surface (and 8.38:1
-   on the white cards) — well past the 4.5:1 requirement. `box-decoration-
-   break: clone` keeps the tint continuous across a line break, and no
-   letter-spacing is set anywhere in this rule, because tracking damages
-   Arabic letter joining. */
+/* Safety emphasis remains typographic, not alarm-coloured, across conditions. */
 .condition-urgent {
-  padding-inline: 0.2em;
-  background: color-mix(in srgb, var(--color-red-900) 8%, transparent);
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-  color: var(--color-red-900);
+  color: var(--color-neutral-900);
   font-weight: 600;
 }
 
 .condition-medical-disclaimer {
-  padding-block: clamp(1.75rem, 4vw, 3rem);
+  /* S6: closes on the same compact rhythm the hub opens with. */
+  padding-block: var(--space-section-compact);
   border-block-start: 1px solid var(--color-line);
   background: var(--color-surface);
 }
@@ -1359,9 +1484,21 @@ a {
 
 .content-section__inner {
   display: grid;
-  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+  /* Shared two-column token with the home biography grid: the content column
+     starts at ≈48% of the container on every title/content page (UI/UX S5). */
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   align-items: start;
   gap: clamp(2rem, 8vw, 8rem);
+}
+
+/* S4: on desktop the title column holds under the sticky header while the
+   body column scrolls past, instead of leaving a blank column behind. */
+@media (min-width: 64rem) {
+  .home-biography__grid > .section-heading,
+  .content-section__inner > :first-child {
+    position: sticky;
+    top: 6rem;
+  }
 }
 
 
@@ -1590,10 +1727,62 @@ a {
 
 .content-link-list a {
   display: block;
-  margin-block-start: 0.625rem;
   color: var(--color-navy-950);
   overflow-wrap: anywhere;
   line-height: 1.7;
+  /* The underline belongs to the URL line only; the heading carries the arrow. */
+  text-decoration: none;
+  transition: color var(--duration-fast) ease;
+}
+
+.content-link-list a:hover,
+.content-link-list a:focus-visible {
+  color: var(--color-red-900);
+}
+
+/* Title + arrow share the heading line, so a wrapped URL can no longer strand
+   the arrow mid-text (UI/UX committee R2). */
+.content-link-list__heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  margin-block-end: 0.35rem;
+}
+
+.content-link-list__arrow {
+  color: var(--color-navy-950-a60);
+  transition: color var(--duration-fast) ease;
+}
+
+.content-link-list a:hover .content-link-list__arrow,
+.content-link-list a:focus-visible .content-link-list__arrow {
+  color: var(--color-red-900);
+}
+
+/* The URL is supporting metadata, not a second heading: body sans at a quiet
+   size and colour, so the row title stays the primary element. The underline
+   is the link affordance, so it moves to the hover/focus state instead of
+   resting on the line (UI/UX committee P2 contact-URL note). `break-word`
+   replaces the inherited `anywhere`: combined with the `<wbr>` points after
+   - and /, the URL wraps at its separators and only ever splits a segment
+   as a last resort. */
+.content-link-list__url {
+  color: var(--color-neutral-600);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  /* Metadata, not a heading: the URL sheds the H3's display weight, which
+     reads especially heavy in Arabic (UI/UX committee H3). */
+  font-weight: 400;
+  overflow-wrap: break-word;
+  text-decoration: none;
+}
+
+.content-link-list a:hover .content-link-list__url,
+.content-link-list a:focus-visible .content-link-list__url {
+  color: var(--color-red-900);
+  text-decoration: underline;
+  text-decoration-thickness: var(--link-underline-thickness);
+  text-underline-offset: var(--link-underline-offset);
 }
 
 .content-link-list > div > p {
@@ -1673,6 +1862,9 @@ a {
   font-weight: var(--font-weight-heading, 400);
   line-height: 1.3;
   overflow-wrap: anywhere;
+  /* Titles wrap to two lines in both languages, so the description row below
+     starts on the same baseline in every card (UI/UX committee H4). */
+  text-wrap: balance;
 }
 
 .learning-link__description {
@@ -1687,7 +1879,7 @@ a {
   grid-area: arrow;
   width: 1.125rem;
   height: 1.125rem;
-  color: var(--color-navy-950-a45);
+  color: var(--color-navy-950-a60);
   transition: color var(--duration-fast) ease;
 }
 
@@ -1718,6 +1910,12 @@ a {
 }
 
 .learning-link--primary .learning-link__arrow {
+  /* The promoted card scales its icon (up to 3rem) and title (up to 2.375rem),
+     so its arrow scales with the card to keep the family's optical weight —
+     a fixed 1.125rem read as ≈12px next to the 48px icon (UI/UX committee,
+     e-learning K4 follow-up). Same path, same stroke, larger box. */
+  width: clamp(1.125rem, 2vw, 1.5rem);
+  height: clamp(1.125rem, 2vw, 1.5rem);
   color: var(--color-red-200);
 }
 
@@ -1913,9 +2111,19 @@ a {
   color: var(--color-on-dark);
 }
 
-.button:disabled {
+/* Disabled: neutral grey only, and — placed after the variant hover/focus
+   rules so it wins the cascade — neither :hover nor :focus-visible may light
+   a disabled control up (UI/UX committee K6; disabled contrast is WCAG-exempt). */
+.button:disabled,
+.button:disabled:hover,
+.button:disabled:focus-visible,
+.button:disabled:active {
+  border-color: var(--color-neutral-600);
+  background: var(--color-neutral-600);
+  color: var(--color-on-dark);
   cursor: not-allowed;
   opacity: 0.5;
+  transform: none;
 }
 
 /* ------------------------------------------------------------------ *
@@ -1984,7 +2192,9 @@ a {
   display: grid;
   align-items: stretch;
   gap: clamp(1.25rem, 2.5vw, 2rem);
-  padding-block: clamp(2rem, 5vw, 5rem);
+  /* S6/M7: the page closes on the site's compact rhythm instead of a
+     one-off 32px strip, so the footer gap matches the opening rhythm. */
+  padding-block: clamp(2rem, 5vw, 5rem) var(--space-section-compact);
 }
 
 @media (min-width: 60rem) {
@@ -2153,7 +2363,9 @@ a {
   min-width: 0;
 }
 
-/* Small screens: chips, one line each, scroll-snapped on the inline axis. */
+/* Small screens: chips, one line each, scroll-snapped on the inline axis.
+   M2 (v17): the scrollbar is hidden and the inline end fades, so the row
+   reads as a peeking carousel instead of a cut-off list with browser chrome. */
 .conditions-hero__index ol {
   display: flex;
   gap: 0.5rem;
@@ -2164,7 +2376,16 @@ a {
   overflow-x: auto;
   overscroll-behavior-inline: contain;
   scroll-snap-type: x proximity;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent);
+}
+
+.conditions-hero__index ol::-webkit-scrollbar {
+  display: none;
+}
+
+[dir="rtl"] .conditions-hero__index ol {
+  mask-image: linear-gradient(to left, #000 calc(100% - 3rem), transparent);
 }
 
 .conditions-hero__index li {
@@ -2242,8 +2463,8 @@ a {
   color: inherit;
   text-decoration: none;
   text-decoration-color: transparent;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
+  text-decoration-thickness: var(--link-underline-thickness);
+  text-underline-offset: var(--link-underline-offset);
   transition:
     color var(--duration-fast) ease,
     text-decoration-color var(--duration-fast) ease;
@@ -2251,7 +2472,7 @@ a {
 
 .condition-index__title a:hover,
 .condition-index__title a:focus-visible {
-  color: var(--color-red-700);
+  color: var(--color-red-900);
   text-decoration-color: currentColor;
 }
 
@@ -2297,31 +2518,53 @@ a {
 }
 
 /* Without JS the paragraph is never shortened, so a toggle would lie about
-   its effect; the CSS hides it and the paragraphs render in full. */
+   its effect; the CSS hides it and the paragraphs render in full.
+   M3 (v17): the toggle reads as the row's text link — plain navy text with
+   the site underline and an arrow, no bordered box; the touch target stays
+   ≥44px (min-height 2.75rem) and JS still owns the expand state. */
 .condition-collapsible__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   justify-self: start;
   min-height: 2.75rem;
-  padding: 0.375rem 0.9rem;
-  border: 1px solid var(--color-navy-950);
-  border-radius: var(--radius-small, 0.25rem);
-  background: transparent;
+  padding: 0.5rem 0;
+  border: 0;
+  background: none;
   color: var(--color-navy-950);
   font: inherit;
   font-size: 0.9375rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.4;
+  text-decoration: underline;
+  text-decoration-thickness: var(--link-underline-thickness);
+  text-underline-offset: var(--link-underline-offset);
   cursor: pointer;
-  transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease;
+  transition: color var(--duration-fast) ease;
 }
 
-.condition-collapsible__toggle:hover {
-  background: var(--color-navy-950);
-  color: var(--color-on-dark, #fff);
+.condition-collapsible__toggle:hover,
+.condition-collapsible__toggle:focus-visible {
+  color: var(--color-red-900);
 }
 
 .condition-collapsible__toggle:focus-visible {
   outline: 2px solid var(--color-navy-950);
   outline-offset: 3px;
+}
+
+.condition-collapsible__arrow {
+  flex: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  /* Same mirror token the other arrows use: RTL flips the variable, never
+     the hover or focus rule. */
+  --icon-mirror: translate(0px, 0px);
+  transform: var(--icon-mirror);
+}
+
+[dir="rtl"] .condition-collapsible__arrow {
+  --icon-mirror: scaleX(-1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2361,6 +2604,8 @@ a {
     counter-reset: condition-index;
     overflow: visible;
     scroll-snap-type: none;
+    /* Nothing scrolls here, so the carousel fade from M2 steps aside. */
+    mask-image: none;
   }
 
   .conditions-hero__index li {
@@ -2387,7 +2632,8 @@ a {
     white-space: normal;
     text-decoration: underline;
     text-decoration-color: transparent;
-    text-underline-offset: 0.2em;
+    text-decoration-thickness: var(--link-underline-thickness);
+    text-underline-offset: var(--link-underline-offset);
     transition: text-decoration-color var(--duration-fast) ease;
   }
 
@@ -2397,11 +2643,25 @@ a {
   }
 
   .condition-index__item {
-    grid-template-columns: minmax(12rem, 21rem) minmax(0, 42rem);
-    column-gap: clamp(2rem, 4vw, 4rem);
+    /* Same two-column token as the other title/content pages: the paragraph
+       column starts at ≈48% of the container (UI/UX S5). The 42rem measure
+       cap on the content keeps the reading width the old capped column had. */
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    column-gap: clamp(2rem, 8vw, 8rem);
     row-gap: 0;
     align-items: start;
     padding-block: clamp(1.75rem, 4vw, 2.875rem);
+  }
+
+  .condition-index__item .condition-row__content {
+    max-width: 42rem;
+  }
+
+  /* S4: the condition title holds under the sticky header while its paragraph
+     scrolls, so the reader never loses which condition they are in. */
+  .condition-index__title {
+    position: sticky;
+    top: 6rem;
   }
 }
 
@@ -2441,7 +2701,8 @@ a {
   color: var(--color-navy-950);
   text-decoration: underline;
   text-decoration-color: var(--color-line-strong);
-  text-underline-offset: 0.2em;
+  text-decoration-thickness: var(--link-underline-thickness);
+  text-underline-offset: var(--link-underline-offset);
   transition: text-decoration-color var(--duration-fast) ease;
 }
 
@@ -2555,60 +2816,38 @@ a {
   margin-block-start: 0.625rem;
 }
 
-/* Emergency guidance: an outlined callout on the page surface, so urgency reads
-   through structure and contrast instead of a red fill (D-046). Used for a
-   condition's `urgentLead`, directly above its paragraph, with no heading of
-   its own so the outline stays H1 → one H2 per condition. */
+/* Condition guidance stays informative and visually quiet, without a heading
+   of its own so the outline stays H1 → one H2 per condition. */
 .emergency-notice {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
-  gap: var(--space-4);
+  display: block;
   max-width: 60rem;
   padding: clamp(1.25rem, 3vw, 2rem);
-  border: 1.5px solid var(--color-navy-950);
-}
-
-.emergency-notice__icon {
-  width: 1.75rem;
-  height: 1.75rem;
-  color: var(--color-navy-950);
+  border: 1px solid var(--color-line);
+  background: var(--color-neutral-50);
 }
 
 .emergency-notice p {
   max-width: 48rem;
-  margin: var(--space-4) 0 0;
+  margin: 0;
   color: var(--color-neutral-900);
   font-size: clamp(1rem, 2vw, 1.25rem);
   line-height: 1.7;
 }
 
-/* Inside a condition row the callout has no heading, sits in the same column
-   as the paragraph below it, and reads at body size rather than callout size.
-   Round 2 turns it from a neutral outline into a warning: a red inline-start
-   rule, the same faint red tint the inline urgent marker uses, and the first
-   sentence in bold (`.emergency-notice__lead`), so it reads as guidance to
-   act on rather than as an info box. The wording itself is untouched. */
+/* The same note appears in the conditions index and on each detail page. */
 .condition-emergency-lead {
   max-width: 42rem;
-  background: color-mix(in srgb, var(--color-red-900) 8%, transparent);
-  border: 0;
-  border-inline-start: 4px solid var(--color-red-900);
-}
-
-.condition-emergency-lead .emergency-notice__icon {
-  color: var(--color-red-900);
+  border-inline-start: 2px solid var(--color-line-strong);
 }
 
 .condition-emergency-lead .emergency-notice__body p {
   max-width: none;
-  margin-block-start: 0;
   font-size: 1.125rem;
   line-height: 1.75;
 }
 
 .condition-emergency-lead .emergency-notice__lead {
-  color: var(--color-red-900);
+  color: inherit;
   font-weight: 600;
 }
 
@@ -2739,6 +2978,10 @@ a {
   transform: scaleX(-1);
 }
 
+[dir="rtl"] .content-link-list__arrow {
+  transform: scaleX(-1);
+}
+
 @media (max-width: 59.999rem) {
   .site-header__inner {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -2854,10 +3097,6 @@ a {
 
 @media (max-width: 47.999rem) {
   /* Hero collapses to H1, title, plain line, actions, portrait. */
-  .home-biography__copy > p {
-    font-size: 1.0625rem;
-  }
-
   /* Phone: one card per row. */
   .condition-cards {
     grid-template-columns: minmax(0, 1fr);
@@ -2937,7 +3176,8 @@ a {
     align-self: flex-start;
   }
 
-  .site-footer__main,
+  /* K8: the footer keeps its two link columns down to the smallest phone;
+     only the three-column card grids collapse to one. */
   .content-card-grid--three,
   .content-card-grid--four {
     grid-template-columns: minmax(0, 1fr);
@@ -3150,20 +3390,23 @@ a {
 }
 
 /* The box reserves 4/3 whatever the photo's own ratio is, so the caption
-   never moves when the image finishes decoding. Sharp corners, no shadow. */
+   never moves when the image finishes decoding. Sharp corners, no shadow,
+   and no fill either: the cut-out photo sits directly on the section's own
+   background - the doctor's preview request (same size, no background,
+   2026-10-25). A full-bleed landscape photo covers the box anyway. */
 .bio-moment__media {
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: var(--color-neutral-100);
 }
 
 .bio-moment__media img {
   display: block;
   width: 100%;
   height: 100%;
+  /* Fallback: landscape photos fill the cell and crop from their inline
+     `focus` point; portrait photos override `object-fit` inline to `contain`
+     so nothing is ever cut (heads included). Nothing mirrors in RTL. */
   object-fit: cover;
-  /* Fallback crop: each photo overrides this inline from its `focus` point.
-     Nothing mirrors a photograph in RTL. */
   object-position: 50% 50%;
 }
 

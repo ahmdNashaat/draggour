@@ -18,7 +18,9 @@ const displayFont = Libre_Baskerville({ subsets: ["latin"], variable: "--font-di
 const bodyFont = IBM_Plex_Sans({ subsets: ["latin"], variable: "--font-body-en", weight: ["400", "500", "600", "700"] });
 // These are only used by RTL pages. Avoid preloading them on every English route;
 // the browser still loads them when the Arabic font is actually applied.
-const arabicDisplayFont = Noto_Naskh_Arabic({ subsets: ["arabic"], variable: "--font-display-ar", weight: ["400", "600", "700"], preload: false });
+// 500 is the large-heading weight (UI/UX committee T3); 600 stays for smaller
+// Arabic UI text that needs the extra density.
+const arabicDisplayFont = Noto_Naskh_Arabic({ subsets: ["arabic"], variable: "--font-display-ar", weight: ["400", "500", "600", "700"], preload: false });
 const arabicBodyFont = IBM_Plex_Sans_Arabic({ subsets: ["arabic"], variable: "--font-body-ar", weight: ["400", "500", "600", "700"], preload: false });
 
 export function generateStaticParams() {

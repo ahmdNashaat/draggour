@@ -1,4 +1,4 @@
-﻿import { expect, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import { getConditionMetaDescription, getConditionListing, patientConditions } from "../content/patient-conditions";
 import { stripConditionMarkup } from "../lib/condition-text";
@@ -89,8 +89,8 @@ test("the topic graph connects Home, Biography, Conditions, E-learning and consu
     await page.goto(`/${locale}`);
     const homeTitle = await page.title();
     const homeDescription = await page.locator('meta[name="description"]').getAttribute("content");
-    expect(homeTitle).toContain(locale === "ar" ? "ط®ط¨ظٹط± ط§ظ„ط£ط´ط¹ط© ط§ظ„طھط¯ط§ط®ظ„ظٹط© ظˆظ‚ط³ط·ط±ط© ط§ظ„ظ…ط® ط§ظ„ط¹ظ„ط§ط¬ظٹط©" : "Interventional Neuroradiologist");
-    expect(homeDescription).toContain(locale === "ar" ? "ط®ط¨ظٹط± ط§ظ„ط£ط´ط¹ط© ط§ظ„طھط¯ط§ط®ظ„ظٹط© ظˆظ‚ط³ط·ط±ط© ط§ظ„ظ…ط® ط§ظ„ط¹ظ„ط§ط¬ظٹط©" : "Interventional Neuroradiologist");
+    expect(homeTitle).toContain(locale === "ar" ? "خبير الأشعة التداخلية وقسطرة المخ العلاجية" : "Interventional Neuroradiologist");
+    expect(homeDescription).toContain(locale === "ar" ? "خبير الأشعة التداخلية وقسطرة المخ العلاجية" : "Interventional Neuroradiologist");
     await expect(page.locator(`main a[href="/${locale}/biography"]`).first()).toHaveAttribute("href", `/${locale}/biography`);
 
     // Every home card links straight to a current document slug: no legacy slug
@@ -106,16 +106,21 @@ test("the topic graph connects Home, Biography, Conditions, E-learning and consu
     expect(homeCardDescriptions.every((description) => description.trim().length > 0)).toBe(true);
     const eLearningLink = page.locator(`main a[href="/${locale}/e-learning"]`);
     await expect(eLearningLink).toHaveCount(2);
-    await expect(page.getByRole("link", { name: locale === "ar" ? "ط§ط³طھظƒط´ظپ طµظپط­ط© ط§ظ„طھط¹ظ„ظٹظ… ط§ظ„ط·ط¨ظٹ" : "View the E-learning page" })).toHaveAttribute("href", `/${locale}/e-learning`);
+    await expect(page.getByRole("link", { name: locale === "ar" ? "استكشف صفحة التعليم الطبي" : "View the E-learning page" })).toHaveAttribute("href", `/${locale}/e-learning`);
     await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(3);
 
+    // Closing quick-link sections are removed; the topic graph is held by the
+    // header and footer navigation on every page.
     await page.goto(`/${locale}/biography`);
-    await expect(page.locator(`main a[href="/${locale}/conditions"]`)).toHaveCount(1);
-    await expect(page.locator(`main a[href="/${locale}/e-learning"]`)).toHaveCount(1);
-    await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(1);
+    await expect(page.locator(`main a[href="/${locale}/conditions"]`)).toHaveCount(0);
+    await expect(page.locator(`main a[href="/${locale}/e-learning"]`)).toHaveCount(0);
+    await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(0);
 
     await page.goto(`/${locale}/conditions`);
     await expect(page.locator(`main a[href^="/${locale}/conditions/"]`)).toHaveCount(10);
+    await expect(page.locator("main .content-next-links")).toHaveCount(0);
+    await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(0);
+    await expect(page.locator(`main a[href="/${locale}/biography"]`)).toHaveCount(0);
     await expect(page.locator(".sticky-cta")).toHaveCount(0);
 
     // Hub structure: one H1 for the page, one linked H2 per condition, and each
@@ -128,11 +133,11 @@ test("the topic graph connects Home, Biography, Conditions, E-learning and consu
     // The review stamp and the standing patient notice stand on the hub too.
     await expect(page.locator(".condition-reviewed-by")).toHaveText(
       locale === "en"
-        ? "Reviewed by Dr. Mohamed Aggour آ· Last reviewed 4 October 2026"
-        : "ط±ط§ط¬ط¹ظ‡ ط¯. ظ…ط­ظ…ط¯ ط¹ط¬ظˆط± آ· ط¢ط®ط± ظ…ط±ط§ط¬ط¹ط© 4 ط£ظƒطھظˆط¨ط± 2026",
+        ? "Reviewed by Dr. Mohamed Aggour · Last reviewed 4 October 2026"
+        : "راجعه د. محمد عجور · آخر مراجعة 4 أكتوبر 2026",
     );
     await expect(page.locator(".condition-medical-disclaimer")).toContainText(
-      locale === "en" ? "call emergency services now" : "ط§طھطµظ„ ط¨ط§ظ„ط¥ط³ط¹ط§ظپ ظپظˆط±ظ‹ط§",
+      locale === "en" ? "call emergency services now" : "اتصل بالإسعاف فورًا",
     );
 
     for (const [index, condition] of patientConditions.entries()) {
@@ -153,8 +158,15 @@ test("the topic graph connects Home, Biography, Conditions, E-learning and consu
       ]);
       await expect(entry.locator("li")).toHaveText([]);
     }
-    await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(1);
-    await expect(page.locator(`main a[href="/${locale}/biography"]`)).toHaveCount(1);
+  }
+});
+
+test("Conditions, Contact and E-learning have no closing quick-link sections", async ({ page }) => {
+  for (const locale of locales) {
+    for (const route of ["conditions", "contact", "e-learning"]) {
+      await page.goto(`/${locale}/${route}`);
+      await expect(page.locator("main .content-next-links")).toHaveCount(0);
+    }
   }
 });
 

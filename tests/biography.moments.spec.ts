@@ -4,6 +4,7 @@ import { biographyContent, biographyContentArabic, type BiographyMoments } from 
 import { collectBiographyMoments, validateBiographyMoments } from "../lib/biography-moments";
 
 import { biographyMomentsFixture, fixtureCounts, type FixtureCount } from "./fixtures/biography-moments";
+import { devGalleryServed } from "./helpers/server-mode";
 
 type Locale = "en" | "ar";
 
@@ -182,6 +183,8 @@ test.describe("biography moments — rendering", () => {
   for (const count of fixtureCounts) {
     for (const locale of locales) {
       test(`${locale} renders ${count} moments with their own copy`, async ({ page }) => {
+        // The counted preview exists only in development (D-059).
+        test.skip(!(await devGalleryServed()), "development-only `?moments` preview; production never resolves searchParams");
         const fixture = gallery(count, locale);
         await page.goto(`/${locale}/biography?moments=${count}`);
 
@@ -219,6 +222,7 @@ test.describe("biography moments — rendering", () => {
   }
 
   test("the gallery stays free of horizontal overflow across the required widths", async ({ page }) => {
+    test.skip(!(await devGalleryServed()), "development-only `?moments` preview; production never resolves searchParams");
     test.setTimeout(300_000);
 
     for (const count of fixtureCounts) {
@@ -234,6 +238,7 @@ test.describe("biography moments — rendering", () => {
   });
 
   test("Arabic mirrors the grid instead of duplicating its rules", async ({ page }) => {
+    test.skip(!(await devGalleryServed()), "development-only `?moments` preview; production never resolves searchParams");
     await page.setViewportSize({ width: 1024, height: 900 });
 
     const firstTwo = async (locale: Locale) => {
@@ -251,6 +256,7 @@ test.describe("biography moments — rendering", () => {
   });
 
   test("no count leaves an orphan row, from a phone to a desktop", async ({ page }) => {
+    test.skip(!(await devGalleryServed()), "development-only `?moments` preview; production never resolves searchParams");
     // Below 40rem: one column, every photo on its own row.
     await page.setViewportSize({ width: 390, height: 900 });
     for (const count of fixtureCounts) {
@@ -335,6 +341,7 @@ test.describe("biography moments — rendering", () => {
   });
 
   test("the gallery sits after the overview", async ({ page }) => {
+    test.skip(!(await devGalleryServed()), "development-only `?moments` preview; production never resolves searchParams");
     await page.goto("/en/biography?moments=6");
 
     const order = await page.evaluate(() => {
@@ -351,6 +358,7 @@ test.describe("biography moments — rendering", () => {
   });
 
   test("captions survive 200% text zoom without clipping", async ({ page }) => {
+    test.skip(!(await devGalleryServed()), "development-only `?moments` preview; production never resolves searchParams");
     await page.setViewportSize({ width: 1024, height: 900 });
 
     // The same page without the gallery, measured first: any overflow it shows

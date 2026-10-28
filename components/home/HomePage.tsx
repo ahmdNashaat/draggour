@@ -15,12 +15,25 @@ type HomePageProps = Readonly<{
   locale: Locale;
 }>;
 
+/** S3: the home preview leads with the preview's first full sentence. A
+ *  two-letter abbreviation ("Dr.") never ends the lead. */
+function splitFirstSentence(text: string): { lead: string; rest: string | null } {
+  for (let index = text.indexOf(". "); index !== -1; index = text.indexOf(". ", index + 1)) {
+    const precedingWord = text.slice(0, index).split(/\s+/).at(-1) ?? "";
+    if (precedingWord.length > 2) {
+      return { lead: text.slice(0, index + 1), rest: text.slice(index + 2) };
+    }
+  }
+  return { lead: text, rest: null };
+}
+
 export async function HomePage({ locale }: HomePageProps) {
   const t = await getTranslations("home");
   const personJsonLd = buildPersonJsonLd();
   const conditionListing = getConditionListing(locale === "ar" ? "ar" : "en");
   // Same source as the biography page, so the preview can never drift from it.
   const biographySummary = getBiographyContent(locale).summary;
+  const preview = splitFirstSentence(biographySummary[0]);
 
   return (
     <main id="main-content" data-homepage>
@@ -32,7 +45,10 @@ export async function HomePage({ locale }: HomePageProps) {
             {t.has("hero.plainLine") ? (
               <p className="home-hero__plain">{t("hero.plainLine")}</p>
             ) : null}
-            <Logo className="home-hero__logo" name={logoNameFor(locale)} size="hero" tone="color" variant="stacked" />
+            {/* Order: name → title → CTAs → lockup. The D-054 lockup leads out
+                below the buttons so the primary CTA clears the fold at
+                1440×900 and 1366×768 (UI/UX committee S1; the lockup itself
+                is untouched — client decision D-054). */}
             <div className="home-hero__actions">
               <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>
                 {t("hero.cta")}
@@ -44,6 +60,7 @@ export async function HomePage({ locale }: HomePageProps) {
                 {t("hero.secondaryCta")}
               </Link>
             </div>
+            <Logo className="home-hero__logo" name={logoNameFor(locale)} size="hero" tone="color" variant="stacked" />
           </div>
 
           <div className="home-hero__portrait">
@@ -70,7 +87,10 @@ export async function HomePage({ locale }: HomePageProps) {
             title={t("biography.title")}
           />
           <div className="home-biography__copy">
-            <p>{biographySummary[0]}</p>
+            {/* S3: first sentence as lead, the rest as body — one approved
+                paragraph, two typographic tiers. */}
+            <p className="home-biography__lead">{preview.lead}</p>
+            {preview.rest ? <p className="home-biography__rest">{preview.rest}</p> : null}
             <ArrowLink href={getLocalizedPath(locale, "/biography")}>
               {t("biography.cta")}
             </ArrowLink>
@@ -98,7 +118,7 @@ export async function HomePage({ locale }: HomePageProps) {
                     viewBox="0 0 18 18"
                   >
                     <path
-                      d="M5 13 13 5M6.5 5H13v6.5"
+                      d="M4 9h10M10 5l4 4-4 4"
                       stroke="currentColor"
                       strokeLinecap="round"
                       strokeLinejoin="round"

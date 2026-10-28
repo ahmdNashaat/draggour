@@ -4,6 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { placeholderMoments, placeholderMomentsPair } from "../content/biography-moments-placeholder";
 import { validateBiographyMoments } from "../lib/biography-moments";
+import { devGalleryServed } from "./helpers/server-mode";
 
 type Locale = "en" | "ar";
 
@@ -44,6 +45,8 @@ test.describe("biography placeholder moments", () => {
   });
 
   test("dev default shows six moments and the tag in EN and AR", async ({ page }) => {
+    // The default gallery is the development preview; production serves none (D-059).
+    test.skip(!(await devGalleryServed()), "development-only preview; production ships the page without a gallery");
     for (const locale of locales) {
       const fixture = placeholderMoments[locale];
       // On localhost (NODE_ENV === "development"), the placeholder gallery
@@ -106,6 +109,8 @@ test.describe("biography placeholder moments", () => {
   });
 
   test("the sample gallery mirrors in Arabic and stays overflow-free on a phone", async ({ page }) => {
+    // The sample gallery is the development preview; production serves none (D-059).
+    test.skip(!(await devGalleryServed()), "development-only preview; production ships the page without a gallery");
     for (const width of [320, 390, 1440]) {
       await page.setViewportSize({ width, height: 844 });
       await page.goto("/ar/biography");
@@ -123,11 +128,16 @@ test.describe("biography placeholder moments", () => {
     expect(columns, "320px: one column of six").toBe(1);
   });
 
-  test("the counted dev preview wins over the sample gallery", async ({ page }) => {
+  test("the counted dev preview wins over the sample gallery, and production drops the parameter", async ({ page }) => {
     await page.goto("/en/biography?moments=3");
 
-    await expect(page.locator("ul.bio-moments__grid")).toHaveAttribute("data-count", "3");
-    await expect(page.locator(".bio-moments__placeholder")).toHaveCount(0);
-    await expect(page.locator(".bio-moment__meta").first()).not.toContainText("20XX");
+    if (await devGalleryServed()) {
+      await expect(page.locator("ul.bio-moments__grid")).toHaveAttribute("data-count", "3");
+      await expect(page.locator(".bio-moments__placeholder")).toHaveCount(0);
+      await expect(page.locator(".bio-moment__meta").first()).not.toContainText("20XX");
+    } else {
+      // Production never resolves searchParams (SSG): `?moments` is dropped (D-059).
+      await expect(page.locator(".bio-moments")).toHaveCount(0);
+    }
   });
 });

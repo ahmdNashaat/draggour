@@ -5,8 +5,14 @@ import { isConsultationWhatsappConfigured, whatsappPlaceholder } from "../conten
 const locales = ["en", "ar"] as const;
 const viewportWidths = [320, 360, 375, 390, 412, 430, 480, 768, 834, 1024, 1280, 1440, 1920, 2560];
 const whatsappConfigured = isConsultationWhatsappConfigured();
-// The pending CTA only exists outside production (see D-036); the suite runs on `pnpm dev`.
+// The pending CTA only exists outside production (see D-036); the suite normally
+// runs on `pnpm dev`. Against `next start`, set NODE_ENV=production on the test
+// process so the production branches below describe the server they hit (D-059).
 const productionBuild = process.env.NODE_ENV === "production";
+// Whether the server under test carries the CTA: development always renders it
+// (disabled + pending while unconfigured); production ships it only when a
+// number is configured and omits it otherwise (D-036).
+const ctaShips = !productionBuild || whatsappConfigured;
 
 const pixels = (value: string) => Number.parseFloat(value);
 
@@ -145,7 +151,9 @@ test("the layout keeps one hierarchy: hero, two equal columns, three numbered st
     expect(pixels(type.intro!.fontSize)).toBeGreaterThanOrEqual(16);
     expect(pixels(type.note!.fontSize)).toBeGreaterThanOrEqual(14);
     expect(pixels(type.step!.lineHeight) / pixels(type.step!.fontSize)).toBeGreaterThanOrEqual(1.5);
-    expect(type.cta!.height).toBeGreaterThanOrEqual(48);
+    // The CTA keeps its 48px floor wherever it ships; production without a
+    // configured number omits it entirely (D-036, asserted in the test above).
+    if (type.cta) expect(type.cta.height).toBeGreaterThanOrEqual(48);
 
     // Two columns of the same height and the same card treatment.
     expect(type.columns.split(" ").length).toBe(2);
@@ -203,6 +211,7 @@ test("remote consultation stays usable in EN/AR across the required viewport mat
   // 28 locale × width page loads on a cold dev server need more than the
   // default 30s budget, like the other viewport sweeps in this suite.
   test.setTimeout(180_000);
+  const cta = page.locator("[data-consultation-whatsapp-cta]");
 
   for (const locale of locales) {
     for (const width of viewportWidths) {
@@ -212,25 +221,28 @@ test("remote consultation stays usable in EN/AR across the required viewport mat
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.locator("html")).toHaveAttribute("lang", locale);
       await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
-      await expect(page.locator("[data-consultation-whatsapp-cta]")).toBeVisible();
+      if (ctaShips) await expect(cta).toBeVisible();
       await expectNoHorizontalOverflow(page);
     }
   }
 
-  // The primary action is reachable without scrolling on a 390×844 phone.
-  for (const locale of locales) {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(`/${locale}/remote-consultation`);
-    const ctaBox = await page.locator("[data-consultation-whatsapp-cta]").boundingBox();
-    expect(ctaBox, `${locale} CTA box`).not.toBeNull();
-    expect(ctaBox!.y).toBeGreaterThanOrEqual(0);
-    expect(ctaBox!.y + ctaBox!.height).toBeLessThanOrEqual(844);
-    expect(ctaBox!.width).toBeGreaterThanOrEqual(300);
+  // The primary action is reachable without scrolling on a 390×844 phone —
+  // wherever it ships; production without a configured number omits it (D-036).
+  if (ctaShips) {
+    for (const locale of locales) {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto(`/${locale}/remote-consultation`);
+      const ctaBox = await cta.boundingBox();
+      expect(ctaBox, `${locale} CTA box`).not.toBeNull();
+      expect(ctaBox!.y).toBeGreaterThanOrEqual(0);
+      expect(ctaBox!.y + ctaBox!.height).toBeLessThanOrEqual(844);
+      expect(ctaBox!.width).toBeGreaterThanOrEqual(300);
+    }
   }
 
   await page.setViewportSize({ width: 844, height: 390 });
   await page.goto("/en/remote-consultation");
   await expectNoHorizontalOverflow(page);
-  await expect(page.locator("[data-consultation-whatsapp-cta]")).toBeVisible();
+  if (ctaShips) await expect(cta).toBeVisible();
   await expect(page.locator("[data-consultation-emergency]")).toBeVisible();
 });

@@ -22,6 +22,16 @@ function recordYouTube(page: Page): string[] {
   return urls;
 }
 
+/**
+ * The fixture surface answers 404 outside development unless the build sets
+ * `CONDITION_MEDIA_FIXTURE=1`, so a production build never publishes it (the
+ * page's own contract, verified by the first fixture test).
+ */
+async function fixtureServed(page: Page): Promise<boolean> {
+  const response = await page.request.get("/en/condition-media-fixture");
+  return response.status() !== 404;
+}
+
 test("no condition declares media, and both fixtures satisfy every rule", () => {
   // The capability ships dormant: nothing is published until the doctor
   // approves an image or a video, so the declared set starts empty.
@@ -104,6 +114,13 @@ for (const locale of locales) {
   test(`${locale} media fixture renders an image and click-to-play facades on hub and detail`, async ({ page }) => {
     const youtube = recordYouTube(page);
 
+    if (!(await fixtureServed(page))) {
+      // A production build must not publish the test-only fixture surface (D-059).
+      const response = await page.request.get(`/${locale}/condition-media-fixture`);
+      expect(response.status(), `${locale} fixture route`).toBe(404);
+      return;
+    }
+
     await page.goto(`/${locale}/condition-media-fixture`);
     await expect(page.locator("[data-media-fixture]")).toBeVisible();
 
@@ -164,6 +181,10 @@ for (const locale of locales) {
 }
 
 test("the two-column row mirrors in RTL and stays single-column below 60rem", async ({ page }) => {
+  test.skip(
+    !(await fixtureServed(page)),
+    "the fixture surface is not published in production (D-059); its two-column mirror has no published equivalent",
+  );
   await page.setViewportSize({ width: 1280, height: 900 });
 
   const positions = async () =>

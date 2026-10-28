@@ -11,6 +11,17 @@ function focusPosition(focus: BiographyMoment["focus"]): string {
 }
 
 /**
+ * Portrait photos are shown whole: a taller-than-wide frame fits inside the
+ * fixed 4/3 (or 16/9) cell, so no crop can ever clip a subject's head or
+ * feet — the framing the doctor reviewed for the preview gallery (2026-10-24).
+ * Landscape photos fill the cell instead: the editorial crop the grid is
+ * built for, with `focus` picking which part shows.
+ */
+function fitMode(moment: BiographyMoment): "cover" | "contain" {
+  return moment.height > moment.width ? "contain" : "cover";
+}
+
+/**
  * The captioned photo gallery. Renders nothing while the doctor has not
  * approved photos, so the page carries no heading, no wrapper and no image
  * request for it (the `moments` key is absent from the content).
@@ -45,7 +56,7 @@ export function BiographyMoments({ moments, placeholder }: Readonly<{ moments: B
                     loading="lazy"
                     sizes={MOMENT_SIZES}
                     src={moment.src}
-                    style={{ objectPosition: focusPosition(moment.focus) }}
+                    style={{ objectFit: fitMode(moment), objectPosition: focusPosition(moment.focus) }}
                     width={moment.width}
                   />
                 </div>

@@ -54,8 +54,12 @@ test("every launch page has a localized reciprocal page pair and matching docume
       const languageSwitcher = page.locator("nav.language-switcher");
       await expect(languageSwitcher).toHaveCount(1);
       await expect(languageSwitcher).toHaveAttribute("aria-label", locale === "ar" ? "تغيير اللغة" : "Switch language");
-      await expect(languageSwitcher.locator("a")).toHaveCount(2);
-      await expect(languageSwitcher.locator(`a[aria-current="true"]`)).toHaveCount(1);
+      // K1: one button naming the target language in its own script — no
+      // current-language segment and no aria-current anymore.
+      const otherLocale = locale === "en" ? "ar" : "en";
+      await expect(languageSwitcher.locator("a")).toHaveCount(1);
+      await expect(languageSwitcher.locator(`a .language-switcher__name[lang="${otherLocale}"]`)).toHaveCount(1);
+      await expect(languageSwitcher.locator("a[aria-current]")).toHaveCount(0);
 
       if (siteOrigin) {
         const canonical = page.locator('link[rel="canonical"]');
@@ -71,7 +75,6 @@ test("every launch page has a localized reciprocal page pair and matching docume
         await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveCount(0);
       }
 
-      const otherLocale = locale === "en" ? "ar" : "en";
       await expect(languageSwitcher.locator(`a[href="/${otherLocale}${pathname}"]`)).toHaveCount(1);
     }
 
@@ -98,7 +101,10 @@ test("French prototype remains outside launch-language switching and metadata al
   await page.goto("/fr/biography");
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
   await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
-  await expect(page.locator("nav.language-switcher a")).toHaveCount(2);
+  // Single-button switcher (K1): /fr is not a launch language, so the one
+  // link points at the primary locale and never at /fr itself.
+  await expect(page.locator("nav.language-switcher a")).toHaveCount(1);
+  await expect(page.locator("nav.language-switcher a[href^='/en']")).toHaveCount(1);
   await expect(page.locator("nav.language-switcher a[href^='/fr']")).toHaveCount(0);
 });
 

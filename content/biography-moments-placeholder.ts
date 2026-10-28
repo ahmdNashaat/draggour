@@ -25,8 +25,12 @@ const PORTRAIT_WIDTH = 1024;
 const PORTRAIT_HEIGHT = 1536;
 
 const portrait = { src: PORTRAIT_SRC, width: PORTRAIT_WIDTH, height: PORTRAIT_HEIGHT };
-// The 4/3 crop keeps the face in frame; the portrait's head sits high.
-const focus = { x: 50, y: 20 };
+// The portrait (height > width) renders with `contain`, so the standing
+// figure shows whole in every cell — nothing clipped, head or otherwise.
+// The focus stays as the cover fallback: top-anchored, because the crown
+// starts at 8.9% of the height and y=20 cropped it in a 4/3 cell (12.5%
+// in 16/9) (measured and fixed 2026-10-24).
+const focus = { x: 50, y: 0 };
 
 export const placeholderMoments = {
   en: {

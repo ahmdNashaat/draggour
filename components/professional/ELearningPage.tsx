@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import {
@@ -77,7 +76,7 @@ function LearningLinkItem({
         <span className="sr-only">{newTabHint}</span>
         <svg aria-hidden="true" className="learning-link__arrow" fill="none" viewBox="0 0 18 18">
           <path
-            d="M5 13 13 5M6.5 5H13v6.5"
+            d="M4 9h10M10 5l4 4-4 4"
             stroke="currentColor"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -139,14 +138,6 @@ export async function ELearningPage({ locale }: ELearningPageProps) {
           </div>
         </section>
       ) : null}
-
-      <nav className="content-next-links" aria-label={ui("eLearningPage.title")}>
-        <div className="site-container">
-          <Link className="button button--primary" href={getLocalizedPath(locale, "/biography")}>{ui("eLearningPage.biographyCta")}</Link>
-          <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("eLearningPage.consultationCta")}</Link>
-          <Link className="text-link" href={getLocalizedPath(locale, "")}>{ui("eLearningPage.backHome")}</Link>
-        </div>
-      </nav>
 
       <JsonLd value={buildBreadcrumbJsonLd(locale, [{ name: ui("eLearningPage.title"), pathname: "/e-learning" }])} />
     </main>

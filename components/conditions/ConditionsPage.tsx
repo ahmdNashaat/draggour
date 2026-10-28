@@ -6,10 +6,10 @@ import { getLocalizedPath, type Locale } from "@/content/site";
 import { ConditionClampedBody, ConditionSafetyBody } from "@/lib/condition-text";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { JsonLd } from "@/components/site/JsonLd";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ConditionCollapsible } from "@/components/conditions/ConditionCollapsible";
 import { ConditionMediaView } from "@/components/conditions/ConditionMediaView";
 import { ConditionMedicalDisclaimer, ConditionReviewLine } from "@/components/conditions/ConditionNotices";
-import { ConditionsCtaBand } from "@/components/conditions/ConditionsCtaBand";
 import { EmergencyNotice } from "@/components/conditions/EmergencyNotice";
 
 type ConditionsPageProps = Readonly<{
@@ -18,10 +18,16 @@ type ConditionsPageProps = Readonly<{
 
 export async function ConditionsPage({ locale }: ConditionsPageProps) {
   const ui = await getTranslations("content.conditions");
+  const nav = await getTranslations("navigation");
   const listing = getConditionListing(locale === "ar" ? "ar" : "en");
 
   return (
     <main id="main-content" className="content-page conditions-page" data-conditions-page>
+      {/* One breadcrumb rule across every internal page (UI/UX committee K9). */}
+      <Breadcrumbs items={[
+        { name: nav("home"), href: getLocalizedPath(locale, "") },
+        { name: ui("title") }
+      ]} />
       {/* The hero carries its own compact rhythm and the jump index, so the
           old hero rule + section padding stack is gone: the first condition
           starts one row's padding below the hero. */}
@@ -97,11 +103,6 @@ export async function ConditionsPage({ locale }: ConditionsPageProps) {
       </section>
 
       <ConditionMedicalDisclaimer locale={locale} />
-
-      <ConditionsCtaBand label={ui("consultationCta")}>
-        <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("consultationCta")}</Link>
-        <Link className="text-link" href={getLocalizedPath(locale, "/biography")}>{ui("biographyCta")}</Link>
-      </ConditionsCtaBand>
 
       <JsonLd value={buildBreadcrumbJsonLd(locale, [{ name: ui("title"), pathname: "/conditions" }])} />
     </main>

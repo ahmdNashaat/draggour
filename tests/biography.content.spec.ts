@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import { getBiographyContent } from "../content/biography";
+import { devGalleryServed } from "./helpers/server-mode";
 
 type Locale = "en" | "ar";
 
@@ -84,12 +85,18 @@ test("Biography shows the approved summary and nothing else in English", async (
   await expectApprovedSummary(page, "en");
   await expectSummaryOnly(page);
 
-  // The section outline has the hero H1, the screen-reader overview H2,
-  // and the moments gallery H2 (visible in development by default).
+  // The section outline has the hero H1, the screen-reader overview H2, and
+  // in development the moments gallery H2; a production build serves no
+  // preview gallery so the page stays statically generated (D-059).
+  const galleryServed = await devGalleryServed();
   await expect(page.locator("main h1")).toHaveCount(1);
-  await expect(page.locator("main h2")).toHaveCount(2);
+  await expect(page.locator("main h2")).toHaveCount(galleryServed ? 2 : 1);
   await expect(page.locator('main h2#biography-overview')).toHaveText("Professional Overview");
-  await expect(page.locator('main h2#bio-moments-title')).toHaveText("Moments from practice and teaching");
+  if (galleryServed) {
+    await expect(page.locator('main h2#bio-moments-title')).toHaveText("Moments from practice and teaching");
+  } else {
+    await expect(page.locator('main h2#bio-moments-title')).toHaveCount(0);
+  }
   await expectVisuallyHidden(page, "main h2#biography-overview");
 
   // Reading measure: each paragraph stays within a readable measure.
@@ -120,10 +127,15 @@ test("Biography shows the same approved summary in Arabic, right to left", async
   await expectApprovedSummary(page, "ar");
   await expectSummaryOnly(page);
 
+  const galleryServed = await devGalleryServed();
   await expect(page.locator("main h1")).toHaveCount(1);
-  await expect(page.locator("main h2")).toHaveCount(2);
+  await expect(page.locator("main h2")).toHaveCount(galleryServed ? 2 : 1);
   await expect(page.locator('main h2#biography-overview')).toHaveText("نبذة مهنية");
-  await expect(page.locator('main h2#bio-moments-title')).toHaveText("من الممارسة والتدريس");
+  if (galleryServed) {
+    await expect(page.locator('main h2#bio-moments-title')).toHaveText("من الممارسة والتدريس");
+  } else {
+    await expect(page.locator('main h2#bio-moments-title')).toHaveCount(0);
+  }
   await expectVisuallyHidden(page, "main h2#biography-overview");
 
   const bodyText = await page.locator("body").innerText();

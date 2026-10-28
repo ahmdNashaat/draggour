@@ -274,13 +274,33 @@ export const conditionMedicalDisclaimer = {
   ar: "تشرح هذه الصفحة الحالة بشكل عام، وليست نصيحة طبية لحالتك الخاصة، ولا يمكنها الاستجابة للطوارئ. عند ظهور ضعف مفاجئ أو صعوبة في الكلام أو فقدان البصر أو صداع شديد مفاجئ أو تشنج، اتصل بالإسعاف فورًا.",
 } as const;
 
-const CARD_DESCRIPTION_LIMIT = 180;
+const CARD_DESCRIPTION_LIMIT = 130;
+
+/** A comma at least this far into the slice counts as a usable clause end
+    (about a third of the cap: literal "last comma before the limit", floored
+    only so an early clause cannot shrink the summary to a stub). */
+const CLAUSE_FLOOR = Math.round(CARD_DESCRIPTION_LIMIT / 3);
+
+/**
+ * One truncation marker, never two: a cut that lands beside a sentence period
+ * ("…." / "....") collapses to a single ellipsis or a single period.
+ */
+const tidyTruncatedEnd = (text: string): string =>
+  text.replace(/[.…]+$/u, (match) => (match.includes("…") ? "…" : "."));
+
+/**
+ * End an unfinished slice with exactly one ellipsis, dropping any punctuation
+ * that would stack against it ("،…" or a bare trailing comma or period).
+ */
+const withEllipsis = (text: string): string =>
+  `${text.replace(/[.,،؛:!?؟۔…]+$/u, "").trimEnd()}…`;
 
 /**
  * The condition description for the home card: the paragraph plain text,
- * trimmed to end at a sentence boundary within ~180 characters so the card
- * never stops mid-sentence. Falls back to the nearest word boundary if no
- * sentence ending fits.
+ * trimmed inside ~130 characters at the most natural boundary available —
+ * a sentence end first, then the last clause comma (UI/UX committee K3
+ * follow-up), then the last word — so the card (which has no visual clamp)
+ * never stops mid-sentence or mid-phrase.
  */
 export function getConditionDescription(page: PatientConditionPage): string {
   const text = stripConditionMarkup(page.body);
@@ -288,19 +308,32 @@ export function getConditionDescription(page: PatientConditionPage): string {
 
   const slice = text.slice(0, CARD_DESCRIPTION_LIMIT);
 
-  // Walk backwards: find the last sentence-ending punctuation followed by
-  // whitespace or end-of-slice, so we never cut inside a decimal or abbreviation.
+  // 1) Walk backwards for the last sentence-ending punctuation followed by
+  //    whitespace or end-of-slice, so we never cut inside a decimal or
+  //    abbreviation.
   for (let index = slice.length - 1; index >= 0; index -= 1) {
     const character = slice[index];
     if (!character || !SENTENCE_ENDINGS.has(character)) continue;
     const next = text[index + 1];
-    if (next === undefined || /\s/.test(next)) return slice.slice(0, index + 1).trimEnd();
+    if (next === undefined || /\s/.test(next)) return tidyTruncatedEnd(slice.slice(0, index + 1).trimEnd());
   }
 
-  // No sentence fits: cut on the last word boundary.
+  // 2) No sentence fits: stop at the last clause comma instead of mid-phrase.
+  //    The comma must reach at least a third of the cap, or the summary would
+  //    waste most of its budget on an early clause (UI/UX committee K3
+  //    follow-up; measured 2026-10-21: every published card lands ≥43, and
+  //    only the Galen card sits as low as 60).
+  for (let index = slice.length - 1; index >= CLAUSE_FLOOR; index -= 1) {
+    const character = slice[index];
+    if (character !== "," && character !== "،") continue;
+    const next = text[index + 1];
+    if (next === undefined || /\s/.test(next)) return withEllipsis(slice.slice(0, index));
+  }
+
+  // 3) Otherwise cut on the last word boundary, never stacking "،…" together.
   const wordBoundary = slice.lastIndexOf(" ");
-  if (wordBoundary > 0) return `${slice.slice(0, wordBoundary).trimEnd()}…`;
-  return `${slice.trimEnd()}…`;
+  if (wordBoundary > 0) return withEllipsis(slice.slice(0, wordBoundary));
+  return withEllipsis(slice);
 }
 
 const META_DESCRIPTION_LIMIT = 155;

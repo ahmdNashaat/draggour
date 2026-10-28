@@ -45,6 +45,9 @@ test("only stroke-thrombectomy leads with an emergency instruction, as plain tex
 });
 
 test("the rendered pages carry no marker syntax and no pre-paragraph markup", async ({ page }) => {
+  // 22 dev-server navigations (two hubs + twenty detail pages) sit well past
+  // the 30s default on the webpack dev server, same as the other sweeps here.
+  test.setTimeout(180_000);
   for (const locale of locales) {
     await page.goto(`/${locale}/conditions`);
     await expect(page.locator("main h3")).toHaveCount(0);
@@ -76,6 +79,34 @@ test("the rendered pages carry no marker syntax and no pre-paragraph markup", as
       const text = await page.locator("main").innerText();
       expect(text, where).not.toMatch(/\*\*|!!/);
       if (content.urgentLead) expect(text, where).toContain(content.urgentLead);
+    }
+  }
+});
+
+test("emergency guidance uses quiet, icon-free styling on every conditions surface", async ({ page }) => {
+  for (const locale of locales) {
+    for (const route of ["conditions", "conditions/stroke-thrombectomy"]) {
+      await page.goto(`/${locale}/${route}`);
+
+      const notice = page.locator(".condition-emergency-lead");
+      await expect(notice.locator("svg")).toHaveCount(0);
+      await expect(notice).toHaveCSS("background-color", "rgb(247, 245, 240)");
+      await expect(notice).toHaveCSS("border-inline-start-width", "2px");
+      // Warm stone line-strong from D-055 (#b5ab98); the old cool pin was stale.
+      await expect(notice).toHaveCSS("border-inline-start-color", "rgb(181, 171, 152)");
+
+      const lead = notice.locator(".emergency-notice__lead");
+      const textColor = await notice.locator("p").evaluate((element) => getComputedStyle(element).color);
+      await expect(lead).toHaveCSS("color", textColor);
+
+      const urgentEmphasis = page.locator(".condition-urgent").first();
+      if (await urgentEmphasis.count()) {
+        const paragraphColor = await urgentEmphasis.evaluate((element) =>
+          getComputedStyle(element.parentElement!).color,
+        );
+        await expect(urgentEmphasis).toHaveCSS("color", paragraphColor);
+        await expect(urgentEmphasis).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+      }
     }
   }
 });
@@ -118,4 +149,3 @@ test("hub rows collapse on mobile below 60rem with accessible toggle and keep fu
   await page.setViewportSize({ width: 1440, height: 900 });
   await expect(arToggles.first()).toBeHidden();
 });
-

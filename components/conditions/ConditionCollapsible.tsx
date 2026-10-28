@@ -54,6 +54,12 @@ export function ConditionCollapsible({
         type="button"
       >
         {expanded ? showLess : readMore}
+        {/* M3 (v17): the button wears the site's text-link-with-arrow face.
+            aria-hidden keeps the SVG out of the accessible name and out of
+            the button's textContent. */}
+        <svg aria-hidden="true" className="condition-collapsible__arrow" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" />
+        </svg>
       </button>
     </div>
   );
