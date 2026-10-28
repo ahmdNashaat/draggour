@@ -13,12 +13,6 @@ const fullNames: Record<LaunchLocale, string> = {
   ar: "عربي",
 };
 
-/** Short fallback used only by the current-language segment below 24rem. */
-const shortCodes: Record<LaunchLocale, string> = {
-  en: "EN",
-  ar: "AR",
-};
-
 const LOCALE_COOKIE_NAME = "NEXT_LOCALE";
 const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
@@ -34,10 +28,15 @@ function rememberLocale(newLocale: LaunchLocale) {
 }
 
 /**
- * One compact two-segment control. The current language stays quiet; the other
- * language is the emphasised segment and carries the link a visitor expects.
- * The markup still exposes exactly two crawlable <a> elements with their
- * existing accessible names.
+ * One button naming the language it leads to (UI/UX committee decision K1):
+ * the target language only, written in its own script with a `lang` cue, plus
+ * the switch phrase as screen-reader-only *content* — not `aria-label`, so the
+ * accessible name still contains the visible word (WCAG 2.5.3, enforced by the
+ * A2 axe gate) while each language keeps its own voice. There is no
+ * current-language segment, no `aria-current` and no short-code fallback; the
+ * single reciprocal link stays crawlable and the hreflang alternates in the
+ * document head are untouched. On /fr (not a launch language) the switch
+ * points at the site's primary locale.
  */
 export function LanguageSwitcher({ locale, label, optionLabels }: LanguageSwitcherProps) {
   const pathname = usePathname();
@@ -53,11 +52,7 @@ export function LanguageSwitcher({ locale, label, optionLabels }: LanguageSwitch
     return `/${newLocale}`;
   };
 
-  // Current language first, then the language being offered. On /fr neither
-  // launch locale is current, so the natural launch order is kept.
-  const orderedLocales = [...launchLocales].sort(
-    (a, b) => Number(b === locale) - Number(a === locale),
-  );
+  const target: LaunchLocale = locale === "en" ? "ar" : "en";
 
   const handleSwitch = (event: React.MouseEvent<HTMLAnchorElement>, newLocale: LaunchLocale) => {
     rememberLocale(newLocale);
@@ -68,35 +63,22 @@ export function LanguageSwitcher({ locale, label, optionLabels }: LanguageSwitch
     if (!extra) return;
 
     event.preventDefault();
-    const target = event.currentTarget.getAttribute("href");
-    if (target) router.push(`${target}${extra}`);
+    const destination = event.currentTarget.getAttribute("href");
+    if (destination) router.push(`${destination}${extra}`);
   };
 
   return (
     <nav className="language-switcher" aria-label={label}>
-      {orderedLocales.map((availableLocale) => {
-        const isCurrent = availableLocale === locale;
-
-        return (
-          <Link
-            aria-label={optionLabels[availableLocale]}
-            aria-current={isCurrent ? "true" : undefined}
-            className={`language-switcher__link language-switcher__link--${isCurrent ? "current" : "other"}`}
-            href={getSwitchUrl(availableLocale)}
-            key={availableLocale}
-            onClick={(event) => handleSwitch(event, availableLocale)}
-          >
-            <span className="language-switcher__name" lang={isCurrent ? undefined : availableLocale}>
-              {fullNames[availableLocale]}
-            </span>
-            {isCurrent ? (
-              <span className="language-switcher__code" aria-hidden="true">
-                {shortCodes[availableLocale]}
-              </span>
-            ) : null}
-          </Link>
-        );
-      })}
+      <Link
+        className="language-switcher__link"
+        href={getSwitchUrl(target)}
+        onClick={(event) => handleSwitch(event, target)}
+      >
+        <span className="language-switcher__name" lang={target}>
+          {fullNames[target]}
+        </span>
+        <span className="sr-only">{optionLabels[target]}</span>
+      </Link>
     </nav>
   );
 }

@@ -1,39 +1,44 @@
 import Image from "next/image";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { getBiographyContent } from "@/content/biography";
+import { getBiographyContent, type BiographyMoments } from "@/content/biography";
 import { getLocalizedPath, siteIdentity, type Locale } from "@/content/site";
+import { assertBiographyMomentsValid } from "@/lib/biography-moments";
 import { buildBiographyJsonLd, buildBreadcrumbJsonLd, serializeJsonLd } from "@/lib/seo/json-ld";
+import { BiographyMoments as MomentsGallery } from "@/components/biography/BiographyMoments";
 import { JsonLd } from "@/components/site/JsonLd";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 type BiographyPageProps = Readonly<{
   locale: Locale;
+  /** Development-only gallery preview; never set in production. */
+  momentsPreview?: BiographyMoments;
+  /** Temporary sample gallery, while the doctor's event photos are pending. */
+  placeholderMoments?: BiographyMoments;
 }>;
 
-function BiographyLinks({ locale, ui }: Readonly<{ locale: Locale; ui: Awaited<ReturnType<typeof getTranslations>> }>) {
-  return (
-    <nav className="content-next-links" aria-label={ui("biography.title")}>
-      <div className="site-container">
-        <Link className="button button--primary" href={getLocalizedPath(locale, "/conditions")}>{ui("biography.conditionsCta")}</Link>
-        <Link className="button button--primary" href={getLocalizedPath(locale, "/e-learning")}>{ui("biography.learningCta")}</Link>
-        <Link className="button button--primary" href={getLocalizedPath(locale, "/remote-consultation")}>{ui("biography.consultationCta")}</Link>
-        <Link className="text-link" href={getLocalizedPath(locale, "")}>{ui("biography.backHome")}</Link>
-      </div>
-    </nav>
-  );
-}
-
-export async function BiographyPage({ locale }: BiographyPageProps) {
+export async function BiographyPage({ locale, momentsPreview, placeholderMoments }: BiographyPageProps) {
   const ui = await getTranslations("content");
   const home = await getTranslations("home");
+  const nav = await getTranslations("navigation");
   const content = getBiographyContent(locale);
+  // Fails the render (and so the build) while an approved gallery breaks a rule.
+  assertBiographyMomentsValid();
   const biographyJsonLd = buildBiographyJsonLd(locale);
   const isArabic = locale === "ar";
   const portraitAlt = home("hero.portraitLabel");
 
+  // Precedence: dev preview, then the approved gallery, then the sample one.
+  const gallery = momentsPreview ?? content.moments ?? placeholderMoments;
+  const galleryIsPlaceholder = !momentsPreview && !content.moments && Boolean(placeholderMoments);
+
   return (
     <main id="main-content" className="content-page biography-page" data-biography-page>
+      {/* One breadcrumb rule across every internal page (UI/UX committee K9). */}
+      <Breadcrumbs items={[
+        { name: nav("home"), href: getLocalizedPath(locale, "") },
+        { name: ui("biography.title") }
+      ]} />
       <section className="content-hero" aria-labelledby="biography-title">
         <div className="site-container content-hero__grid">
           <div>
@@ -56,13 +61,13 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
         </div>
       </section>
 
-      {/* The whole visible body of the page: the two approved paragraphs. */}
-      <section className="content-section content-section--surface" aria-labelledby="biography-overview">
-        <div className="site-container content-section__inner">
-          <div>
-            <h2 id="biography-overview">{ui("biography.overview")}</h2>
-          </div>
-          <div className="content-section__body">
+      {/* The whole visible body of the page: the two approved paragraphs,
+          aligned to the hero text's inline-start edge. The section stays
+          labelled for screen readers through the visually hidden H2. */}
+      <section className="content-section content-section--surface biography-overview" aria-labelledby="biography-overview">
+        <div className="site-container">
+          <h2 id="biography-overview" className="sr-only">{ui("biography.overview")}</h2>
+          <div className="biography-overview__body">
             {content.summary.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
@@ -70,7 +75,8 @@ export async function BiographyPage({ locale }: BiographyPageProps) {
         </div>
       </section>
 
-      <BiographyLinks locale={locale} ui={ui} />
+      <MomentsGallery moments={gallery} placeholder={galleryIsPlaceholder} />
+
       {biographyJsonLd ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(biographyJsonLd) }} />
       ) : null}

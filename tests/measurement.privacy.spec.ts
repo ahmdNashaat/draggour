@@ -1,15 +1,24 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Request } from "@playwright/test";
 
 const privateName = "Private Measurement Test 918273";
 const privateEmail = "measurement-private-918273@example.test";
 const privateMedicalText = "Private measurement medical detail 918273";
+
+/**
+ * A page's own idle traffic in production: Next.js prefetches the routes its
+ * links point at (`?_rsc=`) and settles lazy chunks under `/_next/static/`.
+ * Neither can carry consultation input — the leak this test watches for.
+ */
+function isIdlePageTraffic(request: Request): boolean {
+  return request.url().includes("?_rsc=") || new URL(request.url()).pathname.startsWith("/_next/static/");
+}
 
 test("consultation information stays out of analytics, URLs, metadata, and JSON-LD", async ({ page }) => {
   const externalScripts: string[] = [];
   const interactionRequests: string[] = [];
   let captureInteractionRequests = false;
   page.on("request", (request) => {
-    if (captureInteractionRequests) interactionRequests.push(request.url());
+    if (captureInteractionRequests && !isIdlePageTraffic(request)) interactionRequests.push(request.url());
     if (request.resourceType() !== "script") return;
     const requestUrl = new URL(request.url());
     if (requestUrl.hostname !== "localhost" && requestUrl.hostname !== "127.0.0.1") {

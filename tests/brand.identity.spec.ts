@@ -56,15 +56,16 @@ test("the standalone emblem keeps its English alt in both locales", () => {
   expect(LOGO_STANDALONE_ALT).toBe("AGGOUR - Interventional Neuroradiology");
 });
 
-test("the favicon set is rendered from the header emblem artwork", async ({ page }) => {
-  const [iconSvg, emblem] = await Promise.all([
+test("the favicon set is rendered from the simplified small-size mark", async ({ page }) => {
+  const [iconSvg, mark] = await Promise.all([
     page.request.get("/icon.svg"),
-    page.request.get("/brand/aggour-emblem-flat.svg"),
+    page.request.get("/brand/aggour-favicon-simplified.svg"),
   ]);
   expect(iconSvg.status()).toBe(200);
-  expect(emblem.status()).toBe(200);
-  // The SVG favicon IS the header emblem, byte for byte (D-044).
-  expect(await iconSvg.text()).toBe(await emblem.text());
+  expect(mark.status()).toBe(200);
+  // The SVG favicon IS the simplified small-size mark, byte for byte (D-054):
+  // the full emblem turned to texture at 16px, so tab icons get their own file.
+  expect(await iconSvg.text()).toBe(await mark.text());
 
   // favicon.ico carries the same mark at the classic icon sizes.
   const ico = await (await page.request.get("/favicon.ico")).body();
@@ -90,21 +91,36 @@ test("the favicon set is rendered from the header emblem artwork", async ({ page
   }
 });
 
-test("the home hero carries the original artwork at 280px or wider", async ({ page }) => {
+test("the home hero lockup is the live-text stacked logo", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/en");
 
-  const heroLogo = page.locator(".home-hero__logo");
-  await expect(heroLogo).toHaveAttribute("src", /aggour-brain-and-spine-emblem\.png/);
-  await expect(heroLogo).toBeVisible();
-  const renderedWidth = await heroLogo.evaluate((image) => (image as HTMLImageElement).getBoundingClientRect().width);
-  expect(renderedWidth).toBeGreaterThanOrEqual(280);
+  for (const locale of locales) {
+    await page.goto(`/${locale}`);
+
+    const lockup = page.locator(".home-hero .logo--stacked.logo--hero");
+    await expect(lockup).toBeVisible();
+    await expect(lockup.locator(".logo__emblem")).toHaveAttribute("src", /aggour-emblem-flat\.svg/);
+    await expect(lockup.locator(".logo__name")).toHaveText(logoNameFor(locale));
+
+    const taglines = lockup.locator(".logo__tagline-line");
+    await expect(taglines).toHaveCount(2);
+    await expect(taglines.nth(0)).toHaveText("Interventional Neuroradiology");
+    await expect(taglines.nth(1)).toHaveText("Brain & Spine");
+
+    const emblem = await lockup.locator(".logo__emblem").boundingBox();
+    expect(emblem?.height).toBe(96);
+    const box = await lockup.boundingBox();
+    expect(box?.width).toBeLessThanOrEqual(241);
+  }
 });
 
 test("retired logo, favicon and social assets are no longer served", async ({ page }) => {
   const retired = [
     "/brand/logo-primary.png",
     "/brand/logo-monogram.png",
+    "/brand/aggour-brain-and-spine-emblem.png",
+    "/brand/aggour-emblem-mono-dark.svg",
+    "/brand/aggour-emblem-mono-dark-1024.png",
   ];
 
   for (const path of retired) {

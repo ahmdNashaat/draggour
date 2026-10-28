@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 
 import { ConditionDetailPage } from "@/components/conditions/ConditionDetailPage";
 import { PlaceholderPage } from "@/components/site/PlaceholderPage";
-import { getPatientCondition, patientConditions } from "@/content/patient-conditions";
+import { getConditionMetaDescription, getPatientCondition, patientConditions } from "@/content/patient-conditions";
 import type { PlaceholderPageKey } from "@/content/page-placeholders";
+import { assertConditionMediaValid } from "@/lib/condition-media";
 import { resolveRouteLocale } from "@/lib/route-locale";
 import { getLocaleMetadata } from "@/lib/seo/metadata";
 import { getPlaceholderMetadata } from "@/lib/seo/placeholder-metadata";
@@ -12,6 +13,9 @@ import { getPlaceholderMetadata } from "@/lib/seo/placeholder-metadata";
 export const dynamicParams = false;
 
 export function generateStaticParams() {
+  // Build-time gate: an illustration or video that fails validation stops
+  // `next build` instead of reaching a published page.
+  assertConditionMediaValid();
   return patientConditions.map(({ slug }) => ({ slug }));
 }
 
@@ -27,7 +31,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   if (!condition) return {};
 
   const content = condition[locale === "ar" ? "ar" : "en"];
-  const description = content.blocks.flatMap((block) => block.paragraphs ?? [])[0] ?? content.title;
+  // One sentence, at most 160 characters, never the emergency lead.
+  const description = getConditionMetaDescription(content) || content.title;
 
   return getLocaleMetadata(locale, `/conditions/${condition.slug}`, {
     title: content.title,

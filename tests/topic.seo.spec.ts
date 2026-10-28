@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-import { getConditionListing, patientConditions } from "../content/patient-conditions";
+import { getConditionMetaDescription, getConditionListing, patientConditions } from "../content/patient-conditions";
+import { stripConditionMarkup } from "../lib/condition-text";
 
 const locales = ["en", "ar"] as const;
 
@@ -50,8 +51,12 @@ for (const locale of locales) {
       expect(heading).toBeTruthy();
       expect(title.replace(/\s+/g, " ")).toContain(heading.replace(/\s+/g, " "));
       const content = condition[locale];
-      const expectedDescription = content.blocks.flatMap((block) => block.paragraphs ?? [])[0];
-      expect(description).toBe(expectedDescription);
+      // The meta description is one sentence, cut to <= 160 characters, and it
+      // never carries the emergency lead.
+      const metaDescription = description ?? "";
+      expect(metaDescription).toBe(getConditionMetaDescription(content));
+      expect(metaDescription.length).toBeLessThanOrEqual(160);
+      if (content.urgentLead) expect(metaDescription).not.toContain(content.urgentLead);
       await expect(page.locator('meta[name="keywords"]')).toHaveAttribute(
         "content",
         content.searchTerms.join(","),
@@ -61,8 +66,15 @@ for (const locale of locales) {
       await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(1);
       await expect(page.locator(".condition-medical-disclaimer")).toBeVisible();
 
-      const anchors = (await page.locator("main a[href]").allTextContents()).map((text) => text.trim());
-      expect(anchors.every((text) => text.length > 0 && text.length < 60)).toBe(true);
+      // Every link names itself; the "other conditions" links are named by the
+      // approved condition titles, which can exceed the guard and stay
+      // descriptive, so they are exempt by name rather than by length.
+      // Guard raised from 60 to 80 (D-049): the AR AVM title is 77 characters.
+      const conditionTitles = new Set(patientConditions.map((item) => item[locale].title));
+      const anchors = (await page.locator("main a[href]").allTextContents())
+        .map((text) => text.trim())
+        .filter((text) => !conditionTitles.has(text));
+      expect(anchors.every((text) => text.length > 0 && text.length < 80)).toBe(true);
       expect(anchors.join(" ")).not.toMatch(/best|leading|world.?class|number one|#1/i);
     }
 
@@ -77,8 +89,8 @@ test("the topic graph connects Home, Biography, Conditions, E-learning and consu
     await page.goto(`/${locale}`);
     const homeTitle = await page.title();
     const homeDescription = await page.locator('meta[name="description"]').getAttribute("content");
-    expect(homeTitle).toContain(locale === "ar" ? "الأشعة العصبية التداخلية" : "Interventional Neuroradiologist");
-    expect(homeDescription).toContain(locale === "ar" ? "الأشعة العصبية التداخلية" : "Interventional Neuroradiologist");
+    expect(homeTitle).toContain(locale === "ar" ? "خبير الأشعة التداخلية وقسطرة المخ العلاجية" : "Interventional Neuroradiologist");
+    expect(homeDescription).toContain(locale === "ar" ? "خبير الأشعة التداخلية وقسطرة المخ العلاجية" : "Interventional Neuroradiologist");
     await expect(page.locator(`main a[href="/${locale}/biography"]`).first()).toHaveAttribute("href", `/${locale}/biography`);
 
     // Every home card links straight to a current document slug: no legacy slug
@@ -97,13 +109,18 @@ test("the topic graph connects Home, Biography, Conditions, E-learning and consu
     await expect(page.getByRole("link", { name: locale === "ar" ? "استكشف صفحة التعليم الطبي" : "View the E-learning page" })).toHaveAttribute("href", `/${locale}/e-learning`);
     await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(3);
 
+    // Closing quick-link sections are removed; the topic graph is held by the
+    // header and footer navigation on every page.
     await page.goto(`/${locale}/biography`);
-    await expect(page.locator(`main a[href="/${locale}/conditions"]`)).toHaveCount(1);
-    await expect(page.locator(`main a[href="/${locale}/e-learning"]`)).toHaveCount(1);
-    await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(1);
+    await expect(page.locator(`main a[href="/${locale}/conditions"]`)).toHaveCount(0);
+    await expect(page.locator(`main a[href="/${locale}/e-learning"]`)).toHaveCount(0);
+    await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(0);
 
     await page.goto(`/${locale}/conditions`);
     await expect(page.locator(`main a[href^="/${locale}/conditions/"]`)).toHaveCount(10);
+    await expect(page.locator("main .content-next-links")).toHaveCount(0);
+    await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(0);
+    await expect(page.locator(`main a[href="/${locale}/biography"]`)).toHaveCount(0);
     await expect(page.locator(".sticky-cta")).toHaveCount(0);
 
     // Hub structure: one H1 for the page, one linked H2 per condition, and each
@@ -129,18 +146,27 @@ test("the topic graph connects Home, Biography, Conditions, E-learning and consu
       await expect(heading).toHaveAttribute("href", `/${locale}/conditions/${condition.slug}`);
       await expect(heading).toHaveText(content.title);
 
-      // The hub repeats the whole document: block headings, paragraphs and
-      // bullets, all copied unchanged from the source and in source order.
+      // The hub repeats the whole condition: the same one-paragraph document,
+      // with the emergency lead ahead of it where the condition has one. One
+      // H2 per condition and nothing deeper, so the outline stays honest.
       const entry = page.locator(".condition-index__item").nth(index);
-      const { blocks } = content;
-      await expect(entry.locator("h3")).toHaveText(
-        blocks.flatMap((block) => (block.heading ? [block.heading] : [])),
-      );
-      await expect(entry.locator("p")).toHaveText(blocks.flatMap((block) => block.paragraphs ?? []));
-      await expect(entry.locator("li")).toHaveText(blocks.flatMap((block) => block.items ?? []));
+      await expect(entry.locator("h2")).toHaveCount(1);
+      await expect(entry.locator("h3")).toHaveCount(0);
+      await expect(entry.locator("p")).toHaveText([
+        ...(content.urgentLead ? [content.urgentLead] : []),
+        stripConditionMarkup(content.body),
+      ]);
+      await expect(entry.locator("li")).toHaveText([]);
     }
-    await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(1);
-    await expect(page.locator(`main a[href="/${locale}/biography"]`)).toHaveCount(1);
+  }
+});
+
+test("Conditions, Contact and E-learning have no closing quick-link sections", async ({ page }) => {
+  for (const locale of locales) {
+    for (const route of ["conditions", "contact", "e-learning"]) {
+      await page.goto(`/${locale}/${route}`);
+      await expect(page.locator("main .content-next-links")).toHaveCount(0);
+    }
   }
 });
 

@@ -1,3 +1,18 @@
+/*
+ * Photos for the "Moments" gallery (`moments` below). Rules for whoever adds
+ * them later:
+ * - Originals at least 1600px wide, WebP after export, about 300KB or less
+ *   each, same colour grade, no watermarks.
+ * - One caption per photo in both languages: event, city, year, plus one or
+ *   two sentences, about 35 words at most.
+ * - No patient photos or scans. Other people visible only with their consent.
+ *   Own or licensed images only.
+ * - Set a `focus` point on every photo so the crop never cuts a face.
+ * Files live under public/biography/moments/. English and Arabic must list the
+ * same photos in the same order; `lib/biography-moments.ts` fails the build
+ * and the test suite otherwise.
+ */
+
 import type { Locale } from "@/content/site";
 // Relative on purpose: the test suite loads this file through a dynamic
 // import, where the "@/" alias is not mapped at runtime.
@@ -13,6 +28,35 @@ export type BiographyItem = Readonly<{
   internalOnly?: boolean;
 }>;
 
+/** One photo in the "Moments" gallery, with its own localized copy. */
+export type BiographyMoment = Readonly<{
+  /** Public path, e.g. `public/biography/moments/<name>.webp`. */
+  src: string;
+  /** Intrinsic width in pixels: reserves the box, no layout shift. */
+  width: number;
+  /** Intrinsic height in pixels. */
+  height: number;
+  /** Describes the scene; never repeats the caption. */
+  alt: string;
+  /** One line of context: "City · Year · Event". */
+  meta: string;
+  /** Two to three lines, about 35 words, hard limit 45. */
+  caption: string;
+  /** Crop point from 0 to 100, rendered as `object-position`. */
+  focus?: Readonly<{ x: number; y: number }>;
+}>;
+
+/**
+ * The optional gallery block. Absent until the doctor supplies photos and
+ * captions: when it is missing or empty the page renders nothing for it.
+ */
+export type BiographyMoments = Readonly<{
+  /** Proposed, pending the doctor's approval. */
+  title: string;
+  intro?: string;
+  moments: readonly BiographyMoment[];
+}>;
+
 export type BiographyContent = Readonly<{
   /**
    * The two approved summary paragraphs rendered on the page. Final copy
@@ -20,6 +64,12 @@ export type BiographyContent = Readonly<{
    * below them inside the collapsed "Full CV" disclosure.
    */
   summary: readonly [string, string];
+  /**
+   * Captioned photo gallery, rendered between the Professional Overview and
+   * the navigation band. Optional: while no photos are approved the key is
+   * absent, and the page renders no section for it.
+   */
+  moments?: BiographyMoments;
   overview: Readonly<{
     source: string;
     keyFacts: readonly string[];

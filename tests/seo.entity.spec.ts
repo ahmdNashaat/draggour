@@ -53,9 +53,9 @@ for (const locale of ["en", "ar"] as const satisfies readonly Locale[]) {
     expect(biographyPersons[0].knowsAbout?.[0]).toBe("Interventional Neuroradiology");
     const medicalConditions = biographyPersons[0].knowsAbout?.slice(1) ?? [];
     expect(medicalConditions.map((item) => typeof item === "string" ? item : item.name)).toEqual([
-      "Cerebral and spinal angiography",
+      "Diagnostic cerebral catheter angiography",
       "Brain Aneurysm",
-      "Arteriovenous Malformation (AVM)",
+      "Brain and spinal AVM treatment by catheter",
       "Mechanical thrombectomy for acute stroke",
       "Dural and carotid-cavernous fistula embolisation",
       "Venous sinus stenting",

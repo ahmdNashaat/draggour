@@ -80,7 +80,9 @@ test("mobile navigation and language switching are usable", async ({ page }) => 
   await page.keyboard.press("Escape");
   await expect(menuButton).toHaveAttribute("aria-expanded", "false");
 
-  await page.getByRole("link", { name: "Switch to Arabic", exact: true }).click();
+  // The accessible name carries the visible word plus the screen-reader
+  // context phrase (WCAG 2.5.3), so this matches on the phrase, not exactly.
+  await page.getByRole("link", { name: "Switch to Arabic" }).click();
   await expect(page).toHaveURL(/\/ar$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
@@ -198,7 +200,9 @@ test("professional, educational, contact and legal pages remain localized and re
   await expect(page.getByRole("heading", { name: "Learning links", exact: true })).toBeVisible();
   await expect(page.locator("[data-learning-link]")).not.toHaveCount(0);
   await expect(page.locator(".learning-link--primary")).toHaveCount(1);
-  await expect(page.getByRole("link", { name: "Read Biography", exact: true })).toHaveAttribute("href", "/en/biography");
+  // Closing quick-link sections are removed (D-050/D-053); the topic graph is
+  // held by the header and footer navigation on every page.
+  await expect(page.locator("main .content-next-links")).toHaveCount(0);
 
   await page.goto("/en/contact");
   await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);

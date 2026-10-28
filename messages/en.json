@@ -89,29 +89,28 @@
       "backToConditions": "Back to Conditions",
       "emergencyTitle": "Emergency guidance",
       "emergencyBody": "This website is not an emergency service. Contact local emergency services and attend the nearest hospital. Do not wait for a response from this website.",
-      "medicalDisclaimerCta": "Read the medical disclaimer"
+      "medicalDisclaimerCta": "Read the medical disclaimer",
+      "indexLabel": "Conditions index",
+      "otherConditions": "Other conditions",
+      "actionsLabel": "Next steps",
+      "playVideo": "Play video: {title}",
+      "readMore": "Read more",
+      "showLess": "Show less"
     },
     "eLearningPage": {
       "eyebrow": "Physician education",
       "title": "E-learning for Physicians",
       "description": "Educational videos and resources for physicians in interventional neuroradiology.",
       "learningHeading": "Learning links",
-      "newTabHint": "opens in a new tab",
-      "biographyCta": "Read Biography",
-      "consultationCta": "View Remote Consultation",
-      "backHome": "Return home"
+      "newTabHint": "opens in a new tab"
     },
     "contactPage": {
       "eyebrow": "Professional contact",
       "title": "Contact",
       "description": "A clear route to consultation and professional links.",
       "intro": "Choose the route that best matches your enquiry.",
-      "routeCta": "View Remote Consultation",
       "linksHeading": "Professional links",
-      "newTabHint": "opens in a new tab",
-      "biographyCta": "Read Biography",
-      "legalCta": "Read Legal & Privacy",
-      "backHome": "Return home"
+      "newTabHint": "opens in a new tab"
     },
     "legalPage": {
       "eyebrow": "Legal information",

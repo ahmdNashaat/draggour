@@ -1,41 +1,37 @@
 type EmergencyNoticeProps = Readonly<{
-  id: string;
-  title: string;
   body: string;
+  /** Localized accessible name for the callout, e.g. "Emergency guidance". */
+  label: string;
 }>;
 
 /**
- * Emergency guidance for a condition page: an outlined callout on a cool
- * surface, so urgency reads through structure and contrast rather than a red
- * fill. The copy is the approved general wording and never carries a
- * country-specific number.
+ * Calm informational guidance for a condition. It carries no heading, so a
+ * condition page keeps the outline H1 (page) → one H2 (condition).
  */
-export function EmergencyNotice({ id, title, body }: EmergencyNoticeProps) {
+export function EmergencyNotice({ body, label }: EmergencyNoticeProps) {
+  const [lead, rest] = splitFirstSentence(body);
+
   return (
-    <section className="content-section condition-emergency" aria-labelledby={id}>
-      <div className="site-container">
-        <div className="emergency-notice">
-          <svg
-            aria-hidden="true"
-            className="emergency-notice__icon"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M12 3.75 21.25 20.25H2.75L12 3.75Z"
-              strokeLinejoin="round"
-              strokeWidth="1.5"
-              stroke="currentColor"
-            />
-            <path d="M12 10.25v4.5" strokeLinecap="round" strokeWidth="1.5" stroke="currentColor" />
-            <circle cx="12" cy="17.5" fill="currentColor" r="0.9" />
-          </svg>
-          <div className="emergency-notice__body">
-            <h2 id={id}>{title}</h2>
-            <p>{body}</p>
-          </div>
-        </div>
+    <aside className="condition-emergency-lead emergency-notice" aria-label={label}>
+      <div className="emergency-notice__body">
+        <p>
+          <strong className="emergency-notice__lead">{lead}</strong>
+          {rest ? <> {rest}</> : null}
+        </p>
       </div>
-    </section>
+    </aside>
   );
+}
+
+/**
+ * Split `urgentLead` at its first sentence end. The data stays plain text —
+ * only the presentation is split — and a lead with no terminator keeps its
+ * whole body as the bold part.
+ */
+function splitFirstSentence(body: string): readonly [string, string] {
+  const match = /^(.*?[.!?…])(\s+)([\s\S]*)$/.exec(body.trim());
+
+  if (!match) return [body.trim(), ""];
+
+  return [match[1], match[3].trim()];
 }

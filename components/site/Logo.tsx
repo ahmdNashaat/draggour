@@ -28,7 +28,6 @@ const ARABIC_SCRIPT = /[\u0600-\u06ff]/u;
 
 const EMBLEM_SRC = {
   color: "/brand/aggour-emblem-flat.svg",
-  dark: "/brand/aggour-emblem-mono-dark.svg",
   light: "/brand/aggour-emblem-mono-light.svg",
 } as const;
 
@@ -36,7 +35,7 @@ const EMBLEM_SRC = {
 const EMBLEM_DIMENSION = 751;
 
 export type LogoVariant = "horizontal" | "stacked" | "emblem";
-export type LogoTone = "color" | "light" | "dark";
+export type LogoTone = "color" | "light";
 
 type LogoProps = Readonly<{
   variant: LogoVariant;
@@ -45,6 +44,8 @@ type LogoProps = Readonly<{
   name?: string;
   /** Extra classes for the lockup's own element (the brand link stays with its caller). */
   className?: string;
+  /** Size tier: "hero" renders the home-hero scale (96px emblem, 2.25rem name). */
+  size?: "hero";
   preload?: boolean;
 }>;
 
@@ -61,8 +62,8 @@ type LogoProps = Readonly<{
  * an Arabic wordmark carries its own `lang="ar" dir="rtl"` so it is announced
  * and shaped as Arabic while the emblem stays first in the box order.
  */
-export function Logo({ variant, tone, name = LOGO_NAME, className, preload }: LogoProps) {
-  const lockupClassName = ["logo", `logo--${variant}`, `logo--${tone}`, className].filter(Boolean).join(" ");
+export function Logo({ variant, tone, name = LOGO_NAME, className, size, preload }: LogoProps) {
+  const lockupClassName = ["logo", `logo--${variant}`, size ? `logo--${size}` : null, `logo--${tone}`, className].filter(Boolean).join(" ");
   const isArabicName = ARABIC_SCRIPT.test(name);
 
   return (

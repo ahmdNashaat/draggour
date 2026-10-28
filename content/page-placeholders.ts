@@ -50,7 +50,7 @@ const pageDefinitions: Record<PlaceholderPageKey, PageDefinition> = {
   },
   angiography: {
     pathname: "/conditions/angiography",
-    title: "Cerebral and spinal angiography",
+    title: "Diagnostic cerebral catheter angiography",
     description: "Cette page n’est pas disponible dans la version actuelle.",
     notice: "Des informations seront disponibles ici.",
   },

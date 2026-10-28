@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" viewBox="0 0 1000 1000" width="1000" height="1000" role="img" aria-labelledby="t">
+  <title id="t">Aggour emblem (small sizes)</title>
+  <g id="emblem" transform="translate(500 500) scale(1.04822)">
+    <g id="emblem-disc" inkscape:groupmode="layer" inkscape:label="Disc"><circle r="477.0" fill="#0b2a44"/></g>
+    <g id="brain-outline" inkscape:groupmode="layer" inkscape:label="Brain outline"><g fill="none" stroke="#f7f8fa" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"><path d="M15 -72.46L15 -328A106.56 106.56 0 0 1 181.87 -286.85A108.23 108.23 0 0 1 292.32 -151.68A118.05 118.05 0 0 1 323.46 36.17A110.21 110.21 0 0 1 263.12 203.37A100.19 100.19 0 0 1 142.58 310.98A79.8 79.8 0 0 1 15 328L15 72.46"/><path d="M-15 -72.46L-15 -328A106.56 106.56 0 0 0 -181.87 -286.85A108.23 108.23 0 0 0 -292.32 -151.68A118.05 118.05 0 0 0 -323.46 36.17A110.21 110.21 0 0 0 -263.12 203.37A100.19 100.19 0 0 0 -142.58 310.98A79.8 79.8 0 0 0 -15 328L-15 72.46"/></g></g>
+    <g id="brain-hub" inkscape:groupmode="layer" inkscape:label="Hub"><circle r="80" fill="#0b2a44" stroke="#f7f8fa" stroke-width="34"/><circle r="34" fill="#59C7D4"/></g>
+  </g>
+</svg>

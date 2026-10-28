@@ -19,7 +19,7 @@ export const siteIdentity = {
   },
   professionalTitle: {
     en: "Consultant Interventional Neuroradiologist",
-    ar: "استشاري الأشعة العصبية التداخلية",
+    ar: "خبير الأشعة التداخلية وقسطرة المخ العلاجية",
     fr: "Consultant Interventional Neuroradiologist",
   },
   description: "Official website of Dr. Mohamed Aggour.",

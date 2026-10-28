@@ -1,6 +1,7 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import { getBiographyContent } from "../content/biography";
+import { devGalleryServed } from "./helpers/server-mode";
 
 type Locale = "en" | "ar";
 
@@ -49,14 +50,9 @@ async function expectNoHorizontalOverflow(page: Page) {
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
 }
 
-async function expectAtLeast(locator: Locator, minimum: number, label: string) {
-  const count = await locator.count();
-  expect(count, `${label}: expected at least ${minimum} items, received ${count}`).toBeGreaterThanOrEqual(minimum);
-}
-
 /** The summary paragraphs are approved word for word; never paraphrased in the view. */
 async function expectApprovedSummary(page: Page, locale: Locale) {
-  const paragraphs = page.locator('section[aria-labelledby="biography-overview"] .content-section__body > p');
+  const paragraphs = page.locator('section[aria-labelledby="biography-overview"] .biography-overview__body > p');
   await expect(paragraphs).toHaveCount(2);
 
   const rendered = (await paragraphs.allInnerTexts()).map((value) => value.trim());
@@ -89,18 +85,31 @@ test("Biography shows the approved summary and nothing else in English", async (
   await expectApprovedSummary(page, "en");
   await expectSummaryOnly(page);
 
-  // The section outline stays a single H1 + one H2.
+  // The section outline has the hero H1, the screen-reader overview H2, and
+  // in development the moments gallery H2; a production build serves no
+  // preview gallery so the page stays statically generated (D-059).
+  const galleryServed = await devGalleryServed();
   await expect(page.locator("main h1")).toHaveCount(1);
-  await expect(page.locator("main h2")).toHaveCount(1);
-  await expect(page.locator('main h2#biography-overview')).toContainText("Professional Overview");
+  await expect(page.locator("main h2")).toHaveCount(galleryServed ? 2 : 1);
+  await expect(page.locator('main h2#biography-overview')).toHaveText("Professional Overview");
+  if (galleryServed) {
+    await expect(page.locator('main h2#bio-moments-title')).toHaveText("Moments from practice and teaching");
+  } else {
+    await expect(page.locator('main h2#bio-moments-title')).toHaveCount(0);
+  }
+  await expectVisuallyHidden(page, "main h2#biography-overview");
 
-  // Reading measure: the summary never fills the whole wide grid column.
-  const measure = await page.locator(".content-section__body").evaluate((element) => element.getBoundingClientRect().width);
-  expect(measure).toBeLessThanOrEqual(600);
+  // Reading measure: each paragraph stays within a readable measure.
+  const measures = await page.locator(".biography-overview__body > p").evaluateAll((elements) =>
+    elements.map((element) => element.getBoundingClientRect().width)
+  );
+  for (const measure of measures) {
+    expect(measure).toBeLessThanOrEqual(600);
+  }
 
-  // Navigation links stay reachable and operable from the keyboard.
-  const conditionsCta = page.locator('.content-next-links a[href="/en/conditions"]');
-  await expectAtLeast(page.locator(".content-next-links a[href]"), 4, "biography navigation links");
+  // The header navigation stays reachable and operable from the keyboard.
+  const conditionsCta = page.locator('#primary-navigation a[href="/en/conditions"]');
+  await expect(conditionsCta).toBeVisible();
   await conditionsCta.focus();
   await expect(conditionsCta).toBeFocused();
   await page.keyboard.press("Enter");
@@ -118,12 +127,19 @@ test("Biography shows the same approved summary in Arabic, right to left", async
   await expectApprovedSummary(page, "ar");
   await expectSummaryOnly(page);
 
-  await expect(page.locator('main h2#biography-overview')).toContainText("نبذة مهنية");
+  const galleryServed = await devGalleryServed();
+  await expect(page.locator("main h1")).toHaveCount(1);
+  await expect(page.locator("main h2")).toHaveCount(galleryServed ? 2 : 1);
+  await expect(page.locator('main h2#biography-overview')).toHaveText("نبذة مهنية");
+  if (galleryServed) {
+    await expect(page.locator('main h2#bio-moments-title')).toHaveText("من الممارسة والتدريس");
+  } else {
+    await expect(page.locator('main h2#bio-moments-title')).toHaveCount(0);
+  }
+  await expectVisuallyHidden(page, "main h2#biography-overview");
 
   const bodyText = await page.locator("body").innerText();
   expect(bodyText).toMatch(/[\u0600-\u06ff]/);
-
-  await expectAtLeast(page.locator(".content-next-links a[href]"), 4, "biography navigation links");
 
   await expectNoHorizontalOverflow(page);
 });
@@ -183,5 +199,143 @@ test("Biography stays free of horizontal overflow across the required width matr
     await page.setViewportSize({ width: 844, height: 390 });
     await page.goto(`/${locale}/biography`);
     await expectNoHorizontalOverflow(page);
+  }
+});
+
+/** A screen-reader-only heading: in the outline, but drawn at 1×1 px. */
+async function expectVisuallyHidden(page: Page, selector: string) {
+  const heading = page.locator(selector);
+  await expect(heading).toHaveClass(/sr-only/);
+  const box = await heading.evaluate((node) => node.getBoundingClientRect());
+  expect(box.width, `${selector}: drawn width`).toBeLessThanOrEqual(1);
+  expect(box.height, `${selector}: drawn height`).toBeLessThanOrEqual(1);
+}
+
+/** The inline-start edge of the first match, mirrored with the page direction. */
+async function startEdge(page: Page, selector: string) {
+  const rtl = (await page.locator("html").getAttribute("dir")) === "rtl";
+  return page.locator(selector).first().evaluate((node, isRtl) => {
+    const box = node.getBoundingClientRect();
+    return isRtl ? box.right : box.left;
+  }, rtl);
+}
+
+/** Part B: the compact hero, the larger reading text and its measured contrast. */
+test("the polished hero and the overview keep their rhythm, size and contrast", async ({ page }) => {
+  const expected = {
+    en: { fontSize: "17px", lineHeight: "30.6px" },
+    ar: { fontSize: "18px", lineHeight: "35.1px" },
+  } as const;
+
+  for (const locale of locales) {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`/${locale}/biography`);
+    await expect(page.locator("[data-biography-page]")).toBeVisible();
+
+    // Hero: adaptive height at 1440, with the portrait, its shadow and the
+    // eyebrow untouched.
+    const hero = await page.locator(".content-hero").boundingBox();
+    expect(hero, locale).not.toBeNull();
+    expect(hero!.height, `${locale}: hero height at 1440`).toBeGreaterThan(450);
+    expect(hero!.height, `${locale}: hero height at 1440`).toBeLessThan(620);
+
+    await expect(page.locator(".content-hero__portrait")).toBeVisible();
+    await expect(page.locator(".content-hero .eyebrow")).toHaveCount(1);
+    await expect(page.locator(".content-hero__lead")).toBeVisible();
+    const shadow = await page.locator(".content-hero__portrait").evaluate((element) => getComputedStyle(element).boxShadow);
+    expect(shadow, `${locale}: portrait shadow`).not.toBe("none");
+
+    // Professional Overview: per-language body size, line height and at least
+    // 4.5:1 contrast on the surface behind it.
+    const reading = await page.locator(".biography-overview__body > p").first().evaluate((element) => {
+      const parse = (value: string) => (value.match(/[0-9.]+/g) ?? []).slice(0, 3).map(Number);
+      const channel = (value: number) => {
+        const s = value / 255;
+        return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+      };
+      const luminance = ([r, g, b]: number[]) =>
+        0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+
+      const style = getComputedStyle(element);
+      let node: Element | null = element;
+      let background = style.backgroundColor;
+      while (node && (background === "rgba(0, 0, 0, 0)" || background === "transparent")) {
+        node = node.parentElement;
+        background = node ? getComputedStyle(node).backgroundColor : "rgb(0, 0, 0)";
+      }
+
+      const text = luminance(parse(style.color));
+      const surface = luminance(parse(background));
+      const ratio = (Math.max(text, surface) + 0.05) / (Math.min(text, surface) + 0.05);
+
+      return {
+        background,
+        color: style.color,
+        contrast: Math.round(ratio * 100) / 100,
+        fontSize: style.fontSize,
+        lineHeight: style.lineHeight,
+      };
+    });
+
+    expect(reading.fontSize, `${locale}: overview body size`).toBe(expected[locale].fontSize);
+    expect(reading.lineHeight, `${locale}: overview line height`).toBe(expected[locale].lineHeight);
+    expect(reading.contrast, `${locale}: overview contrast ${reading.color} on ${reading.background}`).toBeGreaterThanOrEqual(4.5);
+
+    // The reading measure stays capped: each paragraph never fills the whole column.
+    const measures = await page.locator(".biography-overview__body > p").evaluateAll((elements) =>
+      elements.map((element) => element.getBoundingClientRect().width)
+    );
+    for (const measure of measures) {
+      expect(measure, `${locale}: reading measure`).toBeLessThanOrEqual(600);
+    }
+
+    // Two columns from 60rem (1440 and 1024); single column below (768 and 390).
+    for (const width of [1440, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/${locale}/biography`);
+      const paragraphs = await page.locator(".biography-overview__body > p").evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const rect = node.getBoundingClientRect();
+          return { top: Math.round(rect.top), left: Math.round(rect.left), right: Math.round(rect.right) };
+        })
+      );
+      expect(paragraphs.length).toBe(2);
+      expect(Math.abs(paragraphs[0].top - paragraphs[1].top), `${locale} at ${width}: side by side`).toBeLessThanOrEqual(2);
+      if (locale === "ar") {
+        expect(paragraphs[0].left, `${locale} at ${width}: first column on the right`).toBeGreaterThan(paragraphs[1].left);
+      } else {
+        expect(paragraphs[0].left, `${locale} at ${width}: first column on the left`).toBeLessThan(paragraphs[1].left);
+      }
+    }
+
+    for (const width of [768, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/${locale}/biography`);
+      const paragraphs = await page.locator(".biography-overview__body > p").evaluateAll((nodes) =>
+        nodes.map((node) => Math.round(node.getBoundingClientRect().top))
+      );
+      expect(paragraphs.length).toBe(2);
+      expect(paragraphs[1], `${locale} at ${width}: stacked vertically`).toBeGreaterThan(paragraphs[0]);
+    }
+
+    // The paragraphs sit on the hero text's own inline-start edge — English at
+    // the left, Arabic at the right — and begin a compact gap under the
+    // hero's hairline divider.
+    for (const width of [1440, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/${locale}/biography`);
+      await expect(page.locator(".biography-overview__body > p").first()).toBeVisible();
+
+      const heroEdge = await startEdge(page, ".content-hero__grid > div");
+      const paragraphEdge = await startEdge(page, ".biography-overview__body > p");
+      expect(Math.abs(heroEdge - paragraphEdge), `${locale} at ${width}: start edges line up`).toBeLessThanOrEqual(1);
+
+      const gap = await page.locator(".biography-overview__body > p").first().evaluate((node) => {
+        const divider = (document.querySelector(".content-hero") as Element).getBoundingClientRect();
+        return node.getBoundingClientRect().top - divider.bottom;
+      });
+      const expectedGap = Math.min(Math.max(0.03 * width, 24), 40);
+      expect(Math.abs(gap - expectedGap), `${locale} at ${width}: gap under the divider (${gap}px)`).toBeLessThanOrEqual(2);
+    }
   }
 });

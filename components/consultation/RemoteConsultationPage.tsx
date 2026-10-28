@@ -1,10 +1,10 @@
-import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { WhatsappIcon } from "@/components/consultation/WhatsappIcon";
 import { getLocalizedPath, type Locale } from "@/content/site";
 import { getConsultationWhatsappUrl, isConsultationWhatsappConfigured, whatsappPlaceholder } from "@/content/whatsapp";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 const flowSteps = ["request", "coordination", "confirmation"] as const;
 
@@ -22,6 +22,7 @@ const isProductionBuild = process.env.NODE_ENV === "production";
  */
 export async function RemoteConsultationPage({ locale }: Readonly<{ locale: Locale }>) {
   const t = await getTranslations({ locale, namespace: "content.consultationPage" });
+  const nav = await getTranslations({ locale, namespace: "navigation" });
   const whatsappUrl = getConsultationWhatsappUrl(locale);
   const configured = isConsultationWhatsappConfigured();
   const showPending = !configured && !isProductionBuild;
@@ -34,6 +35,11 @@ export async function RemoteConsultationPage({ locale }: Readonly<{ locale: Loca
 
   return (
     <main id="main-content" className="consultation-page" data-consultation-page data-locale={locale}>
+      {/* One breadcrumb rule across every internal page (UI/UX committee K9). */}
+      <Breadcrumbs items={[
+        { name: nav("home"), href: getLocalizedPath(locale, "") },
+        { name: t("title") }
+      ]} />
       <section className="consultation-hero" aria-labelledby="consultation-title">
         <div className="site-container">
           <h1 id="consultation-title">{t("title")}</h1>
@@ -47,9 +53,6 @@ export async function RemoteConsultationPage({ locale }: Readonly<{ locale: Loca
             <h2 id="consultation-emergency-title" className="sr-only">
               {t("emergency.heading")}
             </h2>
-            <span className="consultation-emergency__icon" aria-hidden="true">
-              <TriangleAlert strokeWidth={1.75} />
-            </span>
             <p className="consultation-emergency__text">
               <strong className="consultation-emergency__lead">{t("emergency.body")}</strong>{" "}
               {t("emergency.local")} {t("emergency.hospital")} {t("emergency.stop")}

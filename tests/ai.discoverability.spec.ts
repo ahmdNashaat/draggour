@@ -63,7 +63,11 @@ test("core identity and topical passages are present in crawlable page HTML", as
       expect(html).toContain(condition.slug);
       const content = condition[locale];
       expect(html).toContain(content.title);
-      for (const paragraph of content.blocks.flatMap((block) => block.paragraphs ?? [])) expect(html).toContain(paragraph);
+      // The approved copy ships as one paragraph carrying inline markers: every
+      // run of plain text between two markers must be crawlable as written.
+      for (const segment of content.body.split(/\*\*|!!/)) {
+        if (segment.length > 0) expect(html).toContain(segment);
+      }
       expect(html).toContain(`/${locale}/remote-consultation`);
       expect(html).toContain(`/${locale}/legal`);
     }

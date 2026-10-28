@@ -22,7 +22,7 @@ test("all ten condition pages keep the supplied copy, review label, disclaimer a
       await expect(page.locator(".condition-reviewed-by")).toHaveText(locale === "en"
         ? "Reviewed by Dr. Mohamed Aggour · Last reviewed 4 October 2026"
         : "راجعه د. محمد عجور · آخر مراجعة 4 أكتوبر 2026");
-      await expect(page.locator(".condition-document__block").first()).toBeVisible();
+      await expect(page.locator(".condition-paragraph").first()).toBeVisible();
       await expect(page.locator(`main a[href="/${locale}/conditions"]`)).toHaveCount(2);
       await expect(page.locator(`main a[href="/${locale}/remote-consultation"]`)).toHaveCount(1);
       await expect(page.locator(`main a[href="/${locale}/legal"]`)).toHaveCount(1);
@@ -36,8 +36,14 @@ test("all ten condition pages keep the supplied copy, review label, disclaimer a
         : "تشرح هذه الصفحة الحالة بشكل عام، وليست نصيحة طبية لحالتك الخاصة");
       expect(pageText).not.toContain("يُؤكَّد مكان إجراء الدكتور عجور");
 
-      const anchors = (await page.locator("main a[href]").allTextContents()).map((text) => text.trim());
-      expect(anchors.every((text) => text.length > 0 && text.length < 60)).toBe(true);
+      // Every link names itself. The only names longer than the guard are the
+      // "other conditions" links, whose text is the approved condition title
+      // itself (up to 80 chars after D-049: AR AVM title is 77 chars) --
+      const conditionTitles = new Set(patientConditions.map((item) => item[locale].title));
+      const anchors = (await page.locator("main a[href]").allTextContents())
+        .map((text) => text.trim())
+        .filter((text) => !conditionTitles.has(text));
+      expect(anchors.every((text) => text.length > 0 && text.length < 80)).toBe(true);
       expect(anchors.join(" ")).not.toMatch(/best|leading|world.?class|number one|#1/i);
     }
 
@@ -113,8 +119,9 @@ test("E-learning renders the learning links with safe external anchors and no te
     expect([...rendered.map((link) => link.href)].sort()).toEqual([...expected].sort());
 
     await expect(page.locator(".learning-link--primary")).toHaveCount(1);
-    await expect(page.locator("main a[href$='/biography']")).toHaveCount(1);
-    await expect(page.locator("main a[href$='/remote-consultation']")).toHaveCount(1);
+    await expect(page.locator("main .content-next-links")).toHaveCount(0);
+    await expect(page.locator("main a[href$='/biography']")).toHaveCount(0);
+    await expect(page.locator("main a[href$='/remote-consultation']")).toHaveCount(0);
   }
 });
 

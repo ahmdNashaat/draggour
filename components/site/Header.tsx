@@ -35,11 +35,12 @@ export function Header({
 }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const headerRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
-    const closeOnEscape = (event: KeyboardEvent) => {
+    const handleKeydown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setIsOpen((prev) => {
           if (prev) {
@@ -48,12 +49,38 @@ export function Header({
           }
           return prev;
         });
+        return;
+      }
+
+      // While the menu is open, Tab cycles inside the header instead of
+      // dropping focus behind the panel (UI/UX committee M5).
+      if (event.key !== "Tab" || !isOpen) return;
+      const root = headerRef.current;
+      if (!root) return;
+      const focusables = Array.from(
+        root.querySelectorAll<HTMLElement>("a[href], button:not([disabled])"),
+      ).filter((element) => element.offsetParent !== null);
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (!first || !last) return;
+      const active = document.activeElement;
+      if (!(active instanceof HTMLElement) || !root.contains(active)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+        return;
+      }
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
-    document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
-  }, []);
+    document.addEventListener("keydown", handleKeydown);
+    return () => document.removeEventListener("keydown", handleKeydown);
+  }, [isOpen]);
 
   // The mobile action bar steps aside while the menu owns the screen.
   useEffect(() => {
@@ -66,7 +93,7 @@ export function Header({
   const wordmark = logoNameFor(locale);
 
   return (
-    <header className="site-header">
+    <header className="site-header" ref={headerRef}>
       <div className="site-container site-header__inner">
         <Link
           className="brand"

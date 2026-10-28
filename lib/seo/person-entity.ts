@@ -10,9 +10,9 @@ export const personEntityConfig = {
   professionalTitles: siteIdentity.professionalTitle,
   knowsAbout: ["Interventional Neuroradiology"],
   conditions: [
-    { name: "Cerebral and spinal angiography", slug: "angiography" },
+    { name: "Diagnostic cerebral catheter angiography", slug: "angiography" },
     { name: "Brain Aneurysm", slug: "brain-aneurysm" },
-    { name: "Arteriovenous Malformation (AVM)", slug: "avm" },
+    { name: "Brain and spinal AVM treatment by catheter", slug: "avm" },
     { name: "Mechanical thrombectomy for acute stroke", slug: "stroke-thrombectomy" },
     { name: "Dural and carotid-cavernous fistula embolisation", slug: "fistulas" },
     { name: "Venous sinus stenting", slug: "venous-sinus-stenting" },
