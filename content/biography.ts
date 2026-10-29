@@ -11,6 +11,13 @@
  * Files live under public/biography/moments/. English and Arabic must list the
  * same photos in the same order; `lib/biography-moments.ts` fails the build
  * and the test suite otherwise.
+ *
+ * Until the doctor's event photos arrive, all six entries stand in with his
+ * approved hero portrait and the placeholder year "20XX" (D-062, 2026-10-29):
+ * the section ships in production now, so each stand-in is replaced one entry
+ * per photo when its real photograph and year arrive. Captions and metas are
+ * the preview copy the doctor already reviewed; only the alts dropped their
+ * "placeholder" wording on the way here.
  */
 
 import type { Locale } from "@/content/site";
@@ -47,11 +54,12 @@ export type BiographyMoment = Readonly<{
 }>;
 
 /**
- * The optional gallery block. Absent until the doctor supplies photos and
- * captions: when it is missing or empty the page renders nothing for it.
+ * The optional gallery block. Absent while no gallery is approved: when it is
+ * missing or empty the page renders nothing for it. Published with portrait
+ * stand-ins pending the doctor's event photos (D-062).
  */
 export type BiographyMoments = Readonly<{
-  /** Proposed, pending the doctor's approval. */
+  /** The section heading, approved in both locales. */
   title: string;
   intro?: string;
   moments: readonly BiographyMoment[];
@@ -66,8 +74,9 @@ export type BiographyContent = Readonly<{
   summary: readonly [string, string];
   /**
    * Captioned photo gallery, rendered between the Professional Overview and
-   * the navigation band. Optional: while no photos are approved the key is
-   * absent, and the page renders no section for it.
+   * the navigation band. Optional: absent while no gallery is approved. The
+   * six stand-in entries are live content now (D-062); swap each entry for
+   * the real photo when it arrives.
    */
   moments?: BiographyMoments;
   overview: Readonly<{
@@ -105,6 +114,65 @@ export const biographyContent: BiographyContent = {
     "Dr. Mohamed Aggour is a Consultant Interventional Neuroradiologist with more than nineteen years of experience in minimally invasive treatment of brain and spinal vascular diseases, including cerebral aneurysms, arteriovenous malformations (AVMs) and acute stroke. He practises in London and Belgium, and his care covers every step from diagnosis and treatment planning through to follow-up.",
     "He trained in Cairo and France and led interventional neuroradiology units at Lille and Saint-Étienne University Hospitals before moving to London, where he helped develop a 24/7 stroke thrombectomy service. He is also a board member of ESMINT, teaches on the Oxford ECMINT course, and helps develop the specialty in Africa and the Middle East through the PAIRS Neuro congress in Dubai.",
   ],
+  moments: {
+    title: "Moments from practice and teaching",
+    moments: [
+      {
+        src: "/images/doctor/dr-mohamed-aggour.png",
+        width: 1024,
+        height: 1536,
+        alt: "Portrait of Dr. Mohamed Aggour in a dark suit",
+        meta: "Dubai · 20XX · PAIRS Neuro Congress",
+        caption: "The PAIRS Neuro congress in Dubai, through which Dr. Aggour helps develop interventional neuroradiology in Africa and the Middle East.",
+        focus: { x: 50, y: 0 },
+      },
+      {
+        src: "/images/doctor/dr-mohamed-aggour.png",
+        width: 1024,
+        height: 1536,
+        alt: "Portrait of Dr. Mohamed Aggour in a dark suit",
+        meta: "Oxford · 20XX · ECMINT Course",
+        caption: "Teaching on the Oxford ECMINT course, part of Dr. Aggour's work in training the next generation of neurointerventionists.",
+        focus: { x: 50, y: 0 },
+      },
+      {
+        src: "/images/doctor/dr-mohamed-aggour.png",
+        width: 1024,
+        height: 1536,
+        alt: "Portrait of Dr. Mohamed Aggour in a dark suit",
+        meta: "London · 20XX · Stroke Thrombectomy Service",
+        caption: "Helping to develop a 24/7 stroke thrombectomy service in London, so patients with an acute stroke can be treated at any hour.",
+        focus: { x: 50, y: 0 },
+      },
+      {
+        src: "/images/doctor/dr-mohamed-aggour.png",
+        width: 1024,
+        height: 1536,
+        alt: "Portrait of Dr. Mohamed Aggour in a dark suit",
+        meta: "Lille · 20XX · Lille University Hospital",
+        caption: "Leading an interventional neuroradiology unit at the university hospital in Lille, before moving to London.",
+        focus: { x: 50, y: 0 },
+      },
+      {
+        src: "/images/doctor/dr-mohamed-aggour.png",
+        width: 1024,
+        height: 1536,
+        alt: "Portrait of Dr. Mohamed Aggour in a dark suit",
+        meta: "Saint-Étienne · 20XX · Saint-Étienne University Hospital",
+        caption: "Leading an interventional neuroradiology unit at the university hospital in Saint-Étienne, in the years before London.",
+        focus: { x: 50, y: 0 },
+      },
+      {
+        src: "/images/doctor/dr-mohamed-aggour.png",
+        width: 1024,
+        height: 1536,
+        alt: "Portrait of Dr. Mohamed Aggour in a dark suit",
+        meta: "Cairo · 20XX · Early training",
+        caption: "Part of Dr. Aggour's training took place in Cairo, before he continued his specialist training in France.",
+        focus: { x: 50, y: 0 },
+      },
+    ],
+  },
   overview: {
     source: "CV §§2, 13, 15",
     keyFacts: [
@@ -366,6 +434,65 @@ export const biographyContentArabic: BiographyContent = {
     "الدكتور محمد عجور استشاري الأشعة العصبية التداخلية، وله خبرة تزيد على تسعة عشر عامًا في علاج أمراض الأوعية الدموية بالمخ والعمود الفقري بالتدخل المحدود، ومنها تمدد الأوعية الدموية في الدماغ، والتشوهات الشريانية الوريدية، والسكتة الدماغية الحادة. يمارس عمله في لندن وبلجيكا، ويتابع الحالة من التشخيص ووضع خطة العلاج حتى المتابعة.",
     "تدرّب في القاهرة وفرنسا، وقاد وحدات الأشعة العصبية التداخلية في مستشفيات جامعة ليل وسانت إتيان قبل انتقاله إلى لندن، حيث ساهم في تطوير خدمة علاج السكتة الدماغية واستخراج الجلطات على مدار الساعة. وهو أيضًا عضو مجلس إدارة ESMINT ومحاضر في دورة ECMINT بجامعة أكسفورد، ويساهم عبر مؤتمر PAIRS Neuro في دبي في تطوير التخصص في أفريقيا والشرق الأوسط.",
   ],
+  moments: {
+    title: "من الممارسة والتدريس",
+    moments: [
+      {
+        src: "/images/doctor/dr-mohamed-aggour.png",
+        width: 1024,
+        height: 1536,
+        alt: "صورة شخصية للدكتور محمد عجور بالبدلة الداكنة",
+        meta: "دبي · 20XX · مؤتمر PAIRS Neuro",
+        caption: "مؤتمر PAIRS Neuro في دبي، ويسهم الدكتور عجور من خلاله في تطوير التخصص في أفريقيا والشرق الأوسط.",
+        focus: { x: 50, y: 0 },
+      },
+      {
+        src: "/images/doctor/dr-mohamed-aggour.png",
+        width: 1024,
+        height: 1536,
+        alt: "صورة شخصية للدكتور محمد عجور بالبدلة الداكنة",
+        meta: "أكسفورد · 20XX · دورة ECMINT",
+        caption: "التدريس في دورة ECMINT بجامعة أكسفورد، ضمن عمل الدكتور عجور في تدريب الجيل القادم من أطباء القسطرة العصبية.",
+        focus: { x: 50, y: 0 },
+      },
+      {
+        src: "/images/doctor/dr-mohamed-aggour.png",
+        width: 1024,
+        height: 1536,
+        alt: "صورة شخصية للدكتور محمد عجور بالبدلة الداكنة",
+        meta: "لندن · 20XX · خدمة علاج السكتة الدماغية",
+        caption: "المساهمة في تطوير خدمة علاج السكتة الدماغية واستخراج الجلطات على مدار الساعة في لندن، ليحصل المريض على العلاج في أي وقت.",
+        focus: { x: 50, y: 0 },
+      },
+      {
+        src: "/images/doctor/dr-mohamed-aggour.png",
+        width: 1024,
+        height: 1536,
+        alt: "صورة شخصية للدكتور محمد عجور بالبدلة الداكنة",
+        meta: "ليل · 20XX · مستشفى جامعة ليل",
+        caption: "قيادة وحدة الأشعة العصبية التداخلية في مستشفى جامعة ليل قبل الانتقال إلى لندن.",
+        focus: { x: 50, y: 0 },
+      },
+      {
+        src: "/images/doctor/dr-mohamed-aggour.png",
+        width: 1024,
+        height: 1536,
+        alt: "صورة شخصية للدكتور محمد عجور بالبدلة الداكنة",
+        meta: "سانت إتيان · 20XX · مستشفى جامعة سانت إتيان",
+        caption: "قيادة وحدة الأشعة العصبية التداخلية في مستشفى جامعة سانت إتيان في السنوات التي سبقت لندن.",
+        focus: { x: 50, y: 0 },
+      },
+      {
+        src: "/images/doctor/dr-mohamed-aggour.png",
+        width: 1024,
+        height: 1536,
+        alt: "صورة شخصية للدكتور محمد عجور بالبدلة الداكنة",
+        meta: "القاهرة · 20XX · التدريب الأول",
+        caption: "جزء من تدريب الدكتور عجور كان في القاهرة، قبل أن يواصل تدريبه التخصصي في فرنسا.",
+        focus: { x: 50, y: 0 },
+      },
+    ],
+  },
   overview: {
     source: "CV §§2, 13, 15",
     keyFacts: [
