@@ -35,6 +35,9 @@ type MomentsSource = Readonly<{
  *   placeholder (Vercel Preview scope only, never Production). The development
  *   default branch is statically dead code in production builds and
  *   `searchParams` is not accessed in production, preserving static generation (SSG).
+ * - A resolved sample only reaches the page while `content.moments` is absent:
+ *   the published gallery (D-062) takes precedence in BiographyPage, so the
+ *   sample is the pending-photos state, never a second visible gallery.
  */
 async function resolveMoments(searchParams: SearchParams | undefined, locale: Locale): Promise<MomentsSource> {
   const isDev = process.env.NODE_ENV === "development";

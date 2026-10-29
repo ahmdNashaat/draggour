@@ -1,10 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import { biographyContent, biographyContentArabic, type BiographyMoments } from "../content/biography";
+import { placeholderMomentsPair } from "../content/biography-moments-placeholder";
 import { collectBiographyMoments, validateBiographyMoments } from "../lib/biography-moments";
 
 import { biographyMomentsFixture, fixtureCounts, type FixtureCount } from "./fixtures/biography-moments";
-import { devGalleryServed } from "./helpers/server-mode";
+import { devPreviewServed } from "./helpers/server-mode";
 
 type Locale = "en" | "ar";
 
@@ -77,12 +78,39 @@ async function mediaRatios(page: Page) {
 }
 
 test.describe("biography moments — validator", () => {
-  test("the published content holds no gallery yet, and both fixtures sets pass every rule", () => {
-    // Dormant capability: no photos approved, so no key at all.
-    expect(biographyContent.moments).toBeUndefined();
-    expect(biographyContentArabic.moments).toBeUndefined();
-    expect(collectBiographyMoments()).toEqual(pair(undefined, undefined));
+  test("the published gallery passes every rule and carries the reviewed preview copy", () => {
+    // D-062: six stand-in entries per locale ship as live content. The same
+    // validation `next build` runs must come back empty — the build publishes
+    // them or fails.
     expect(validateBiographyMoments(collectBiographyMoments())).toEqual([]);
+
+    const sample = placeholderMomentsPair();
+    for (const locale of locales) {
+      const published = locale === "en" ? biographyContent.moments : biographyContentArabic.moments;
+      expect(published, locale).toBeDefined();
+      expect(published!.moments, locale).toHaveLength(6);
+      expect(published!.title, locale).toBe(sample[locale].title);
+
+      published!.moments.forEach((moment, index) => {
+        const standIn = sample[locale].moments[index];
+        const at = `${locale} #${index + 1}`;
+        // The transfer kept the reviewed copy byte for byte…
+        expect(moment.src, `${at} src`).toBe(standIn.src);
+        expect(moment.width, `${at} width`).toBe(standIn.width);
+        expect(moment.height, `${at} height`).toBe(standIn.height);
+        expect(moment.focus, `${at} focus`).toEqual(standIn.focus);
+        expect(moment.meta, `${at} meta`).toBe(standIn.meta);
+        expect(moment.caption, `${at} caption`).toBe(standIn.caption);
+        // …and dropped the trial wording from the alt the live site serves.
+        expect(moment.alt, `${at} alt`).not.toContain("placeholder");
+        expect(moment.alt, `${at} alt`).not.toContain("مؤقتة");
+      });
+    }
+
+    expect(collectBiographyMoments()).toEqual({
+      en: biographyContent.moments,
+      ar: biographyContentArabic.moments,
+    });
 
     for (const count of fixtureCounts) {
       expect(validateBiographyMoments(pair(gallery(count), gallery(count, "ar"))), `count ${count}`).toEqual([]);
@@ -160,23 +188,28 @@ test.describe("biography moments — validator", () => {
 });
 
 test.describe("biography moments — rendering", () => {
-  test("the real pages render no gallery at all", async ({ page }) => {
+  test("the real pages render the published gallery, never the trial wording", async ({ page }) => {
     for (const locale of locales) {
-      const response = await page.request.get(`/${locale}/biography?placeholder=0`);
+      const response = await page.request.get(`/${locale}/biography`);
       expect(response.status(), locale).toBe(200);
 
-      await page.goto(`/${locale}/biography?placeholder=0`);
+      await page.goto(`/${locale}/biography`);
       await expect(page.locator("[data-biography-page]")).toBeVisible();
-      await expect(page.locator(".bio-moments")).toHaveCount(0);
-      await expect(page.locator("#bio-moments-title")).toHaveCount(0);
-      await expect(page.locator(".bio-moments__grid")).toHaveCount(0);
-      await expect(page.locator("figure.bio-moment")).toHaveCount(0);
+      await expect(page.locator("section.bio-moments")).toBeVisible();
+      await expect(page.locator("ul.bio-moments__grid")).toHaveAttribute("data-count", "6");
+      await expect(page.locator("figure.bio-moment")).toHaveCount(6);
+      await expect(page.locator("h2#bio-moments-title")).toHaveText(
+        locale === "en" ? "Moments from practice and teaching" : "من الممارسة والتدريس",
+      );
 
-      // Not even the wrapper, the id or a fixture caption ships in the HTML.
+      // The published section ships; the sample's visible tag and trial alts
+      // are not part of either locale's page.
+      await expect(page.locator(".bio-moments__placeholder")).toHaveCount(0);
       const html = await page.content();
-      expect(html, locale).not.toContain("bio-moment");
-      expect(html, locale).not.toContain("Moments from practice");
-      expect(html, locale).not.toContain("من الممارسة والتدريس");
+      expect(html, locale).not.toContain("Placeholder: sample photos and captions");
+      expect(html, locale).not.toContain(
+        locale === "ar" ? "صورة مؤقتة بدل صورة الحدث" : "placeholder for the event photo",
+      );
     }
   });
 
@@ -184,7 +217,7 @@ test.describe("biography moments — rendering", () => {
     for (const locale of locales) {
       test(`${locale} renders ${count} moments with their own copy`, async ({ page }) => {
         // The counted preview exists only in development (D-059).
-        test.skip(!(await devGalleryServed()), "development-only `?moments` preview; production never resolves searchParams");
+        test.skip(!(await devPreviewServed()), "development-only `?moments` preview; production never resolves searchParams");
         const fixture = gallery(count, locale);
         await page.goto(`/${locale}/biography?moments=${count}`);
 
@@ -222,7 +255,7 @@ test.describe("biography moments — rendering", () => {
   }
 
   test("the gallery stays free of horizontal overflow across the required widths", async ({ page }) => {
-    test.skip(!(await devGalleryServed()), "development-only `?moments` preview; production never resolves searchParams");
+    test.skip(!(await devPreviewServed()), "development-only `?moments` preview; production never resolves searchParams");
     test.setTimeout(300_000);
 
     for (const count of fixtureCounts) {
@@ -238,7 +271,7 @@ test.describe("biography moments — rendering", () => {
   });
 
   test("Arabic mirrors the grid instead of duplicating its rules", async ({ page }) => {
-    test.skip(!(await devGalleryServed()), "development-only `?moments` preview; production never resolves searchParams");
+    test.skip(!(await devPreviewServed()), "development-only `?moments` preview; production never resolves searchParams");
     await page.setViewportSize({ width: 1024, height: 900 });
 
     const firstTwo = async (locale: Locale) => {
@@ -256,7 +289,7 @@ test.describe("biography moments — rendering", () => {
   });
 
   test("no count leaves an orphan row, from a phone to a desktop", async ({ page }) => {
-    test.skip(!(await devGalleryServed()), "development-only `?moments` preview; production never resolves searchParams");
+    test.skip(!(await devPreviewServed()), "development-only `?moments` preview; production never resolves searchParams");
     // Below 40rem: one column, every photo on its own row.
     await page.setViewportSize({ width: 390, height: 900 });
     for (const count of fixtureCounts) {
@@ -341,7 +374,7 @@ test.describe("biography moments — rendering", () => {
   });
 
   test("the gallery sits after the overview", async ({ page }) => {
-    test.skip(!(await devGalleryServed()), "development-only `?moments` preview; production never resolves searchParams");
+    test.skip(!(await devPreviewServed()), "development-only `?moments` preview; production never resolves searchParams");
     await page.goto("/en/biography?moments=6");
 
     const order = await page.evaluate(() => {
@@ -358,18 +391,11 @@ test.describe("biography moments — rendering", () => {
   });
 
   test("captions survive 200% text zoom without clipping", async ({ page }) => {
-    test.skip(!(await devGalleryServed()), "development-only `?moments` preview; production never resolves searchParams");
     await page.setViewportSize({ width: 1024, height: 900 });
 
-    // The same page without the gallery, measured first: any overflow it shows
-    // at 200% belongs to the shared header, not to this section.
-    await page.goto("/en/biography?placeholder=0");
-    await page.evaluate(() => {
-      document.documentElement.style.fontSize = "200%";
-    });
-    const pageAlone = await page.evaluate(() => document.documentElement.scrollWidth);
-
-    await page.goto("/en/biography?moments=6");
+    // The published gallery renders in every mode (D-062), so the captions
+    // on the live site are exactly what gets zoomed here — no preview switch.
+    await page.goto("/en/biography");
     await page.evaluate(() => {
       document.documentElement.style.fontSize = "200%";
     });
@@ -377,14 +403,20 @@ test.describe("biography moments — rendering", () => {
     await expect(page.locator(".bio-moments")).toBeVisible();
     await galleryOverflow(page);
 
-    // The gallery adds no horizontal scroll of its own beyond what the bare
-    // page already had at this zoom level.
     const withGallery = await page.evaluate(() => document.documentElement.scrollWidth);
-    expect(withGallery).toBe(pageAlone);
-
     const clipped = await page.locator(".bio-moment__text, .bio-moment__meta").evaluateAll((nodes) =>
       nodes.filter((node) => node.scrollHeight > node.clientHeight + 1 || node.scrollWidth > node.clientWidth + 1).length,
     );
     expect(clipped).toBe(0);
+
+    // A bare-page URL no longer exists: the gallery ships everywhere, so the
+    // chrome-only baseline comes from removing the section on this very page.
+    // Equal widths mean the gallery adds no horizontal scroll of its own;
+    // any overflow present either way belongs to the shared header.
+    const pageAlone = await page.evaluate(() => {
+      document.querySelector("section.bio-moments")?.remove();
+      return document.documentElement.scrollWidth;
+    });
+    expect(withGallery).toBe(pageAlone);
   });
 });

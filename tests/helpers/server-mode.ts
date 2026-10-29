@@ -1,10 +1,11 @@
 /**
- * Which gallery the server under test actually serves.
+ * Whether the server under test resolves the biography preview switches.
  *
- * The biography moments gallery is a development-only preview: the route
- * resolves `searchParams` and the placeholder set only while NODE_ENV is
- * "development", so a production build ships without any of it (the page
- * stays statically generated — see the JSDoc in app/[locale]/biography/page.tsx).
+ * The biography route reads `searchParams` only while NODE_ENV is
+ * "development"; a production build stays statically generated and drops the
+ * parameter (D-059). The published gallery itself ships in every mode now
+ * (D-062), so gallery presence no longer tells the modes apart — resolving
+ * `?moments=3` does.
  *
  * Tests whose assertions depend on the preview ask the server once instead of
  * assuming the mode, so the same suite is meaningful on `pnpm dev` and on
@@ -14,11 +15,11 @@ const port = process.env.PORT || "3000";
 
 let cached: Promise<boolean> | undefined;
 
-/** True when the server renders the development gallery preview (dev: yes, production: no). */
-export function devGalleryServed(): Promise<boolean> {
-  cached ??= fetch(`http://localhost:${port}/en/biography`)
+/** True when the server resolves `?moments` (dev: yes, production: no). */
+export function devPreviewServed(): Promise<boolean> {
+  cached ??= fetch(`http://localhost:${port}/en/biography?moments=3`)
     .then((response) => response.text())
-    .then((html) => html.includes('id="bio-moments-title"'))
+    .then((html) => html.includes('data-count="3"'))
     .catch(() => false);
   return cached;
 }
